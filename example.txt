@@ -1,0 +1,329 @@
+GLOG_logtostderr=1 /home/steam1994/tiga/bazel-bin/TigaServer --config=/home/steam1994/tiga/config-local-micro.yml --serverName=janus-lan-server-0000
+
+GLOG_logtostderr=1 /home/steam1994/tiga/bazel-bin/TigaServer --config=/home/steam1994/tiga/config-local-micro.yml --serverName=janus-lan-server-0100
+
+
+GLOG_logtostderr=1 /home/steam1994/tiga/bazel-bin/TigaServer --config=/home/steam1994/tiga/config-local-micro.yml --serverName=janus-lan-server-0200
+
+
+GLOG_logtostderr=1 /home/steam1994/tiga/bazel-bin/TigaClient --config=/home/steam1994/tiga/config-local-micro.yml --runTimeSec=30 --serverName=janus-lan-proxy-0000  --cap=200 --initBound=100 --yieldPeriodUs=200
+
+
+GLOG_logtostderr=1 /home/steam1994/tiga/bazel-bin/TigaServer --config=/home/steam1994/tiga/config-local-micro2.yml --serverName=janus-lan-server-0000
+
+GLOG_logtostderr=1 /home/steam1994/tiga/bazel-bin/TigaServer --config=/home/steam1994/tiga/config-local-micro2.yml --serverName=janus-lan-server-0100
+
+GLOG_logtostderr=1 /home/steam1994/tiga/bazel-bin/TigaServer --config=/home/steam1994/tiga/config-local-micro2.yml --serverName=janus-lan-server-0200
+
+GLOG_logtostderr=1 /home/steam1994/tiga/bazel-bin/TigaServer --config=/home/steam1994/tiga/config-local-micro2.yml --serverName=janus-lan-server-0300
+
+GLOG_logtostderr=1 /home/steam1994/tiga/bazel-bin/TigaServer --config=/home/steam1994/tiga/config-local-micro2.yml --serverName=janus-lan-server-0400
+
+GLOG_logtostderr=1 /home/steam1994/tiga/bazel-bin/TigaServer --config=/home/steam1994/tiga/config-local-micro2.yml --serverName=janus-lan-server-0500
+
+GLOG_logtostderr=1 /home/steam1994/tiga/bazel-bin/TigaClient --config=/home/steam1994/tiga/config-local-micro2.yml --runTimeSec=30 --serverName=janus-lan-proxy-0000  --cap=200 --initBound=100 --yieldPeriodUs=200 --logPrintUnit=1
+
+
+echo 'core' > /proc/sys/kernel/core_pattern
+
+echo 'core-%p' > /proc/sys/kernel/core_pattern
+
+echo 'core-%p' | sudo tee /proc/sys/kernel/core_pattern
+
+echo 'core' | sudo tee /proc/sys/kernel/core_pattern
+
+/home/steam1994/janus/build/deptran_server -b  -t 30 -f /home/steam1994/tiga/config-local-tpcc.yml -d 70  -P janus-lan-server-0000
+
+/home/steam1994/janus/build/deptran_server -b  -t 30 -f /home/steam1994/tiga/config-local-tpcc.yml -d 70  -P janus-lan-server-0100
+
+/home/steam1994/janus/build/deptran_server -b  -t 30 -f /home/steam1994/tiga/config-local-tpcc.yml -d 70  -P janus-lan-server-0200
+
+/home/steam1994/janus/build/deptran_server -b  -t 30 -f /home/steam1994/tiga/config-local-tpcc.yml -d 30  -P janus-lan-proxy-0000
+
+
+/home/steam1994/janus/build/deptran_server -b  -t 30 -f /home/steam1994/tiga/config-tpl-local.yml -d 70  -P janus-lan-server-0000
+
+/home/steam1994/janus/build/deptran_server -b  -t 30 -f /home/steam1994/tiga/config-tpl-local.yml -d 70  -P janus-lan-server-0100
+
+/home/steam1994/janus/build/deptran_server -b  -t 30 -f /home/steam1994/tiga/config-tpl-local.yml -d 70  -P janus-lan-server-0200
+
+/home/steam1994/janus/build/deptran_server -b  -t 30 -f /home/steam1994/tiga/config-tpl-local.yml -d 30  -P janus-lan-proxy-0000
+
+
+./build/deptran_server -f /home/steam1994/janus/config/janus.yml -f /home/steam1994/janus/config/9c3s3r1p.yml -f /home/steam1994/janus/config/rw.yml -f /home/steam1994/janus/config/concurrent_300.yml -d 60 -P localhost
+
+
+=====
+
+
+/home/steam1994/janus/build/deptran_server -b  -t 30 -f /home/steam1994/tiga/config-tpl-local2.yml -d 70  -P janus-lan-server-0000
+
+/home/steam1994/janus/build/deptran_server -b  -t 30 -f /home/steam1994/tiga/config-tpl-local2.yml -d 70  -P janus-lan-server-0100
+
+/home/steam1994/janus/build/deptran_server -b  -t 30 -f /home/steam1994/tiga/config-tpl-local2.yml -d 70  -P janus-lan-server-0200
+
+/home/steam1994/janus/build/deptran_server -b  -t 30 -f /home/steam1994/tiga/config-tpl-local2.yml -d 30  -P janus-lan-proxy-0000
+
+
+
+=====
+
+GLOG_logtostderr=1 /home/steam1994/tiga/bazel-bin/miniTiga/miniTigaServer --config=/home/steam1994/tiga/config-tpl-local2.yml --serverName=janus-lan-server-0000
+
+GLOG_logtostderr=1 /home/steam1994/tiga/bazel-bin/miniTiga/miniTigaServer --config=/home/steam1994/tiga/config-tpl-local2.yml --serverName=janus-lan-server-0100
+
+
+GLOG_logtostderr=1 /home/steam1994/tiga/bazel-bin/miniTiga/miniTigaServer --config=/home/steam1994/tiga/config-tpl-local2.yml --serverName=janus-lan-server-0200
+
+
+GLOG_logtostderr=1 /home/steam1994/tiga/bazel-bin/miniTiga/miniTigaClient --config=/home/steam1994/tiga/config-tpl-local2.yml --runTimeSec=30 --serverName=janus-lan-proxy-0000
+
+
++++++ Dist 
+
+./deptran_server -b  -t 30 -f ./config-tpl-n.yml -d 30  -P tiga-lan-server-0000 > server-log-r-0-s-0 2>&1 &
+./deptran_server -b  -t 30 -f ./config-tpl-n.yml -d 30  -P tiga-lan-server-0100 > server-log-r-1-s-0 2>&1 &
+./deptran_server -b  -t 30 -f ./config-tpl-n.yml -d 30  -P tiga-lan-server-0200 > server-log-r-2-s-0 2>&1 &
+./deptran_server -b  -t 30 -f ./config-tpl-n.yml -d 30  -P tiga-lan-proxy-0000 > proxy-log-tiga-lan-proxy-0000 2>&1 &
+
+
+GLOG_logtostderr=1 ./miniTigaServer --config=./config-tpl-n.yml --serverName=tiga-lan-server-0000
+
+GLOG_logtostderr=1 ./miniTigaServer --config=./config-tpl-n.yml  --serverName=tiga-lan-server-0100
+
+GLOG_logtostderr=1 ./miniTigaServer --config=./config-tpl-n.yml  --serverName=tiga-lan-server-0200
+
+
+GLOG_logtostderr=1 ./miniTigaClient --config=./config-tpl-n.yml  --runTimeSec=30 --serverName=tiga-lan-proxy-0000
+
+++++++
+
+
+
+GLOG_logtostderr=1 ./miniTigaServer --config=./config-tpl-n.yml --serverName=tiga-lan-server-0000
+
+GLOG_logtostderr=1 ./miniTigaServer --config=./config-tpl-n.yml  --serverName=tiga-lan-server-0001
+
+GLOG_logtostderr=1 ./miniTigaServer --config=./config-tpl-n.yml  --serverName=tiga-lan-server-0002
+
+
+GLOG_logtostderr=1 ./miniTigaClient --config=./config-tpl-n.yml  --runTimeSec=30 --serverName=tiga-lan-proxy-0000
+
+++++++
+
+
+Switch gcc version
+https://askubuntu.com/questions/533391/what-does-priority-mean-in-update-alternatives
+
+https://askubuntu.com/questions/26498/how-to-choose-the-default-gcc-and-g-version
+
+
+
+
+export ROOT_PATH=/home/steam1994/tiga
+export BINARY_PATH=$ROOT_PATH/bazel-bin/CalvinEntity
+
+GLOG_logtostderr=1 $BINARY_PATH/CalvinServer --config=$ROOT_PATH/config-local-micro.yml --serverName=janus-lan-server-0000
+
+GLOG_logtostderr=1 $BINARY_PATH/CalvinServer --config=$ROOT_PATH/config-local-micro.yml --serverName=janus-lan-server-0100
+
+
+GLOG_logtostderr=1 $BINARY_PATH/CalvinServer --config=$ROOT_PATH/config-local-micro.yml --serverName=janus-lan-server-0200
+
+
+GLOG_logtostderr=1 $BINARY_PATH/CalvinClient --config=$ROOT_PATH/config-local-micro.yml --runTimeSec=30 --serverName=janus-lan-proxy-0000  --cap=200 --initBound=100 --yieldPeriodUs=200
+
+
+
+
+
+
+
+export ROOT_PATH=/home/steam1994/tiga
+export BINARY_PATH=$ROOT_PATH/bazel-bin/CalvinEntity
+
+GLOG_logtostderr=1 $BINARY_PATH/CalvinServer --config=$ROOT_PATH/config-local-micro2.yml --serverName=tiga-hybrid-server-s-00-r-00
+
+GLOG_logtostderr=1 $BINARY_PATH/CalvinServer --config=$ROOT_PATH/config-local-micro2.yml --serverName=tiga-hybrid-server-s-00-r-01
+
+GLOG_logtostderr=1 $BINARY_PATH/CalvinServer --config=$ROOT_PATH/config-local-micro2.yml --serverName=tiga-hybrid-server-s-00-r-02
+
+GLOG_logtostderr=1 $BINARY_PATH/CalvinServer --config=$ROOT_PATH/config-local-micro2.yml --serverName=tiga-hybrid-server-s-01-r-00
+
+GLOG_logtostderr=1 $BINARY_PATH/CalvinServer --config=$ROOT_PATH/config-local-micro2.yml --serverName=tiga-hybrid-server-s-01-r-01
+
+GLOG_logtostderr=1 $BINARY_PATH/CalvinServer --config=$ROOT_PATH/config-local-micro2.yml --serverName=tiga-hybrid-server-s-01-r-02
+
+
+GLOG_logtostderr=1 $BINARY_PATH/CalvinClient --config=$ROOT_PATH/config-local-micro2.yml --runTimeSec=30 --serverName=tiga-hybrid-proxy-0000  --designateShardId=0 --designateReplicaId=0 --logPrintUnit=10000
+
+GLOG_logtostderr=1 $BINARY_PATH/CalvinClient --config=$ROOT_PATH/config-local-micro2.yml --runTimeSec=30 --serverName=tiga-hybrid-proxy-0001 --designateShardId=1 --designateReplicaId=1 --logPrintUnit=10000
+
+
+
+
+
+======
+
+GLOG_logtostderr=1 ./CalvinServer --config=./config-tpl-n.yml --serverName=tiga-hybrid-server-s-00-r-00 --ioThreads=2 --workerNum=1 
+
+GLOG_logtostderr=1 ./CalvinServer --config=./config-tpl-n.yml --serverName=tiga-hybrid-server-s-00-r-01 --ioThreads=2 --workerNum=1 
+
+GLOG_logtostderr=1 ./CalvinServer --config=./config-tpl-n.yml --serverName=tiga-hybrid-server-s-00-r-02 --ioThreads=2 --workerNum=1 
+
+GLOG_logtostderr=1 ./CalvinServer --config=./config-tpl-n.yml --serverName=tiga-hybrid-server-s-01-r-00 --ioThreads=2 --workerNum=1 
+
+GLOG_logtostderr=1 ./CalvinServer --config=./config-tpl-n.yml --serverName=tiga-hybrid-server-s-01-r-01 --ioThreads=2 --workerNum=1 
+
+GLOG_logtostderr=1 ./CalvinServer --config=./config-tpl-n.yml --serverName=tiga-hybrid-server-s-01-r-02 --ioThreads=2 --workerNum=1 
+
+GLOG_logtostderr=1 ./CalvinClient --config=./config-tpl-n.yml --runTimeSec=30 --serverName=tiga-hybrid-proxy-0000 --designateShardId=0 --designateReplicaId=0 --logPrintUnit=10000 
+
+GLOG_logtostderr=1 ./CalvinClient --config=./config-tpl-n.yml --runTimeSec=30 --serverName=tiga-hybrid-proxy-0001 --designateShardId=1 --designateReplicaId=1 --logPrintUnit=10000 
+
+
+
+
+
+
+export ROOT_PATH=/home/steam1994/tiga
+export BINARY_PATH=$ROOT_PATH/bazel-bin/NezhaEntity
+
+GLOG_logtostderr=1 $BINARY_PATH/NezhaServer --config=$ROOT_PATH/config-local-micro.yml --serverName=janus-lan-server-0000 --myAddr=127.0.0.1:41237
+
+GLOG_logtostderr=1 $BINARY_PATH/NezhaServer --config=$ROOT_PATH/config-local-micro.yml --serverName=janus-lan-server-0100 --myAddr=127.0.0.2:41237
+
+GLOG_logtostderr=1 $BINARY_PATH/NezhaServer --config=$ROOT_PATH/config-local-micro.yml --serverName=janus-lan-server-0200 --myAddr=127.0.0.3:41237
+
+
+GLOG_logtostderr=1 $BINARY_PATH/NezhaClient --targetAddr=127.0.0.1:41237 --clientId=1 --reqNum=10
+
+GLOG_logtostderr=1 $BINARY_PATH/NezhaClient --targetAddr=127.0.0.2:41237 --clientId=2 --reqNum=10
+
+
+
+
+export ROOT_PATH=/proj/huygens-PG0/tiga/janus
+
+$ROOT_PATH/build/deptran_server -b  -t 30 -f $ROOT_PATH/config-tpl-local.yml -d 70  -P janus-lan-server-0000
+
+$ROOT_PATH/build/deptran_server -b  -t 30 -f $ROOT_PATH/config-tpl-local.yml -d 70  -P janus-lan-server-0100
+
+$ROOT_PATH/build/deptran_server -b  -t 30 -f $ROOT_PATH/config-tpl-local.yml -d 70  -P janus-lan-server-0200
+
+$ROOT_PATH/build/deptran_server -b  -t 30 -f $ROOT_PATH/config-tpl-local.yml -d 30  -P janus-lan-proxy-0000
+
+
+./build/deptran_server -f /home/steam1994/janus/config/janus.yml -f /home/steam1994/janus/config/9c3s3r1p.yml -f /home/steam1994/janus/config/rw.yml -f /home/steam1994/janus/config/concurrent_300.yml -d 60 -P localhost
+
+
+
+
+GLOG_logtostderr=1 ./TigaServer --config=./config-tpl-n.yml --serverName=tiga-hybrid-server-s-00-r-00 --ioThreads=2 --workerNum=1 > server-log-s-0-r-0 2>&1 &
+GLOG_logtostderr=1 ./TigaServer --config=./config-tpl-n.yml --serverName=tiga-hybrid-server-s-00-r-01 --ioThreads=2 --workerNum=1 > server-log-s-0-r-1 2>&1 &
+GLOG_logtostderr=1 ./TigaServer --config=./config-tpl-n.yml --serverName=tiga-hybrid-server-s-00-r-02 --ioThreads=2 --workerNum=1 > server-log-s-0-r-2 2>&1 &
+GLOG_logtostderr=1 ./TigaServer --config=./config-tpl-n.yml --serverName=tiga-hybrid-server-s-01-r-00 --ioThreads=2 --workerNum=1 > server-log-s-1-r-0 2>&1 &
+GLOG_logtostderr=1 ./TigaServer --config=./config-tpl-n.yml --serverName=tiga-hybrid-server-s-01-r-01 --ioThreads=2 --workerNum=1 > server-log-s-1-r-1 2>&1 &
+GLOG_logtostderr=1 ./TigaServer --config=./config-tpl-n.yml --serverName=tiga-hybrid-server-s-01-r-02 --ioThreads=2 --workerNum=1 > server-log-s-1-r-2 2>&1 &
+GLOG_logtostderr=1 ./TigaClient --config=./config-tpl-n.yml --runTimeSec=30 --serverName=tiga-hybrid-proxy-0000 --cap=400000  --initBound=30000 --yieldPeriodUs=10000 --logPrintUnit=10000 > proxy-log-0 2>&1 &
+GLOG_logtostderr=1 ./TigaClient --config=./config-tpl-n.yml --runTimeSec=30 --serverName=tiga-hybrid-proxy-0001 --cap=400000  --initBound=20000 --yieldPeriodUs=10000 --logPrintUnit=10000 > proxy-log-1 2>&1 &
+
+
+
+GLOG_logtostderr=1 /home/steam/tiga/bazel-bin/TigaEntity/TigaServer --config=/home/steam/tiga/config-local-micro2.yml --serverName=tiga-hybrid-server-s-00-r-00 --ioThreads=2 --workerNum=1 > server-log-s-0-r-0 
+
+
+
+GLOG_logtostderr=1 /home/steam/tiga/bazel-bin/TigaEntity/TigaServer --config=/home/steam/tiga/config-local-micro.yml --serverName=janus-lan-server-0000 --ioThreads=2 --workerNum=1 
+
+
+GLOG_logtostderr=1 /home/steam/tiga/bazel-bin/TigaEntity/TigaServer --config=/home/steam/tiga/config-local-micro.yml --serverName=janus-lan-server-0100 --ioThreads=2 --workerNum=1 
+
+
+GLOG_logtostderr=1 /home/steam/tiga/bazel-bin/TigaEntity/TigaServer --config=/home/steam/tiga/config-local-micro.yml --serverName=janus-lan-server-0200 --ioThreads=2 --workerNum=1 
+
+
+GLOG_logtostderr=1 /home/steam/tiga/bazel-bin/TigaEntity/TigaClient --config=/home/steam/tiga/config-local-micro.yml --serverName=janus-lan-proxy-0000 --cap=400  --initBound=200 --yieldPeriodUs=10000 --logPrintUnit=1000 
+
+
+Num:1420835
+P-25p:	328.597
+P-50p:	683.024
+P-75p:	1233.597
+P-90p:	2257.469400000002
+P-95p:	3494.556300000002
+P-99p:	8447.165239999998
+Abort Rate:	0.11446095509714638
+Aborted Txn Ratio:	0.054688264295291146
+
+AvgThroughput2:  [61939.0, 61512.0, 59670.0, 54441.0, 53746.0, 58896.0, 49180.0, 51820.0, 50714.0, 47862.0, 42655.0, 48119.0, 45757.0, 41777.0, 47978.0, 30518.0, 47620.0, 40404.0, 41372.0, 36524.0, 42430.0, 31552.0]
+Throughput  47567.545454545456 	 22 	seconds
+
+
+##### 2 Shards x 3 Replicas ######
+
+GLOG_logtostderr=1 /home/steam/tiga/bazel-bin/TigaEntity/TigaServer --config=/home/steam/tiga/config-local-micro2.yml --serverName=tiga-hybrid-server-s-00-r-00 --ioThreads=2 --workerNum=1 
+
+
+GLOG_logtostderr=1 /home/steam/tiga/bazel-bin/TigaEntity/TigaServer --config=/home/steam/tiga/config-local-micro2.yml --serverName=tiga-hybrid-server-s-00-r-01 --ioThreads=2 --workerNum=1 
+
+
+GLOG_logtostderr=1 /home/steam/tiga/bazel-bin/TigaEntity/TigaServer --config=/home/steam/tiga/config-local-micro2.yml --serverName=tiga-hybrid-server-s-00-r-02 --ioThreads=2 --workerNum=1 
+
+
+GLOG_logtostderr=1 /home/steam/tiga/bazel-bin/TigaEntity/TigaServer --config=/home/steam/tiga/config-local-micro2.yml --serverName=tiga-hybrid-server-s-01-r-00 --ioThreads=2 --workerNum=1 
+
+
+GLOG_logtostderr=1 /home/steam/tiga/bazel-bin/TigaEntity/TigaServer --config=/home/steam/tiga/config-local-micro2.yml --serverName=tiga-hybrid-server-s-01-r-01 --ioThreads=2 --workerNum=1 
+
+
+GLOG_logtostderr=1 /home/steam/tiga/bazel-bin/TigaEntity/TigaServer --config=/home/steam/tiga/config-local-micro2.yml --serverName=tiga-hybrid-server-s-01-r-02 --ioThreads=2 --workerNum=1 
+
+
+
+GLOG_logtostderr=1 /home/steam/tiga/bazel-bin/TigaEntity/TigaClient --config=/home/steam/tiga/config-local-micro2.yml --serverName=tiga-hybrid-proxy-0000 --cap=400  --initBound=200 --yieldPeriodUs=10000 --logPrintUnit=1000 
+
+
+
+GLOG_logtostderr=1 /home/steam/tiga/bazel-bin/TigaEntity/TigaClient --config=/home/steam/tiga/config-local-micro2.yml --serverName=tiga-hybrid-proxy-0001 --cap=400  --initBound=200 --yieldPeriodUs=10000 --logPrintUnit=1000 
+
+
+I0625 23:52:01.835275  6287 TigaReplica.cc:49] 
+
+
+
+GLOG_logtostderr=1 ./TigaServer --config=./config-tpl-n.yml --serverName=uiga-server-s-00-r-00 --ioThreads=2 --workerNum=1 > server-log-s-0-r-0 2>&1 &
+GLOG_logtostderr=1 ./TigaServer --config=./config-tpl-n.yml --serverName=uiga-server-s-00-r-01 --ioThreads=2 --workerNum=1 > server-log-s-0-r-1 2>&1 &
+GLOG_logtostderr=1 ./TigaServer --config=./config-tpl-n.yml --serverName=uiga-server-s-00-r-02 --ioThreads=2 --workerNum=1 > server-log-s-0-r-2 2>&1 &
+GLOG_logtostderr=1 ./TigaServer --config=./config-tpl-n.yml --serverName=uiga-server-s-01-r-00 --ioThreads=2 --workerNum=1 > server-log-s-1-r-0 2>&1 &
+GLOG_logtostderr=1 ./TigaServer --config=./config-tpl-n.yml --serverName=uiga-server-s-01-r-01 --ioThreads=2 --workerNum=1 > server-log-s-1-r-1 2>&1 &
+GLOG_logtostderr=1 ./TigaServer --config=./config-tpl-n.yml --serverName=uiga-server-s-01-r-02 --ioThreads=2 --workerNum=1 > server-log-s-1-r-2 2>&1 &
+
+GLOG_logtostderr=1 ./TigaClient --config=./config-tpl-n.yml                                 --runTimeSec=30 --serverName=uiga-proxy-0000 --mcap=22000 --cap=400000                                  --initBound=10000 --yieldPeriodUs=100000  --logPrintUnit=1000 > proxy-log-0 2>&1 &
+
+GLOG_logtostderr=1 ./TigaClient --config=./config-tpl-n.yml                                 --runTimeSec=30 --serverName=uiga-proxy-0001 --mcap=22000 --cap=400000                                  --initBound=100000 --yieldPeriodUs=10000  --logPrintUnit=1000 > proxy-log-1 2>&1 &
+
+
+sudo cp user.conf /etc/systemd/user.conf
+sudo cp system.conf /etc/systemd/system.conf
+sudo cp limits.conf /etc/security/limits.conf
+sudo cp core_pattern /proc/sys/kernel/core_pattern
+sudo systemctl daemon-reexec  # unnecessary
+
+
+kstr=|16|17|20|1004|1040|1041|1042|1043|1044|1045|1046|1047|1048|1049|1050|1051|1052|5005000
+
+I0720 22:57:02.498777 31258 TigaReplica.cc:737] entry=|8:1209|--type=4
+I0720 22:57:02.498783 31258 TigaReplica.cc:740] result Size=18
+
+I0720 23:09:39.484025  1175 TigaReplica.cc:737] entry=|8:4748|--type=4
+I0720 23:09:39.484030  1175 TigaReplica.cc:740] result Size=18
+
+I0720 23:13:53.852851 23702 TigaReplica.cc:737] entry=|1:20970|--type=3
+I0720 23:13:53.852854 23702 TigaReplica.cc:740] result Size=83
+I0720 23:13:53.852870 23702 TigaReplica.cc:745] kstr=|1004|1011|1035|1037|1038|1047|1049|101000|101001|101002|101003|101004|101005|101006|101007|101008|101009|101010|101011|102000|102001|102002|102003|102004|102005|102006|102007|102008|102009|102010|102011|103000|103001|103002|103003|103004|103005|103006|103007|103008|103009|103010|103011|105001|105002|105003|105004|105005|105006|105007|105008|105009|105011|116001|116002|116003|116004|116005|116006|116007|116008|116009|116011|117001|117002|117003|117004|117005|117006|117007|117008|117009|117011|119001|119002|119003|119004|119005|119006|119007|119008|119009|119011
+terminate called after throwing an instance of 'std::logic_error'
+  what():  basic_string::_M_construct null not valid
+
+I0720 23:31:31.300500  5495 TigaReplica.cc:737] entry=|5:4577|--type=3
+I0720 23:31:31.300508  5495 TigaReplica.cc:740] result Size=4

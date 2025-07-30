@@ -1,0 +1,13 @@
+- test_no: 1
+  bench_type: "Micro"
+  test_type: "tiga"
+  rate: 10000
+  preventive: True
+  skew_factor: 0.5
+  key_num: 1000000
+  leader_rotation: false
+  owd_delta_us: 10000
+  owd_estimate_percentile: 50
+  test_failure_recovery: True 
+  synced_logid_before_failure: 600000
+  prefix: "FailureRecovery-"

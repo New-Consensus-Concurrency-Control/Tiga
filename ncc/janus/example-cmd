@@ -1,0 +1,113 @@
+export ROOT_PATH=/home/steam1994/ncc/janus/
+$ROOT_PATH/build/deptran_server -b  -t 30 -f $ROOT_PATH/config-local-micro.yml -d 70 -r "nezha"  -P janus-lan-server-0000
+
+$ROOT_PATH/build/deptran_server -b  -t 30 -f $ROOT_PATH/config-local-micro.yml -d 70 -r "nezha" -P janus-lan-server-0100
+
+$ROOT_PATH/build/deptran_server -b  -t 30 -f $ROOT_PATH/config-local-micro.yml -d 70 -r "nezha"  -P janus-lan-server-0200
+
+$ROOT_PATH/build/deptran_server -b  -t 30 -f $ROOT_PATH/config-local-micro.yml -d 30 -r "nezha" -P janus-lan-proxy-0000
+
+
+
+export ROOT_PATH=/proj/huygens-PG0/tiga/ncc/janus
+$ROOT_PATH/build/deptran_server -b  -t 30 -f $ROOT_PATH/config-local-micro.yml -d 70 -r ""  -P janus-lan-server-0000
+
+$ROOT_PATH/build/deptran_server -b  -t 30 -f $ROOT_PATH/config-local-micro.yml -d 70 -r "" -P janus-lan-server-0100
+
+$ROOT_PATH/build/deptran_server -b  -t 30 -f $ROOT_PATH/config-local-micro.yml -d 70 -r ""  -P janus-lan-server-0200
+
+$ROOT_PATH/build/deptran_server -b  -t 30 -f $ROOT_PATH/config-local-micro.yml -d 30 -r "" -P janus-lan-proxy-0000
+
+
+
+export ROOT_PATH=/proj/huygens-PG0/tiga/ncc/janus
+$ROOT_PATH/build/deptran_server -b  -t 30 -f $ROOT_PATH/config-local-micro.yml -d 70 -P janus-lan-server-0000
+
+$ROOT_PATH/build/deptran_server -b  -t 30 -f $ROOT_PATH/config-local-micro.yml -d 70 -P janus-lan-server-0100
+
+$ROOT_PATH/build/deptran_server -b  -t 30 -f $ROOT_PATH/config-local-micro.yml -d 70 -P janus-lan-server-0200
+
+$ROOT_PATH/build/deptran_server -b  -t 30 -f $ROOT_PATH/config-local-micro.yml -d 30 -P janus-lan-proxy-0000
+
+
+echo 'core' | sudo tee /proc/sys/kernel/core_pattern
+
+sudo apt-get update
+sudo apt-get install pkg-config  -y 
+sudo apt-get install libyaml-cpp-dev  -y 
+sudo apt install libyaml-cpp-dev -y
+sudo apt install libboost-all-dev -y
+sudo apt install libgoogle-glog-dev -y
+sudo apt install libgflags-dev -y
+sudo apt-get install google-perftools -y
+sudo apt install bazel-bootstrap -y
+sudo apt-get install libssl-dev -y
+sudo apt-get install libssl-dev
+
+source  myconda/etc/profile.d/conda.sh
+source /proj/huygens-PG0/myconda/etc/profile.d/conda.sh
+
+####
+# Location /usr/lib/x86_64-linux-gnu/pkgconfig/boost.pc
+prefix=/usr
+exec_prefix=${prefix}
+includedir=${prefix}/include
+libdir=${exec_prefix}/lib/x86_64-linux-gnu
+
+Name: boost-dev
+Description: Boost Lib for C++
+Version: 1.74.0
+Requires:
+Libs: -L${libdir} -lboost_system -lboost_filesystem -lboost_coroutine -lboost_context
+Cflags: -I${includedir}
+
+####
+pip install tabulate
+pip install pyyaml
+
+./waf configure build -t  # Janus original repo
+
+python3 waf configure build 
+
+./deptran_server -b  -t 30 -f ./config-local-micro.yml -d 70 -P janus-lan-server-0000
+
+Install GCC 7 with aptitude (will prompt resolution choices)
+sudo apt-get install aptitude
+sudo aptitude install gcc-7 g++-7
+
+
+export ROOT_PATH=/proj/huygens-PG0/tiga/ncc/janus
+$ROOT_PATH/build/deptran_server -b  -t 30 -f $ROOT_PATH/config-local-tpcc.yml -d 70 -P janus-lan-server-0000
+
+$ROOT_PATH/build/deptran_server -b  -t 30 -f $ROOT_PATH/config-local-tpcc.yml -d 70 -P janus-lan-server-0100
+
+$ROOT_PATH/build/deptran_server -b  -t 30 -f $ROOT_PATH/config-local-tpcc.yml -d 70 -P janus-lan-server-0200
+
+$ROOT_PATH/build/deptran_server -b  -t 30 -f $ROOT_PATH/config-local-tpcc.yml -d 30 -P janus-lan-proxy-0000
+
+
+
+
+
+
+export ROOT_PATH=/proj/huygens-PG0/tiga/janus
+$ROOT_PATH/build/deptran_server -b  -t 30 -f $ROOT_PATH/config-local-tpcc.yml -d 70 -P janus-lan-server-0000
+
+$ROOT_PATH/build/deptran_server -b  -t 30 -f $ROOT_PATH/config-local-tpcc.yml -d 70 -P janus-lan-server-0100
+
+$ROOT_PATH/build/deptran_server -b  -t 30 -f $ROOT_PATH/config-local-tpcc.yml -d 70 -P janus-lan-server-0200
+
+$ROOT_PATH/build/deptran_server -b  -t 30 -f $ROOT_PATH/config-local-tpcc.yml -d 30 -P janus-lan-proxy-0000
+
+
+
+
+
+
+GLOG_logtostderr=1 ./PaxosServer --config=./config-tpl-n.yml --shardId=0 --replicaId=0 --shardNum=2 --replicaNum=3  --serverName=tiga-hybrid-server-s-00-r-00 --ioThreads=2 --workerNum=1 
+GLOG_logtostderr=1 ./PaxosServer --config=./config-tpl-n.yml --shardId=0 --replicaId=1 --shardNum=2 --replicaNum=3  --serverName=tiga-hybrid-server-s-00-r-01 --ioThreads=2 --workerNum=1  
+GLOG_logtostderr=1 ./PaxosServer --config=./config-tpl-n.yml --shardId=0 --replicaId=2 --shardNum=2 --replicaNum=3  --serverName=tiga-hybrid-server-s-00-r-02 --ioThreads=2 --workerNum=1  
+
+
+
+GLOG_logtostderr=1 ./PaxosClient --rate=100 --clientId=1 --targetAddr=128.110.219.35:15000

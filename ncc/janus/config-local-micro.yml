@@ -1,0 +1,62 @@
+bench:
+  workload: tpca
+  scale: 1
+  weight:
+    read: 0
+    write: 1
+  population: # intial number of records in each table
+    branch: 1000000
+    teller: 1000000
+    customer: 1000000
+  dist: zipf
+  coefficient: 0.5 # 0 as unifrom, 1 as pure zipf
+
+schema:
+  - name: branch
+    column:
+      - { name: branch_id, type: integer, primary: true }
+      - { name: balance, type: integer }
+  - name: teller
+    column:
+      - { name: teller_id, type: integer, primary: true }
+      - { name: branch_id, type: integer, foreign: branch.branch_id }
+  - name: customer
+    column:
+      - { name: customer_id, type: integer, primary: true }
+      - { name: branch_id, type: integer, foreign: branch.branch_id }
+      - { name: balance, type: integer }
+
+sharding:
+  branch: MOD
+  teller: MOD
+  customer: MOD
+
+client: { rate: 10000, type: open, max_undone: -1 }
+# client: { type: closed, rate: -1, forwarding: false }
+n_concurrent: 1
+host:
+  janus-lan-server-0000: 127.0.0.1
+  janus-lan-server-0100: 127.0.0.1
+  janus-lan-server-0200: 127.0.0.1
+  janus-lan-proxy-0000: 127.0.0.1
+mode: { ab: acc, batch: false, cc: acc, ongoing: 1, retry: 20 }
+process:
+  janus-lan-server-0000: janus-lan-server-0000
+  janus-lan-server-0100: janus-lan-server-0100
+  janus-lan-server-0200: janus-lan-server-0200
+  # janus-lan-server-0300: janus-lan-server-0300
+  # janus-lan-server-0400: janus-lan-server-0400
+  # janus-lan-server-0500: janus-lan-server-0500
+  janus-lan-proxy-0000: janus-lan-proxy-0000
+site:
+  client:
+    - - janus-lan-proxy-0000
+  server: # each line is a partition (i.e., a shard), each line has 3 replicas
+    - - janus-lan-server-0000:10000
+    - - janus-lan-server-0100:11000
+    - - janus-lan-server-0200:12000
+    # - - janus-lan-server-0300:40000
+    #   - janus-lan-server-0400:50000
+    #   - janus-lan-server-0500:60000
+nezha-recorder: 127.0.0.1:41237
+# ~/janus/build/deptran_server -b  -t 30 -f ./config-tpl-n.yml -d 70  -P

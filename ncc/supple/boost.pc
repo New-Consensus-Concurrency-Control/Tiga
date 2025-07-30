@@ -1,0 +1,12 @@
+prefix=/usr
+exec_prefix=${prefix}
+includedir=${prefix}/include
+libdir=${exec_prefix}/lib/x86_64-linux-gnu
+
+Name: boost-dev
+Description: Boost Lib for C++
+Version: 1.74.0
+Requires:
+Libs: -L${libdir} -lboost_system -lboost_filesystem -lboost_coroutine -lboost_context
+Cflags: -I${includedir}
+

@@ -1,0 +1,6 @@
+python start_machines.py --num_replicas=3 --num_shards=3 --num_proxies=8
+
+python clock_sync.py --num_replicas=3 --num_shards=3 --num_proxies=8 --action="start" --clock_sync="cwcs"
+
+
+./waf configure build -t

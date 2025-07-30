@@ -1,0 +1,20 @@
+// clang-format off
+
+// optional %%: marks header section, code above will be copied into begin of generated C++ header
+%%
+
+namespace NezhaRPC
+
+
+abstract service Nezha {
+    defer NezhaReplicateRequest(NezhaRequest req| NezhaFastReply rep);
+    defer NezhaInquire(NezhaInquireRequest req | NezhaInquireReply rep);
+    defer InterReplicaSync(NezhaInterReplicaSync req);
+};
+
+
+
+
+%%
+// optional %%: marks footer section, code below will be copied into end of generated C++ header
+

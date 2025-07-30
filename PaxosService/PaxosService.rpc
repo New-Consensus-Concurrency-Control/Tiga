@@ -1,0 +1,22 @@
+// clang-format off
+
+// optional %%: marks header section, code above will be copied into begin of generated C++ header
+%%
+
+namespace PaxosRPC
+
+
+abstract service Paxos {
+    defer RecordRequest(ClientRecord req|ClientRecordRep rep);
+    defer PaxosAppendRequest(PaxosAppend req );
+    defer PaxosAppendResponse(PaxosAppendRep rep);
+    defer PaxosCommitRequest(PaxosCommitReq cmt);
+
+};
+
+
+
+
+%%
+// optional %%: marks footer section, code below will be copied into end of generated C++ header
+

@@ -1,0 +1,29 @@
+// clang-format off
+
+// optional %%: marks header section, code above will be copied into begin of generated C++ header
+%%
+
+namespace DetockRPC
+
+
+abstract service Detock {
+    defer NormalRequest(DetockTxn req | DetockReply rep);
+    defer DispatchRequest(DetockDispatchRequest req| DetockDispatchReply rep);
+};
+
+abstract service DetockSequencer {
+    defer SyncBatch(DetockLocalLogSync req);
+};
+    
+
+abstract service DetockLogManager {
+    defer ReplicateBatch(DetockPaxosAppend req);
+    defer ReplicateBatchReply(DetockPaxosAppendReply rep);
+    defer CommitBatch(DetockPaxosCommit req);
+};
+
+
+
+%%
+// optional %%: marks footer section, code below will be copied into end of generated C++ header
+

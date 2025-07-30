@@ -1,0 +1,5 @@
+namespace PaxosRPC
+
+    abstract service Paxos {
+defer RecordRequest(ClientRecord req | ClientRecordRep rep);
+};

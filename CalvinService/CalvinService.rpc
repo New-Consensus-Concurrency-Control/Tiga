@@ -1,0 +1,33 @@
+// clang-format off
+
+// optional %%: marks header section, code above will be copied into begin of generated C++ header
+%%
+
+namespace CalvinRPC
+
+
+abstract service Calvin {
+    defer NormalRequest(CalvinRequest req | CalvinReply rep);
+    defer MasterSync(MasterSyncRequest req| MasterSyncReply rep);
+    defer InquireSeqNoStatus(InquireSeqNoRequest req| InquireSeqNoReply rep);
+    defer DispatchRequest(CalvinDispatchRequest req| CalvinDispatchReply rep);
+
+};
+
+abstract service CalvinSequencer {
+    defer ReplicateEpoch(EpochRequest req);
+    defer InterReplicaSync(NezhaInterReplicaSync req);
+    defer CollectNezhaFastReply(NezhaFastReply rep);
+    defer NezhaInquire(NezhaInquireRequest req | NezhaInquireReply rep);
+
+};
+
+abstract service CalvinScheduler {
+    defer EpochReport(EpochRequest req| EpochReply rep);
+};
+
+
+
+%%
+// optional %%: marks footer section, code below will be copied into end of generated C++ header
+

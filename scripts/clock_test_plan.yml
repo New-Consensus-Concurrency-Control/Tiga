@@ -1,0 +1,180 @@
+
+# - test_no: 1
+#   bench_type: "Micro"
+#   test_type: "tiga"
+#   rate: 1000
+#   preventive: True
+#   skew_factor: 0.99
+#   leader_rotation: False
+#   clock_approach: "logical"
+#   prefix: "logical-"
+
+
+# - test_no: 1
+#   bench_type: "Micro"
+#   test_type: "tiga"
+#   rate: 1000
+#   preventive: True
+#   skew_factor: 0.99
+#   leader_rotation: False
+#   clock_approach: "cwcs"
+#   prefix: "cwcs-"
+
+
+# - test_no: 1
+#   bench_type: "Micro"
+#   test_type: "tiga"
+#   rate: 10000
+#   preventive: True
+#   skew_factor: 0.99
+#   leader_rotation: False
+#   clock_approach: "cwcs"
+#   prefix: "cwcs-"
+
+# - test_no: 1
+#   bench_type: "Micro"
+#   test_type: "tiga"
+#   rate: 10000
+#   preventive: True
+#   skew_factor: 0.99
+#   leader_rotation: False
+#   clock_approach: "logical"
+#   prefix: "logical-"
+
+
+# - test_no: 1
+#   bench_type: "Micro"
+#   test_type: "tiga"
+#   rate: 10000
+#   preventive: False
+#   skew_factor: 0.99
+#   leader_rotation: True
+#   clock_approach: "skeen"
+#   prefix: "skeen-"
+
+
+# - test_no: 1
+#   bench_type: "Micro"
+#   test_type: "tiga"
+#   rate: 10000
+#   preventive: False
+#   skew_factor: 0.99
+#   leader_rotation: True
+#   clock_approach: "logical"
+#   prefix: "logical-"
+
+
+
+# - test_no: 1
+#   bench_type: "Micro"
+#   test_type: "tiga"
+#   rate: 10000
+#   preventive: False
+#   skew_factor: 0.99
+#   leader_rotation: True
+#   clock_approach: "cwcs"
+#   prefix: "cwcs-"
+
+
+
+
+# - test_no: 1
+#   bench_type: "Micro"
+#   test_type: "tiga"
+#   rate: 1000
+#   preventive: False
+#   skew_factor: 0.99
+#   leader_rotation: True
+#   clock_approach: "skeen"
+#   prefix: "skeen-"
+
+# - test_no: 1
+#   bench_type: "Micro"
+#   test_type: "tiga"
+#   rate: 5000
+#   preventive: False
+#   skew_factor: 0.99
+#   leader_rotation: True
+#   clock_approach: "skeen"
+#   prefix: "skeen-"
+
+# - test_no: 1
+#   bench_type: "Micro"
+#   test_type: "tiga"
+#   rate: 10000
+#   preventive: False
+#   skew_factor: 0.99
+#   leader_rotation: True
+#   clock_approach: "skeen"
+#   prefix: "skeen-"
+
+# - test_no: 1
+#   bench_type: "Micro"
+#   test_type: "tiga"
+#   rate: 20000
+#   preventive: False
+#   skew_factor: 0.99
+#   leader_rotation: True
+#   clock_approach: "skeen"
+#   prefix: "skeen-"
+
+# - test_no: 1
+#   bench_type: "Micro"
+#   test_type: "tiga"
+#   rate: 1000
+#   preventive: False
+#   skew_factor: 0.99
+#   leader_rotation: True
+#   clock_approach: "logical"
+#   prefix: "logical-"
+
+# - test_no: 1
+#   bench_type: "Micro"
+#   test_type: "tiga"
+#   rate: 5000
+#   preventive: False
+#   skew_factor: 0.99
+#   leader_rotation: True
+#   clock_approach: "logical"
+#   prefix: "logical-"
+
+# - test_no: 1
+#   bench_type: "Micro"
+#   test_type: "tiga"
+#   rate: 10000
+#   preventive: False
+#   skew_factor: 0.99
+#   leader_rotation: True
+#   clock_approach: "logical"
+#   prefix: "logical-"
+
+# - test_no: 1
+#   bench_type: "Micro"
+#   test_type: "tiga"
+#   rate: 20000
+#   preventive: False
+#   skew_factor: 0.99
+#   leader_rotation: True
+#   clock_approach: "logical"
+#   prefix: "logical-"
+
+- test_no: 1
+  bench_type: "Micro"
+  test_type: "tiga"
+  rate: 20000
+  preventive: False
+  skew_factor: 0.99
+  leader_rotation: True
+  clock_approach: "skeen"
+  prefix: "skeen-"
+
+
+- test_no: 1
+  bench_type: "Micro"
+  test_type: "tiga"
+  rate: 20000
+  preventive: False
+  skew_factor: 0.99
+  leader_rotation: True
+  clock_approach: "cwcs"
+  prefix: "cwcs-"

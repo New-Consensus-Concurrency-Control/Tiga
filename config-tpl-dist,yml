@@ -1,0 +1,42 @@
+bench:
+  population: { history: 1000000 }
+  scale: 1
+  weight: { read: 0, write: 1 }
+  workload: rw_benchmark
+#client: {rate: 5000, type: open}
+client: { type: closed, rate: -1, forwarding: false }
+n_concurrent: 1
+host:
+  janus-lan-server-0000: 10.128.15.221
+  janus-lan-server-0100: 10.128.15.222
+  janus-lan-server-0200: 10.128.15.223
+  # janus-lan-server-0300: 127.0.0.1
+  # janus-lan-server-0400: 127.0.0.1
+  # janus-lan-server-0500: 127.0.0.1
+  janus-lan-proxy-0000: 10.128.15.224
+mode: { ab: brq, batch: false, cc: brq, ongoing: 1, retry: 20 }
+process:
+  janus-lan-server-0000: janus-lan-server-0000
+  janus-lan-server-0100: janus-lan-server-0100
+  janus-lan-server-0200: janus-lan-server-0200
+  # janus-lan-server-0300: janus-lan-server-0300
+  # janus-lan-server-0400: janus-lan-server-0400
+  # janus-lan-server-0500: janus-lan-server-0500
+  janus-lan-proxy-0000: janus-lan-proxy-0000
+schema:
+  - column:
+      - { name: h_key, primary: true, type: integer }
+      - { name: h_c_id, type: integer }
+    name: history
+sharding: { history: MOD }
+site:
+  client:
+    - - janus-lan-proxy-0000
+  server: # each line is a partition (i.e., a shard), each line has 3 replicas
+    - - janus-lan-server-0000:10000
+      - janus-lan-server-0100:20000
+      - janus-lan-server-0200:30000
+    # - - janus-lan-server-0300:40000
+    #   - janus-lan-server-0400:50000
+    #   - janus-lan-server-0500:60000
+# ~/janus/build/deptran_server -b  -t 30 -f ./config-tpl-n.yml -d 70  -P

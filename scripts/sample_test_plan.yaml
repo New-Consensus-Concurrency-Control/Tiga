@@ -1,0 +1,31 @@
+# - test_no: 2
+#   bench_type: "Micro"
+#   test_type: "tiga"
+#   rate: 25000
+
+- test_no: 2
+  bench_type: "Micro"
+  test_type: "tiga"
+  leader_rotation: True
+  preventive: False
+  rate: 25000
+
+# - test_no: 2
+#   bench_type: "Micro"
+#   test_type: "tiga"
+#   leader_rotation: True
+#   preventive: False
+#   skew_factor: 0.99
+#   rate: 20000
+#   clock_approach: "cwcs"
+#   prefix: "cwcs-"
+
+# - test_no: 2
+#   bench_type: "Micro"
+#   test_type: "tiga"
+#   leader_rotation: True
+#   preventive: False
+#   skew_factor: 0.99
+#   rate: 20000
+#   clock_approach: "logical"
+#   prefix: "logical-"

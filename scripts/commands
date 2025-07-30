@@ -1,0 +1,23 @@
+10.142.0.12	GLOG_logtostderr=1 ./TigaServer  --config=./config-tpl-n.yml  --serverName=uiga-server-s-00-r-00  --ioThreads=2 --workerNum=1 
+10.166.0.10	GLOG_logtostderr=1 ./TigaServer  --config=./config-tpl-n.yml  --serverName=uiga-server-s-00-r-01  --ioThreads=2 --workerNum=1
+10.158.0.11	GLOG_logtostderr=1 ./TigaServer  --config=./config-tpl-n.yml  --serverName=uiga-server-s-00-r-02  --ioThreads=2 --workerNum=1 
+
+10.142.0.13	GLOG_logtostderr=1 ./TigaServer  --config=./config-tpl-n.yml  --serverName=uiga-server-s-01-r-00  --ioThreads=2 --workerNum=1 
+10.166.0.11	GLOG_logtostderr=1 ./TigaServer  --config=./config-tpl-n.yml  --serverName=uiga-server-s-01-r-01  --ioThreads=2 --workerNum=1 
+10.158.0.12	GLOG_logtostderr=1 ./TigaServer  --config=./config-tpl-n.yml  --serverName=uiga-server-s-01-r-02  --ioThreads=2 --workerNum=1 
+
+10.142.0.14	GLOG_logtostderr=1 ./TigaServer  --config=./config-tpl-n.yml  --serverName=uiga-server-s-02-r-00  --ioThreads=2 --workerNum=1 
+10.166.0.12	GLOG_logtostderr=1 ./TigaServer  --config=./config-tpl-n.yml  --serverName=uiga-server-s-02-r-01  --ioThreads=2 --workerNum=1 
+10.158.0.13	GLOG_logtostderr=1 ./TigaServer  --config=./config-tpl-n.yml  --serverName=uiga-server-s-02-r-02  --ioThreads=2 --workerNum=1 
+
+
+10.142.0.18	GLOG_logtostderr=1 ./TigaClient  --config=./config-tpl-n.yml  --runTimeSec=30  --serverName=uiga-proxy-0000  --mcap=22000  --cap=400000  --initBound=60000  --yieldPeriodUs=10000  --logPrintUnit=10000  
+
+
+10.166.0.16	GLOG_logtostderr=1 ./TigaClient  --config=./config-tpl-n.yml  --runTimeSec=30  --serverName=uiga-proxy-0001  --mcap=22000  --cap=400000  --initBound=100000  --yieldPeriodUs=10000  --logPrintUnit=10000  > proxy-log-1 2>&1 &
+10.158.0.17	GLOG_logtostderr=1 ./TigaClient  --config=./config-tpl-n.yml  --runTimeSec=30  --serverName=uiga-proxy-0002  --mcap=22000  --cap=400000  --initBound=100000  --yieldPeriodUs=10000  --logPrintUnit=10000  > proxy-log-2 2>&1 &
+10.142.0.19	GLOG_logtostderr=1 ./TigaClient  --config=./config-tpl-n.yml  --runTimeSec=30  --serverName=uiga-proxy-0003  --mcap=22000  --cap=400000  --initBound=60000  --yieldPeriodUs=10000  --logPrintUnit=10000  > proxy-log-3 2>&1 &
+10.166.0.17	GLOG_logtostderr=1 ./TigaClient  --config=./config-tpl-n.yml  --runTimeSec=30  --serverName=uiga-proxy-0004  --mcap=22000  --cap=400000  --initBound=100000  --yieldPeriodUs=10000  --logPrintUnit=10000  > proxy-log-4 2>&1 &
+10.158.0.18	GLOG_logtostderr=1 ./TigaClient  --config=./config-tpl-n.yml  --runTimeSec=30  --serverName=uiga-proxy-0005  --mcap=22000  --cap=400000  --initBound=100000  --yieldPeriodUs=10000  --logPrintUnit=10000  > proxy-log-5 2>&1 &
+10.170.0.2	GLOG_logtostderr=1 ./TigaClient  --config=./config-tpl-n.yml  --runTimeSec=30  --serverName=uiga-proxy-0006  --mcap=22000  --cap=400000  --initBound=150000  --yieldPeriodUs=10000  --logPrintUnit=10000  > proxy-log-6 2>&1 &
+10.170.0.3	GLOG_logtostderr=1 ./TigaClient  --config=./config-tpl-n.yml  --runTimeSec=30  --serverName=uiga-proxy-0007  --mcap=22000  --cap=400000  --initBound=150000  --yieldPeriodUs=10000  --logPrintUnit=10000  > proxy-log-7 2>&1 &

@@ -1,0 +1,41 @@
+// clang-format off
+
+// optional %%: marks header section, code above will be copied into begin of generated C++ header
+%%
+
+namespace TigaRPC
+
+
+abstract service Tiga {
+    defer NormalRequest(TigaReq req | TigaReply rep);
+    InquireServerSyncStatus(TigaServerSyncStatusRequest|TigaServerSyncStatusReply);
+    defer Reconcliation(TigaReconcliationReq req|TigaReply rep);
+    defer DispatchRequest(TigaDispatchRequest req| TigaDispatchReply rep);
+};
+
+abstract service TigaLocal {
+    defer DeadlineAgreeRequest(TigaDeadlineAgreeRequest req);
+};
+
+abstract service TigaGlobal {
+    defer InterReplicaSync(TigaInterReplicaSync);
+    defer SyncStatus(TigaSyncStatus);
+};
+
+abstract service TigaViewChange {
+    defer ViewChangeReq(TigaViewChangeReq);
+    defer ViewChange(TigaViewChange);
+    defer HeartBeat(TigaHeartBeat|TigaHeartBeatAck);
+    defer StateTransfer(TigaStateTransferRequest|TigaStateTransferReply);
+    defer CMPrepare(TigaCMPrepare);
+    defer CMPrepareReply(TigaCMPrepareReply);
+    defer CMCommit(TigaCMCommit);
+    defer FailSignal(TigaFailSignal|TigaFailAck);
+    defer CrossShardVerifyReq(TigaCrossShardVerifyReq);
+    defer CrossShardVerifyRep(TigaCrossShardVerifyRep);
+    defer StartView(TigaStartView);
+}
+
+%%
+// optional %%: marks footer section, code below will be copied into end of generated C++ header
+

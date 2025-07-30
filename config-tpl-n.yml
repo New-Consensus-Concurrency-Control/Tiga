@@ -1,0 +1,124 @@
+bench:
+  workload: tpca
+  scale: 1
+  weight:
+    read: 0
+    write: 1
+  population: # intial number of records in each table
+    branch: 1000000
+    teller: 1000000
+    customer: 1000000
+  dist: zipf
+  coefficient: 0.5 # 0 as unifrom, 1 as pure zipf
+
+schema:
+  - name: branch
+    column:
+      - {name: branch_id, type: integer, primary: true}
+      - {name: balance, type: integer}
+  - name: teller
+    column:
+      - {name: teller_id, type: integer, primary: true}
+      - {name: branch_id, type: integer, foreign: branch.branch_id}
+  - name: customer
+    column:
+      - {name: customer_id, type: integer, primary: true}
+      - {name: branch_id, type: integer, foreign: branch.branch_id}
+      - {name: balance, type: integer}
+
+sharding:
+  branch: MOD
+  teller: MOD
+  customer: MOD
+
+client:
+  type: open
+  rate: 8000
+  max_undone: -1
+  forwarding: false
+# client: { type: closed, rate: -1, forwarding: false }
+n_concurrent: 1
+host:
+  uiga-server-s-00-r-00: 10.142.0.12
+  uiga-server-s-00-r-01: 10.166.0.10
+  uiga-server-s-00-r-02: 10.158.0.11
+  uiga-server-s-01-r-00: 10.142.0.13
+  uiga-server-s-01-r-01: 10.166.0.11
+  uiga-server-s-01-r-02: 10.158.0.12
+  uiga-server-s-02-r-00: 10.142.0.14
+  uiga-server-s-02-r-01: 10.166.0.12
+  uiga-server-s-02-r-02: 10.158.0.13
+  uiga-proxy-0000: 10.142.0.18
+  uiga-proxy-0001: 10.166.0.16
+  uiga-proxy-0002: 10.158.0.17
+  uiga-proxy-0003: 10.142.0.19
+  uiga-proxy-0004: 10.166.0.17
+  uiga-proxy-0005: 10.158.0.18
+  uiga-proxy-0006: 10.170.0.2
+  uiga-proxy-0007: 10.170.0.3
+mode: {ab: tiga, batch: false, cc: tiga, ongoing: 1, retry: 20}
+process:
+  uiga-server-s-00-r-00: uiga-server-s-00-r-00
+  uiga-server-s-00-r-01: uiga-server-s-00-r-01
+  uiga-server-s-00-r-02: uiga-server-s-00-r-02
+  uiga-server-s-01-r-00: uiga-server-s-01-r-00
+  uiga-server-s-01-r-01: uiga-server-s-01-r-01
+  uiga-server-s-01-r-02: uiga-server-s-01-r-02
+  uiga-server-s-02-r-00: uiga-server-s-02-r-00
+  uiga-server-s-02-r-01: uiga-server-s-02-r-01
+  uiga-server-s-02-r-02: uiga-server-s-02-r-02
+  uiga-proxy-0000: uiga-proxy-0000
+  uiga-proxy-0001: uiga-proxy-0001
+  uiga-proxy-0002: uiga-proxy-0002
+  uiga-proxy-0003: uiga-proxy-0003
+  uiga-proxy-0004: uiga-proxy-0004
+  uiga-proxy-0005: uiga-proxy-0005
+  uiga-proxy-0006: uiga-proxy-0006
+  uiga-proxy-0007: uiga-proxy-0007
+site:
+  client:
+    -   - uiga-proxy-0000
+        - uiga-proxy-0001
+        - uiga-proxy-0002
+    -   - uiga-proxy-0003
+        - uiga-proxy-0004
+        - uiga-proxy-0005
+    -   - uiga-proxy-0006
+        - uiga-proxy-0007
+  server: # each line is a partition (i.e., a shard), each line has 3 replicas
+    -   - uiga-server-s-00-r-00:10000
+        - uiga-server-s-00-r-01:10100
+        - uiga-server-s-00-r-02:10200
+    -   - uiga-server-s-01-r-00:10300
+        - uiga-server-s-01-r-01:10400
+        - uiga-server-s-01-r-02:10500
+    -   - uiga-server-s-02-r-00:10600
+        - uiga-server-s-02-r-01:10700
+        - uiga-server-s-02-r-02:10800
+server_initial_bound:
+  - 60000
+  - 100000
+  - 100000
+server_bound_cap:
+  - 400000
+  - 400000
+  - 400000
+designate_replica_id:
+  - 0
+  - 1
+  - 2
+clockOffset:
+  mean: 0
+  std: 0
+spec_exec: false
+
+preventive: true
+
+nezha-recorder: 127.0.0.1:41237
+
+owd_delta_us: 10000
+owd_estimate_percentile: 50
+owdDeltaUs: 10000
+test_failure_recovery: false
+synced_logid_before_failure: 600000
+clock_approach: cwcs
