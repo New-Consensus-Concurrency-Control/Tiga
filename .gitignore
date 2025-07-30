@@ -10,6 +10,7 @@ bazel-bin
 bazel-out
 bazel-testlogs
 bazel-tiga
+bazel-Tiga
 bazel-*/
 *.deb
 ncc/janus/.waf3*
