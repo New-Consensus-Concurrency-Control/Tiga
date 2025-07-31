@@ -9,91 +9,178 @@ All our evaluation is conducted on Google Cloud Platform (GCP), using n2-16-stan
 The free trial of Huygens only allow 10 VMs to be synchornized and tenants need to pay for the larger-scale cluster. To make it easy for evaluators to conduct artifact evaluation, we have provisioned and installed the Huygens service for our GCP cluster and the cluster is open to evaluators during the evaluation period. Besides, evaluators can also choose to use Chrony/NTP to synchronize cluster clocks. Chrony and NTP are already available on GCP and they can also provide sufficiently good synchronization for Tiga to achieve high performance.
 
 
-We recommend the evaluators directly use our cluster, and we have configured the environment on the cluster and will undertake the cost (Special thanks to Google Research Credit Program). Of course, building everything from scratch is also do-able, and we provide the instruction document [here](instruction.md).
+We recommend the evaluators directly use our cluster, because we have configured the environment on the cluster and compiled the corresponding binaries. We will undertake the cost of the cloud computing resource (Special thanks to Google Research Credit Program). Of course, building everything from scratch is also do-able, and we provide the instruction document [here](instruction.md).
 
 
 
 ## Evaluation Workflow
 
 
-- Log into the controller VM. Initially, we have shutdown all VMs in our cluster and only have one controller VM turned on. We 
+- Log into the controller VM. Initially, we have shut down all VMs in our cluster and only have one controller VM turned on. We have provided the private SSH key in the submitted material, and evaluators use the key to log into the controller and proceed the follow-up workflow. **If you have not received the SSH key file (`ae_rsa`), please contact gjk1994@stanford.edu.** 
 
+```
+ssh -i ae_rsa steam@34.73.25.115
+```
+
+34.73.25.115 is the controller's IP address. We have launched the dashboard to monitor clock synchronization of the cluster, which can be viewed from any browser at http://34.73.25.115:6172/sensei/monitor/. Initially, you can only view one circle (controller) on the dashboard, because the cluster has been shut down. Later you will see the synchronized servers on the dashboard as [this](instructions/huygens-dashboard.jpg). 
+
+
+If the dashboard needs password, please check the file on the controller.
+
+```
+cat ~/dashboard-login
+```
+
+
+
+
+## Start Cluster 
+All the control scripts are in the folder
+```
+cd ~/Tiga/scripts
+```
+
+We have prepared the Python environment to run all scripts
+```
+conda activate py310  
+```
+
+To first conduct evaluation with MicroBench, we need 3 shards and each shard is replicated across 3 regions. We also need 8 proxies and they are distributed across 4 regions. 
+```
+python start_machines.py --num_replicas=3 --num_shards=3 --num_proxies=8
+```
+Later when we conduct evaluation with TPCC, we need 6 shards, then --num_shards=6.
+
+After servers and proxies are all started, we then launch Huygens to synchronize their clocks. 
+
+```
+python clock_sync.py --num_replicas=3 --num_shards=3 --num_proxies=8 --action="start" --clock_sync="cwcs"
+```
+
+We can view the synchronization status on the [dashboard](http://34.73.25.115:6172/sensei/monitor/). 
+
+
+## Sample Run
+Each test has been orchestrated as a test_plan yaml file under `scripts` folder. 
+
+To make a quick functional test, we run 
+```
+ python run_test.py --num_replica=3 --num_shards=3 --num_proxies=8  --test_plan=sample_test_plan.yaml
+```
+
+The test_plan yaml allows us to configure the test cases we want to run and customize the parameters we want to use for each test case. We have configured the parameters for our test plans. No need for further modification. 
+
+Besides, the other system-related parameters are configured in `scripts/tiga_common.py` For example `CHECK_POINT_FILE` defines the checkpoint file during long run, so that we can know which test cases have been completed. 
+`STATS_PATH` defines where the collected data are stored (it is mounted as a 200GB disk). 
+
+
+The `scripts/sample_test_plan.yaml` only contains one test case, and after it completes, we can open the checkpoint file at `tiga_common.CHECK_POINT_FILE`: one test case usually takes around 110 seconds, counting from starting the case to finishing collecting the data. 
+
+
+
+Before we proceed with the artifact evaluation, we highlight a few points. 
+
+- In our paper,  we have run each test case 5 times and report the median value. However, that could be very time-consuming since each test case takes about 110 seconds. Therefore, in this artifact evaluation, we simply the test by picking less data points and only run each case 1 time. Therefore, there can be some noise in the data points. **Even in this way, the artifact evaluation will still take a few hours.** Therefore, we recommend using `tmux` to avoid accidental interruption on your terminal, and keep checking the checkpoint file configured at `tiga_common.CHECK_POINT_FILE` to understand the progress. 
+
+- While cloud providers try to provide same QoS for all tenants, we previously observed that VMs may not necessarily show the same performance every time, see [Chapter 3](https://stacks.stanford.edu/file/druid:xq718qd4043/Vig_thesis_submission-augmented.pdf). Fourtunately, according to our repeated tests, the reported numbers, while exhibiting some variance, always support our conclusion in the paper. Besides, our experience shows that, when launching VMs in evening, the VM's performance tends to be better than morning VM. 
+
+
+- We have further optimized our codebase since the submission. Therefore, some performance number can be even higher. 
+
+
+## MicroBench 
+Next we evaluate MicroBench and reproduce the figures in our paper. 
+
+
+#### Figure 6 and Figure 7
+We have configured the test plan as `scripts/test_plan_micro_vary_rate.yaml`, which contains more than 50 test cases, so please run them in `tmux` session.
 
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/steamgjk/tiga.git
-git branch -M main
-git push -uf origin main
+tmux
+
+cd ~/Tiga/scripts
+
+conda activate py310
+
+python run_test.py --num_replica=3 --num_shards=3 --num_proxies=8  --test_plan=test_plan_micro_vary_rate.yaml
+
 ```
 
-## Integrate with your tools
+`Crtl B+D` to exit tmux session, so that it will run in the background without any interrupts. 
 
-- [ ] [Set up project integrations](https://gitlab.com/steamgjk/tiga/-/settings/integrations)
+After completing these test cases, the data have all been collected in `tiga_common.STATS_PATH`. Then we can process these data to generate some CSV files, which will be used to plot figures.
 
-## Collaborate with your team
+```
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+```
 
-## Test and Deploy
+#### Figure 8
+We have configured the test plan as `scripts/test_plan_micro_vary_skew.yaml`
+```
+python run_test.py --num_replica=3 --num_shards=3 --num_proxies=8  --test_plan=test_plan_micro_vary_skew.yaml
+```
 
-Use the built-in continuous integration in GitLab.
+After completing these test cases, the data have all been collected in `tiga_common.STATS_PATH`. Then we can process these data to generate some CSV files, which will be used to plot figures.
+```
+python analysis.py  --num_replicas=3 --num_shards=3 --num_proxies=8  --test_plan=test_plan_micro_vary_skew.yaml
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+```
+After the data is processed, we have some csv files generated under `tiga_common.SUMMARY_STATS_PATH`. These CSV file names share the same prefix as the yaml file (i.e., test_plan_micro_vary_skew*.csv).
 
-***
+Next, we plot the figure(s) as 
 
-# Editing this README
+```
+python plot_vary_skew.py  --test_plan=test_plan_micro_vary_skew.yaml --tag=Micro-Vary-Skew 
+```
+Then the figure(s) will be generated under `tiga_common.FIGS_PATH`, and Figure 8 corresponds to `Micro-Vary-Skew-All-legend.pdf`
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
 
-## Name
-Choose a self-explaining name for your project.
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+#### Figure 9
+We have configured the test plan as `scripts/test_plan_tpcc_vary_rate.yaml`
+```
+python run_test.py --num_replica=3 --num_shards=6 --num_proxies=8  --test_plan=test_plan_tpcc_vary_rate.yaml
+```
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+After completing these test cases, the data have all been collected in `tiga_common.STATS_PATH`. Then we can process these data to generate some CSV files, which will be used to plot figures.
+```
+python analysis.py  --num_replicas=3 --num_shards=6 --num_proxies=8  --test_plan=test_plan_tpcc_vary_rate.yaml
+```
+After the data is processed, we have some csv files generated under `tiga_common.SUMMARY_STATS_PATH`. These CSV file names share the same prefix as the yaml file (i.e., test_plan_tpcc_vary_rate*.csv).
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+Next, we plot the figure(s) as 
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+```
+python plot_vary_rate_tpcc.py  --test_plan=test_plan_tpcc_vary_rate.yaml --tag=TPCC-Vary-Rate 
+```
+Then the figure(s) will be generated under `tiga_common.FIGS_PATH`, and Figure 8 corresponds to `TPCC-Vary-Rate-All-legend.pdf`
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+#### Figure 10
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+We have configured the test plan as `scripts/test_plan_failure_recovery.yaml`
+```
+python run_test.py --num_replica=3 --num_shards=3 --num_proxies=8  --test_plan=test_plan_failure_recovery.yaml
+```
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+After completing these test cases, the data have all been collected in `tiga_common.STATS_PATH`. We directly plot the figure based on the collected data. 
+```
+python plot_failure_recovery.py  --test_plan=test_plan_failure_recovery.yaml
+```
+Then the figure(s) will be generated under `tiga_common.FIGS_PATH`, and Figure 10 corresponds to `failure-recovery-thpt.pdf` and `failure-recovery-latency-region.pdf`
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+#### Figure 11
+We have configured the test plan as `scripts/test_plan_tpcc_vary_rate.yaml`
+```
+python run_test.py --num_replica=3 --num_shards=6 --num_proxies=8  --test_plan=test_plan_tpcc_vary_rate.yaml
+```
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
 
 ## License
-For open source projects, say how it is licensed.
+This project will be open-sourced soon, and the tentative licence will be MIT license.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+## Acknowledgement
+We sincerely appreciate the support from [Google Research Credit Program](https://edu.google.com/intl/ALL_us/programs/credits/research).

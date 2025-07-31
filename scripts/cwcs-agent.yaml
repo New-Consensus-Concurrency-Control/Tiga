@@ -1,0 +1,139 @@
+# CWCS agent configuration options.
+#----------------------------------
+# Uncomment the options below to provide a setting.
+
+## Agent options.
+#
+# Management address of the agent. Supported formats include IP address, CIDR
+# range, interface name, and hostname. If multiple IP addresses match the given
+# configuration, a random one will be used.
+# Required for subscription mode. For enrollment mode, defaults to "::". Cannot
+# be empty.
+management_address: 10.170.0.3
+#
+# Management port of the agent. Defaults to 6171.
+# management_port: 6171
+
+## Subscription mode options.
+#
+# If true, subscribe to coordinator actively. Defaults to false.
+subscription_mode: true
+#
+# List of subscription endpoints that the agent will use, only the first one is
+# used. Required for subscription mode. For enrollment mode, defaults to [].
+subscription_endpoints:
+- 34.73.25.115:6176
+probe_address: 10.170.0.3
+#
+# Port for probing. Defaults to 3190.
+# probe_port: 3190
+#
+# Comma-delimited subnets (from low-level to high-level) the agent is in.
+# Defaults to "".
+# subnets: ""
+#
+# Quality of clock. The agent with the highest clock quality will be selected as
+# reference. Defaults to 0.
+clock_quality: 1
+#
+# If true, correct the local clock in addition to observing it, else just
+# observe the clock. Defaults to false.
+correct_clock: true
+#
+# Comma-delimited backup NTP server names. Defaults to "". Only the first one is
+# used.
+# backup_ntp_servers: ""
+#
+# If true, use hardware timestamps. Defaults to false.
+# hw_timestamp: false
+#
+# If true and hw_timestamp is false, use userspace timestamps for software
+# timestamping on the TX side. Defaults to true.
+# use_userspace_timestamp: true
+#
+# The clock whose offset is used for computing aggregate statistics. Use
+# CLOCK_REALTIME for system clock and interface name for NIC clock. The local
+# reference clock will be used if left empty. Defaults to "".
+# main_clock: ""
+#
+# Comma-delimited observed local secondary clocks that follow the local master
+# clock. Use CLOCK_REALTIME for the system clock. Specify a NIC clock with its
+# interface name or the interface's corresponding IP address, CIDR range, or
+# hostname. Defaults to "".
+# observed_local_secondary_clocks: ""
+#
+# Comma-delimited controlled local secondary clocks that follow the local master
+# clock. Use CLOCK_REALTIME for the system clock. Specify a NIC clock with its
+# interface name or the interface's corresponding IP address, CIDR range, or
+# hostname. Defaults to "".
+# controlled_local_secondary_clocks: ""
+
+## More agent options.
+#
+# Agent HTTP API server URL that can be reached by the admin's browser for web
+# server requests (e.g., http[s]://host[:port]). If empty, the server will not
+# be started. Defaults to "http://[::]:6177".
+# api_url: "http://[::]:6177"
+#
+# The address that the local NTP server listens on. If it is empty, the local
+# NTP server will not be created. Supported formats include IP address, CIDR
+# range, interface name, and hostname. Defaults to "0.0.0.0".
+# local_ntp_server_address: "0.0.0.0"
+#
+# The port that the local NTP server listens on. Defaults to 1230.
+# local_ntp_server_port: 1230
+#
+# Log Config
+log_config:
+  # Directory to save the logs to. Defaults to "/tmp".
+  dir: /var/opt/cwcs/log
+  #
+  # Logging verbosity level (0-9) with 0 as least verbose and 9 as most verbose.
+  # Defaults to 0.
+  v: 2
+  #
+  # If true, log to stderr instead of log file. Defaults to false.
+  # to_stderr: false
+  #
+  # If true, log to stderr in addition to log file. Defaults to false.
+  # also_to_stderr: false
+  #
+  # Maximum overall log file size in human-readable string
+  # (e.g., "1024", "10kB", "5MB", "20 g", "1 tera", or "15 petabyte").
+  # Beyond this, the files are deleted. Minimum allowed value is 1 KB.
+  # Defaults to 10 GB.
+  # max_size: "10GB"
+  #
+  # Maximum age of rotated/old log files in human-readable string
+  # (e.g., "3h", "1h20m30s", or "1.5h").
+  # Beyond this, the files are deleted. Defaults to 1 week (24h * 7 = 168h).
+  # max_age: "168h"
+  #
+  # Maximum size of an individual log file in human-readable string
+  # (e.g., "1024", "10kB", "5MB", "20 g", "1 tera", or "15 petabyte").
+  # Beyond this, a new file is created. Minimum allowed value is 1 KB.
+  # Defaults to 100 MB.
+  # chunk_size: "100MB"
+#
+# Root directory that contains the agent resource files. This is the path the
+# agent was installed on. Defaults to "./".
+home_dir: /opt/cwcs/agent
+#
+# Directory to save data files to if valid directory, else use default.
+# Defaults to "/tmp".
+data_dir: /var/opt/cwcs
+#
+# Directory to scrape metrics from, else use default.
+# Defaults to "/tmp".
+# scrape_dir: /var/opt/cwcs/scrape
+#
+# Comma-separated integers indicating CPU affinity. Currently, this feature is
+# only supported for Linux. Defaults to "".
+# cpu_affinity: ""
+#
+# Optionally specifies a specific partition to join. If unset in enrollment
+# mode, it defaults to 0, and in subscription mode, the partition will be picked
+# automatically.
+# partition_index: 0
+
+

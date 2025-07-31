@@ -1,7 +1,7 @@
-# - test_no: 2
-#   bench_type: "Micro"
-#   test_type: "tiga"
-#   rate: 25000
+- test_no: 0
+  bench_type: "Micro"
+  test_type: "tiga"
+  rate: 10000
 
 # - test_no: 2
 #   bench_type: "Micro"
@@ -31,14 +31,27 @@
 #   prefix: "logical-"
 
 
-- test_no: 2
-  bench_type: "Micro"
-  test_type: "detock"
-  rate: 8000
-  skew_factor: 0.8
+# - test_no: 2
+#   bench_type: "Micro"
+#   test_type: "detock"
+#   rate: 8000
+#   skew_factor: 0.8
 
-- test_no: 2
-  bench_type: "Micro"
-  test_type: "detock"
-  rate: 8000
-  skew_factor: 0.9
+# - test_no: 2
+#   bench_type: "Micro"
+#   test_type: "detock"
+#   rate: 8000
+#   skew_factor: 0.9
+
+
+
+# - test_no: 1
+#   bench_type: "TPCC"
+#   test_type: "tiga"
+#   rate: 6000
+
+
+# - test_no: 1
+#   bench_type: "TPCC"
+#   test_type: "detock"
+#   rate: 10

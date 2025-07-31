@@ -102,6 +102,7 @@ if __name__ == '__main__':
         if bench_type == "TPCC":
             config_template = f"{tiga_common.CONFIG_PATH}/config-local-tpcc.yml"
             state_machine_info = ""
+            skew_factor = 0
         elif bench_type == "Micro":
             config_template = f"{tiga_common.CONFIG_PATH}/config-local-micro.yml"
             skew=int(skew_factor*100)
@@ -109,6 +110,7 @@ if __name__ == '__main__':
         else:
             print("not implemented benchtype ", bench_type)
             exit(0)
+
 
         preventive_mark = "preventive" if preventive else "detective"
         leader_mark = "leader-sep" if leader_rotation else "leader-colo" 
@@ -119,6 +121,7 @@ if __name__ == '__main__':
         # print_info(case_name)
         csv_path = f"{tiga_common.STATS_PATH}/{case_name}"
         df_list = []
+        df_complete = True
         for i in range(num_proxies):
             fname = f"{csv_path}/Proxy-{i}.csv"
             if os.path.exists(fname):
@@ -128,7 +131,14 @@ if __name__ == '__main__':
                 df_list.append(proxy_df)
             else:
                 tiga_common.print_error(f"{fname} Not exists")
+                df_complete = False
+        if df_complete is False:
+            print_info(f"This case might not run successfully: {case_name}")
+            continue
         all_df = pd.concat(df_list)
+        if(len(all_df)<100):
+            print_info(f"This case might not run successfully: {case_name}")
+            continue
         all_df['ProxyLatency'] = all_df['CommitTime']-all_df['SendTime']
         all_df['ProxyLatency'] =  all_df['ProxyLatency']/1000
         if (test_type == 'janus' 

@@ -17,6 +17,7 @@ LOGIN_PATH = "/home/steam"
 CONFIG_PATH= f"{LOGIN_PATH}/Tiga"
 BAZEL_BIN_PATH = f"{LOGIN_PATH}/Tiga/bazel-bin/"
 JANUS_BIN_PATH= f"{LOGIN_PATH}/Tiga/janus/build/"
+LOG_PATH = f"{LOGIN_PATH}/Tiga/scripts/log/"
 
 NCC_BIN_PATH=f"{LOGIN_PATH}/Tiga/ncc/janus/build/"
 COLLECT_LOG = False
@@ -252,7 +253,7 @@ def print_info(msg):
     print(colored(msg, "yellow", attrs=['bold']))
 
 def print_good(msg):
-    print(colored(msg, "red", attrs=['bold']))
+    print(colored(msg, "green", attrs=['bold']))
 
 def get_key_value(d, key, default, print_msg = True):
     ret = d[key] if key in d else default 

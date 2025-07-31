@@ -103,7 +103,6 @@ def MyPlotSkew(df, region_idx, show_legend=True, tag="Tag"):
                    prop={'size': 12, 'weight': 'normal'}, frameon=False,
                    handletextpad=0.3, columnspacing=1.5)
 
-
     # Save the figure
     with_legend = "-legend" if show_legend else ""
     output_file = f"{tag}-{region_category}{with_legend}.pdf"

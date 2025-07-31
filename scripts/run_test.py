@@ -122,6 +122,7 @@ if __name__ == '__main__':
     vm_ips = server_ips + proxy_ips 
     vm_names = server_names + proxy_names
 
+    # copy_binaries(vm_ips)
     run_command(vm_ips, "./clean.sh", in_background=False)
 
     yaml = ruamel.yaml.YAML()
@@ -452,7 +453,7 @@ if __name__ == '__main__':
 
 
 
-        log_folder = f"{tiga_common.LOGIN_PATH}/tiga/scripts/log/"
+        log_folder = tiga_common.LOG_PATH
         os.system("sudo rm -rf "+log_folder)
         os.system("sudo mkdir -m777 "+log_folder)
 

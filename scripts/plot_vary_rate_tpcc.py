@@ -47,13 +47,13 @@ y_category_labels = [
 ]
 
 y_ranges = [
-    (0, 50), (0, 105), (0, 1), (0, 1)
+    (0, 20), (0, 105), (0, 4), (0, 4)
 ]
 x_label = r"Per-Coordinator Rate ($10^3$ txns/s)"
-x_ranges =[0,25]
-x_tick_interval = 5
+x_ranges =[0,6]
+x_tick_interval = 1
 y_tick_intervals =[
-    25,50,0.5,0.5
+    10,50,2,2
 ]
 
 
@@ -78,28 +78,26 @@ def MyPlot(df, region_idx, show_legend=True, tag="Tag"):
 
         x_ticks = np.arange(0, xmax+1, x_tick_interval)
 
-        if ("Micro" in tag 
-            and "Throughput" in y_category_label 
+        if ("Throughput" in y_category_label 
             and region_idx==len(region_categories)-1):
-            ymax= 200
-            y_ticks = np.arange(0, ymax+100*0.5, 100)
-            #print("Spec", y_ticks)
+            ymax= 50
+            y_ticks = np.arange(0, ymax+10, 10)
         else:
             ymax = y_ranges[i][1]
             y_ticks = np.arange(
                 0, ymax+y_tick_intervals[i]*0.5, y_tick_intervals[i])
-            # print("Normal", y_ticks, "i=", i, y_tick_intervals[i])
         ax.set_ylim([ymin, ymax])
         ax.set_yticks(y_ticks)
         ax.set_xlim([xmin, xmax])
         ax.set_xticks(x_ticks)
         
+
         for j in range(len(x_category_labels)):
             x = df[df["TestType"] == x_categories[j]]["Rate"] / 1000
             x_category = x_categories[j]
             x_category_label = x_category_labels[j]
             y = df[df['TestType'] == x_category][y_category]
-
+            
             alpha = 1
             if "Commit" in y_category_label:
                 if x_category =='tiga' or x_category=='janus':

@@ -63,7 +63,8 @@ int main(int argc, char** argv) {
       assert(0);
    }
 
-   DetockLogManager* logMgr =
+   LOG(INFO) << "To Create Log Manager";
+   DetockLogManager *logMgr =
        new DetockLogManager(FLAGS_serverName, stateMachine);
 
    ConcurrentQueue<DetockLocalLogSync>* logSyncQu =

@@ -1,8 +1,35 @@
 import tiga_common
 import gcp_tools
+import ruamel.yaml
 
 run_command = tiga_common.run_command
 scp_files = tiga_common.scp_files
+
+
+
+def generate_ttcs_cfg_file(internal_ip, is_reference=False, use_ntp=False):
+    yaml = ruamel.yaml.YAML()
+    cwcs_f = open("cwcs-agent-tpl.yaml", "r")
+    cwcs = yaml.load(cwcs_f)
+    cwcs["management_address"] = internal_ip
+    cwcs["subscription_mode"] = True 
+    cwcs["subscription_endpoints"] = [tiga_common.TTCS_COORDINATOR_IP+":6176"]
+    cwcs["probe_address"] = internal_ip
+    cwcs["clock_quality"] = 1
+    print("use_ntp=", use_ntp)
+    
+    if is_reference:
+        cwcs["clock_quality"] = 10
+        cwcs["correct_clock"] = True 
+
+    if use_ntp:
+        cwcs["correct_clock"] = False 
+    else:
+        cwcs["correct_clock"] = True 
+    print("cwcs[correct_clock]=", cwcs["correct_clock"])
+    out_f = open("cwcs-agent.yaml", "w")
+    yaml.dump(cwcs, out_f);
+
 
 def start_ttcs_batches(internal_ip_list, is_reference, use_ntp=False):
     clean_prev_deb_cmd = "sudo dpkg -P cwcs-agent"

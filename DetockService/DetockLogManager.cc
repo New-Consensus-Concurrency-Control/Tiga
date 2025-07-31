@@ -12,6 +12,8 @@ DetockLogManager::DetockLogManager(const std::string& serverName,
 
    logMangerRPCPoll_ = new PollMgr(2);
    YAML::Node config = sm_->Config();
+   LOG(INFO) << "Fill Addrs ShardNum="<< sm_->ShardNum()
+      <<"\t ReplicaNum="<<sm_->ReplicaNum();
    // Get my IDs <shardId, replicaId>
    for (uint32_t sid = 0; sid < sm_->ShardNum(); sid++) {
       for (uint32_t rid = 0; rid < sm_->ReplicaNum(); rid++) {
@@ -22,8 +24,10 @@ DetockLogManager::DetockLogManager(const std::string& serverName,
          std::string ip = config["host"][thisServerName].as<std::string>();
          int port = std::stoi(portName);
          logManagerAddrs_[sid][rid] = ip + ":" + std::to_string(port + 2);
+         LOG(INFO)<<"sid="<<sid <<"--rid="<<rid<<"\tAddr="<<logManagerAddrs_[sid][rid];
       }
    }
+   LOG(INFO) << "Log Manager Constructed";
 }
 
 void DetockLogManager::ConnectOtherLogManager() {

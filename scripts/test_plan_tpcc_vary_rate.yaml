@@ -1,0 +1,283 @@
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "2pl"
+  rate: 10
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "occ"
+  rate: 10
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "tapir"
+  rate: 10
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "janus"
+  rate: 10
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "ncc"
+  rate: 10
+
+# - test_no: 1
+#   bench_type: "TPCC"
+#   test_type: "ncc-ft"
+#   rate: 10
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "calvin"
+  rate: 10
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "detock"
+  rate: 10
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "tiga"
+  rate: 10
+#===========================
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "2pl"
+  rate: 50
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "occ"
+  rate: 50
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "tapir"
+  rate: 50
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "janus"
+  rate: 50
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "ncc"
+  rate: 50
+
+# - test_no: 1
+#   bench_type: "TPCC"
+#   test_type: "ncc-ft"
+#   rate: 50
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "calvin"
+  rate: 50
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "detock"
+  rate: 50
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "tiga"
+  rate: 50
+#===========================
+
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "2pl"
+  rate: 100
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "occ"
+  rate: 100
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "tapir"
+  rate: 100
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "janus"
+  rate: 100
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "ncc"
+  rate: 100
+
+# - test_no: 1
+#   bench_type: "TPCC"
+#   test_type: "ncc-ft"
+#   rate: 100
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "calvin"
+  rate: 100
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "detock"
+  rate: 100
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "tiga"
+  rate: 100
+#===========================
+
+
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "2pl"
+  rate: 1000
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "occ"
+  rate: 1000
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "tapir"
+  rate: 1000
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "janus"
+  rate: 1000
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "ncc"
+  rate: 1000
+
+# - test_no: 1
+#   bench_type: "TPCC"
+#   test_type: "ncc-ft"
+#   rate: 1000
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "calvin"
+  rate: 1000
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "detock"
+  rate: 1000
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "tiga"
+  rate: 1000
+#===========================
+
+
+
+
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "2pl"
+  rate: 3000
+
+# - test_no: 1
+#   bench_type: "TPCC"
+#   test_type: "occ"
+#   rate: 3000
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "tapir"
+  rate: 3000
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "janus"
+  rate: 3000
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "ncc"
+  rate: 3000
+
+# - test_no: 1
+#   bench_type: "TPCC"
+#   test_type: "ncc-ft"
+#   rate: 3000
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "calvin"
+  rate: 3000
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "detock"
+  rate: 3000
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "tiga"
+  rate: 3000
+#===========================
+
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "2pl"
+  rate: 6000
+
+# - test_no: 1
+#   bench_type: "TPCC"
+#   test_type: "occ"
+#   rate: 6000
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "tapir"
+  rate: 6000
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "janus"
+  rate: 6000
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "ncc"
+  rate: 6000
+
+# - test_no: 1
+#   bench_type: "TPCC"
+#   test_type: "ncc-ft"
+#   rate: 6000
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "calvin"
+  rate: 6000
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "detock"
+  rate: 6000
+
+- test_no: 1
+  bench_type: "TPCC"
+  test_type: "tiga"
+  rate: 6000
+#===========================
