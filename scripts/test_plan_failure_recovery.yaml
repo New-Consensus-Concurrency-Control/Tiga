@@ -10,4 +10,6 @@
   owd_estimate_percentile: 50
   test_failure_recovery: True 
   synced_logid_before_failure: 600000
+  run_time_sec: 40
+  grace_period_sec: 40
   prefix: "FailureRecovery-"

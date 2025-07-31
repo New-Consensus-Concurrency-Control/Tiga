@@ -26,7 +26,7 @@ def ThroughputAnalysis(merge_df):
         pd.Grouper(key='time', freq='{}s'.format(bin_interval_s)))
     grouped_apply_orders = grouped.apply(throughput_apply_func, include_groups=False)
     grouped_apply_orders = grouped_apply_orders.dropna()
-    grouped_apply_orders = grouped_apply_orders[5:-5]
+    # grouped_apply_orders = grouped_apply_orders[5:-5]
     # print(list(grouped_apply_orders['AvgThroughput']))
     duration = len(grouped_apply_orders)
     throughput = (grouped_apply_orders['AvgThroughput']/bin_interval_s).mean()
@@ -59,7 +59,7 @@ if __name__ == '__main__':
     test_plan = yaml.load(test_plan_f)
 
 
-    header = "BenchType\tTestType\tTestNo\tRate\t50p\t90p\tThroughput\tCommitRate"
+    header = "BenchType\tTestType\tTestNo\tRate\tSkew\t50p\t90p\tThroughput\tCommitRate\tRegionIdx\tPrefix"
     print(header)
      
     stats_csv_files = [
@@ -68,8 +68,9 @@ if __name__ == '__main__':
     ] + [
         test_plan_file.split(".")[0]+f"-region-all.csv" 
     ]
+    os.system(f"sudo mkdir -m777 -p {tiga_common.SUMMARY_STATS_PATH}")
     stats_fs = [ 
-        open(stats_csv_file, "w")
+        open(f"{tiga_common.SUMMARY_STATS_PATH}/{stats_csv_file}", "w")
         for stats_csv_file in stats_csv_files
     ]
     for region_idx in  range(len(stats_csv_files)):
@@ -123,10 +124,10 @@ if __name__ == '__main__':
             if os.path.exists(fname):
                 proxy_df = pd.read_csv(fname)
                 proxy_df['ProxyID']=i 
-                proxy_df["RegionID"]= tiga_common.PROXY_REGIONs[i]
+                proxy_df["RegionID"]= tiga_common.PROXY_REGIONS[i]
                 df_list.append(proxy_df)
             else:
-                tiga_common.print_error(fname, " Not exists")
+                tiga_common.print_error(f"{fname} Not exists")
         all_df = pd.concat(df_list)
         all_df['ProxyLatency'] = all_df['CommitTime']-all_df['SendTime']
         all_df['ProxyLatency'] =  all_df['ProxyLatency']/1000
@@ -149,12 +150,17 @@ if __name__ == '__main__':
                 abort_rate = aborted_txn_num/ (len(region_df)+ aborted_txn_num) 
             else: 
                 abort_rate = 0
-            stats = f"{bench_type}\t{test_type}\t{test_no}\t{rate}\t"
+            stats = f"{bench_type}\t{test_type}\t{test_no}\t{rate}\t{skew_factor}\t"
             stats += str(np.round(region_df['ProxyLatency'].quantile(.5),2))+"\t"
             stats += str(np.round(region_df['ProxyLatency'].quantile(.9),2))+"\t"
             throughput_stats, duration = ThroughputAnalysis(region_df.copy())
             stats += str(np.round(throughput_stats*0.001,decimals=2))+"\t"
-            stats += str(int(100-abort_rate*100))
+            stats += str(int(100-abort_rate*100))+"\t"
+            stats += str(int(region_idx))+"\t"
+            if prefix == "":
+                stats += "NULL"
+            else:
+                stats += prefix
             print(stats)
             stats_fs[region_idx].write(stats +"\n")
     for stats_f in stats_fs:

@@ -9,7 +9,7 @@ bench:
     teller: 1000000
     customer: 1000000
   dist: zipf
-  coefficient: 0.5 # 0 as unifrom, 1 as pure zipf
+  coefficient: 0.99 # 0 as unifrom, 1 as pure zipf
 
 schema:
   - name: branch
@@ -89,12 +89,12 @@ site:
     -   - uiga-server-s-00-r-00:10000
         - uiga-server-s-00-r-01:10100
         - uiga-server-s-00-r-02:10200
-    -   - uiga-server-s-01-r-00:10300
-        - uiga-server-s-01-r-01:10400
+    -   - uiga-server-s-01-r-01:10400
         - uiga-server-s-01-r-02:10500
-    -   - uiga-server-s-02-r-00:10600
+        - uiga-server-s-01-r-00:10300
+    -   - uiga-server-s-02-r-02:10800
+        - uiga-server-s-02-r-00:10600
         - uiga-server-s-02-r-01:10700
-        - uiga-server-s-02-r-02:10800
 server_initial_bound:
   - 60000
   - 100000
@@ -112,7 +112,7 @@ clockOffset:
   std: 0
 spec_exec: false
 
-preventive: true
+preventive: false
 
 nezha-recorder: 127.0.0.1:41237
 

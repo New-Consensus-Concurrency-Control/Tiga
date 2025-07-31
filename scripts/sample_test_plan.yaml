@@ -3,12 +3,12 @@
 #   test_type: "tiga"
 #   rate: 25000
 
-- test_no: 2
-  bench_type: "Micro"
-  test_type: "tiga"
-  leader_rotation: True
-  preventive: False
-  rate: 25000
+# - test_no: 2
+#   bench_type: "Micro"
+#   test_type: "tiga"
+#   leader_rotation: True
+#   preventive: False
+#   rate: 25000
 
 # - test_no: 2
 #   bench_type: "Micro"
@@ -29,3 +29,16 @@
 #   rate: 20000
 #   clock_approach: "logical"
 #   prefix: "logical-"
+
+
+- test_no: 2
+  bench_type: "Micro"
+  test_type: "detock"
+  rate: 8000
+  skew_factor: 0.8
+
+- test_no: 2
+  bench_type: "Micro"
+  test_type: "detock"
+  rate: 8000
+  skew_factor: 0.9

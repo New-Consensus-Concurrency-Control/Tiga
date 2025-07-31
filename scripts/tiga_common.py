@@ -14,22 +14,24 @@ UGIA_IP=""
 # IMAGE_FAMILY="tiga-img"
 IMAGE_FAMILY="tiga-img-ubuntu16"
 LOGIN_PATH = "/home/steam"
-CONFIG_PATH= f"{LOGIN_PATH}/tiga"
-BAZEL_BIN_PATH = f"{LOGIN_PATH}/tiga/bazel-bin/"
-JANUS_BIN_PATH= f"{LOGIN_PATH}/tiga/janus/build/"
+CONFIG_PATH= f"{LOGIN_PATH}/Tiga"
+BAZEL_BIN_PATH = f"{LOGIN_PATH}/Tiga/bazel-bin/"
+JANUS_BIN_PATH= f"{LOGIN_PATH}/Tiga/janus/build/"
 
-NCC_BIN_PATH=f"{LOGIN_PATH}/tiga/ncc/janus/build/"
+NCC_BIN_PATH=f"{LOGIN_PATH}/Tiga/ncc/janus/build/"
 COLLECT_LOG = False
-LOG_FOLDER=f"{LOGIN_PATH}/tiga/scripts2/log/"
+LOG_FOLDER=f"{LOGIN_PATH}/Tiga/scripts/log/"
 CHECK_POINT_FILE = f"{LOGIN_PATH}/tiga.ckpt"
 STATS_PATH = f"/mnt/disks/data"
-LOCAL_CLEAN_FILE=f"{LOGIN_PATH}/tiga/scripts2/clean.sh"
-TEST_PLAN_FILE=f"{LOGIN_PATH}/tiga/scripts2/test_plan.yaml"
-RUN_TIME_SEC = 30
-GRACEFUL_PERIOD = 20
+LOCAL_CLEAN_FILE=f"{LOGIN_PATH}/Tiga/scripts/clean.sh"
+TEST_PLAN_FILE=f"{LOGIN_PATH}/Tiga/scripts/test_plan.yaml"
+
+
+SUMMARY_STATS_PATH=f"{LOGIN_PATH}/Tiga/scripts/summary/"
+FIGS_PATH=f"{LOGIN_PATH}/Tiga/scripts/figs/"
 
 TAG = "uiga"
-SSH_KEY = f"{LOGIN_PATH}/.ssh/id_rsa"
+SSH_KEY = f"{LOGIN_PATH}/.ssh/ae_rsa"
 ssh_identity = '-i {}'.format(SSH_KEY) if SSH_KEY else ''
 # Prefix for SSH and SCP.
 SSH = 'ssh {} -q -o ConnectTimeout=2 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no '.format(
@@ -48,6 +50,7 @@ SERVER_REGIONS = ["us-east1-b", "europe-north1-a", "southamerica-east1-a"]
 REMOTE_REGIONS = ["asia-east2-b"] 
 ALL_REGIONS = SERVER_REGIONS + REMOTE_REGIONS
 
+SHUTDOWN_AFTER_RUN = False
 
 ############################################################
 TIGA_BOUND_CAP = 400000
@@ -55,7 +58,7 @@ TIGA_YIELD_PERIOD_US = 10000 # 100000 --slow path effect
 TIGA_INIT_BOUND_ESTIMATION_LOCAL =[60000, 100000, 100000]  
 CALVIN_INIT_BOUND_ESTIMATION = [60000, 100000, 100000]
 TIGA_INIT_BOUND_ESTIMATION_REMOTE = 150000
-DETOCK_CAP = 15000
+DETOCK_CAP = 5000
 CALVIN_CAP= 15000
 TIGA_CAP = 15000
 LOG_UNIT = 10000
@@ -85,7 +88,7 @@ REGION_PROXIES = [
     [2,5],
     [6,7]
 ]
-PROXY_REGIONs = [
+PROXY_REGIONS = [
     0,1,2,0,1,2,3,3
 ]
 

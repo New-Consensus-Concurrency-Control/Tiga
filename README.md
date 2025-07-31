@@ -1,17 +1,24 @@
-# Tiga
+# Tiga: Lightweight and Latency-Optimal Geo-Distributed Transactions with Loosely Synchronized Clocks [Artifact Evaluation]
 
 
 
 ## Getting started
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+All our evaluation is conducted on Google Cloud Platform (GCP), using n2-16-standard VMs. During the evaluation, we have applied the high-accuracy clock synchronization algorithm, i.e., [Huygens](), to synchronize the clocks for all VMs. Huygens is now available on GCP, and GCP tenants can install the algorithm easily following the instruction [here](https://www.usenix.org/system/files/conference/nsdi18/nsdi18-geng.pdf). 
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+The free trial of Huygens only allow 10 VMs to be synchornized and tenants need to pay for the larger-scale cluster. To make it easy for evaluators to conduct artifact evaluation, we have provisioned and installed the Huygens service for our GCP cluster and the cluster is open to evaluators during the evaluation period. Besides, evaluators can also choose to use Chrony/NTP to synchronize cluster clocks. Chrony and NTP are already available on GCP and they can also provide sufficiently good synchronization for Tiga to achieve high performance.
 
-## Add your files
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+We recommend the evaluators directly use our cluster, and we have configured the environment on the cluster and will undertake the cost (Special thanks to Google Research Credit Program). Of course, building everything from scratch is also do-able, and we provide the instruction document [here](instruction.md).
+
+
+
+## Evaluation Workflow
+
+
+- Log into the controller VM. Initially, we have shutdown all VMs in our cluster and only have one controller VM turned on. We 
+
+
 
 ```
 cd existing_repo

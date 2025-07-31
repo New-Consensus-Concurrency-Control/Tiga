@@ -1,0 +1,96 @@
+- test_no: 1
+  bench_type: "Micro"
+  test_type: "tiga"
+  rate: 8000
+  skew_factor: 0.5
+  prefix: "Colocate"
+
+- test_no: 1
+  bench_type: "Micro"
+  test_type: "tiga"
+  rate: 8000
+  skew_factor: 0.5
+  preventive: False 
+  leader_rotation: True
+  prefix: "Separate"
+
+
+- test_no: 1
+  bench_type: "Micro"
+  test_type: "tiga"
+  rate: 8000
+  skew_factor: 0.6
+  prefix: "Colocate"
+
+- test_no: 1
+  bench_type: "Micro"
+  test_type: "tiga"
+  rate: 8000
+  skew_factor: 0.6
+  preventive: False 
+  leader_rotation: True
+  prefix: "Separate"
+
+- test_no: 1
+  bench_type: "Micro"
+  test_type: "tiga"
+  rate: 8000
+  skew_factor: 0.7
+  prefix: "Colocate"
+
+- test_no: 1
+  bench_type: "Micro"
+  test_type: "tiga"
+  rate: 8000
+  skew_factor: 0.7
+  preventive: False 
+  leader_rotation: True
+  prefix: "Separate"
+
+- test_no: 1
+  bench_type: "Micro"
+  test_type: "tiga"
+  rate: 8000
+  skew_factor: 0.8
+  prefix: "Colocate"
+
+- test_no: 1
+  bench_type: "Micro"
+  test_type: "tiga"
+  rate: 8000
+  skew_factor: 0.8
+  preventive: False 
+  leader_rotation: True
+  prefix: "Separate"
+
+- test_no: 1
+  bench_type: "Micro"
+  test_type: "tiga"
+  rate: 8000
+  skew_factor: 0.9
+  prefix: "Colocate"
+
+- test_no: 1
+  bench_type: "Micro"
+  test_type: "tiga"
+  rate: 8000
+  skew_factor: 0.9
+  preventive: False 
+  leader_rotation: True
+  prefix: "Separate"
+
+- test_no: 1
+  bench_type: "Micro"
+  test_type: "tiga"
+  rate: 8000
+  skew_factor: 0.99
+  prefix: "Colocate"
+
+- test_no: 1
+  bench_type: "Micro"
+  test_type: "tiga"
+  rate: 8000
+  skew_factor: 0.99
+  preventive: False 
+  leader_rotation: True
+  prefix: "Separate"

@@ -123,7 +123,6 @@ if __name__ == '__main__':
     vm_names = server_names + proxy_names
 
     run_command(vm_ips, "./clean.sh", in_background=False)
-    # copy_binaries(vm_ips)
 
     yaml = ruamel.yaml.YAML()
     test_plan_f = open(test_plan_file, 'r')
@@ -148,6 +147,11 @@ if __name__ == '__main__':
             case, "synced_logid_before_failure", 600000)
         clock_approach = get_key_value(
             case, "clock_approach", "cwcs")
+        run_time_sec = get_key_value(
+            case, "run_time_sec", 30
+        )
+        grace_period_sec = get_key_value(
+            case, "grace_period_sec", 20)
 
         # Generate configs
         if bench_type == "TPCC":
@@ -280,7 +284,7 @@ if __name__ == '__main__':
                 log_file =  "server-log-s-"+str(sid)+"-r-"+str(0)                                
                 server_cmd = (f"./deptran_server_ncc -b  "
                     " -r \"\" "
-                    f" -t {tiga_common.RUN_TIME_SEC} "
+                    f" -t {run_time_sec} "
                     f" -f ./config-tpl-n.yml -d 30 "
                     f" -P {server_name} > {log_file} 2>&1 &") 
                 print_info(f"{server_name_dict[server_name]}\t{server_cmd}")
@@ -292,7 +296,7 @@ if __name__ == '__main__':
                 server_name =tiga_common.TAG+"-server-s-"+str(sid).zfill(2)+"-r-"+str(0).zfill(2)
                 log_file =  "server-log-s-"+str(sid)+"-r-"+str(0)                                
                 server_cmd = (f"./deptran_server_ncc -b  "
-                    f" -t {tiga_common.RUN_TIME_SEC} "
+                    f" -t {run_time_sec} "
                     f" -f ./config-tpl-n.yml -d 30 "
                     f" -P {server_name} > {log_file} 2>&1 &") 
                 print_info(f"{server_name_dict[server_name]}\t{server_cmd}")
@@ -351,7 +355,7 @@ if __name__ == '__main__':
                         +"-r-"+str(rid).zfill(2))
                     log_file = "server-log-s-"+str(sid)+"-r-"+str(rid) 
                     server_cmd = (f"./deptran_server -b "
-                        f" -t {tiga_common.RUN_TIME_SEC} "
+                        f" -t {run_time_sec} "
                         f" -f ./config-tpl-n.yml -d 30  "
                         f" -P {server_name} > {log_file} 2>&1 &")
                     print_info(f"{server_name_dict[server_name]}\t{server_cmd}")
@@ -374,7 +378,7 @@ if __name__ == '__main__':
             if test_type == 'tiga':
                 proxy_cmd = (f"GLOG_logtostderr=1 ./TigaClient " 
                     f" --config=./config-tpl-n.yml "
-                    f" --runTimeSec={tiga_common.RUN_TIME_SEC} "
+                    f" --runTimeSec={run_time_sec} "
                     f" --serverName={process_name} "
                     f" --mcap={tiga_common.TIGA_CAP} " # maybe obsolete
                     f" --cap={tiga_common.TIGA_BOUND_CAP} "
@@ -385,7 +389,7 @@ if __name__ == '__main__':
             elif test_type == 'detock':
                 proxy_cmd = (f"GLOG_logtostderr=1 ./DetockClient "
                     f" --config=./config-tpl-n.yml "
-                    f" --runTimeSec={tiga_common.RUN_TIME_SEC} "
+                    f" --runTimeSec={run_time_sec} "
                     f" --serverName={process_name} "
                     f" --mcap={tiga_common.DETOCK_CAP} "
                     f" --logPrintUnit={tiga_common.LOG_UNIT} "
@@ -404,7 +408,7 @@ if __name__ == '__main__':
 
                 proxy_cmd = (f"GLOG_logtostderr=1 ./CalvinClient "
                     f" --config=./config-tpl-n.yml "
-                    f" --runTimeSec={tiga_common.RUN_TIME_SEC} "
+                    f" --runTimeSec={run_time_sec} "
                     f" --serverName={process_name} "
                     f" --designateShardId={designate_shard_id} "
                     f" --designateReplicaId={designate_replica_id} "
@@ -413,13 +417,13 @@ if __name__ == '__main__':
                     f" > {log_file} 2>&1 &")
             elif test_type == 'ncc' or test_type == 'ncc-ft':
                 proxy_cmd = (f"./deptran_server_ncc -b  "
-                    f" -t {tiga_common.RUN_TIME_SEC} "
+                    f" -t {run_time_sec} "
                     f" -f ./config-tpl-n.yml -d 30  "
                     f" -P {process_name} > {log_file} 2>&1 &")
 
             else:
                 proxy_cmd = (f"./deptran_server -b  "
-                    f" -t {tiga_common.RUN_TIME_SEC} "
+                    f" -t {run_time_sec} "
                     f" -f ./config-tpl-n.yml -d 30  "
                     f" -P {process_name} > {log_file} 2>&1 &")
 
@@ -427,7 +431,7 @@ if __name__ == '__main__':
             run_command([proxy_ips[i]], proxy_cmd, in_background = True)
     
 
-        time.sleep(tiga_common.RUN_TIME_SEC + tiga_common.GRACEFUL_PERIOD)
+        time.sleep(run_time_sec + grace_period_sec)
 
         os.system(f"sudo rm -rf {tiga_common.STATS_PATH}/{case_name}")
         os.system(f"sudo mkdir -p -m777 {tiga_common.STATS_PATH}/{case_name}")
@@ -481,25 +485,26 @@ if __name__ == '__main__':
                         scp_files([server_name_dict[server_name]], 
                             local_path, remote_path, to_remote=False)
 
-    # print_info("To stop instance in 10 sec")
-    # time.sleep(10)
-    # print_info("Stoping...")
-    # for region in tiga_common.SERVER_REGIONS:
-    #     info_arr = gcp_tools.get_instance_info_by_tag(
-    #         tiga_common.TAG +"-server-s-", region)
-    #     instances_to_start = []
-    #     for info in info_arr:
-    #         instance_name = info[0]
-    #         if instance_name in server_names:
-    #             instances_to_start.append(instance_name)
-    #     gcp_tools.stop_instance_list(instances_to_start, region)
+    if tiga_common.SHUTDOWN_AFTER_RUN is True:
+        print_info("To stop instance in 10 sec")
+        time.sleep(10)
+        print_info("Stoping...")
+        for region in tiga_common.SERVER_REGIONS:
+            info_arr = gcp_tools.get_instance_info_by_tag(
+                tiga_common.TAG +"-server-s-", region)
+            instances_to_start = []
+            for info in info_arr:
+                instance_name = info[0]
+                if instance_name in server_names:
+                    instances_to_start.append(instance_name)
+            gcp_tools.stop_instance_list(instances_to_start, region)
 
-    # for region in tiga_common.ALL_REGIONS:
-    #     info_arr = gcp_tools.get_instance_info_by_tag(
-    #         tiga_common.TAG+"-proxy-", region)
-    #     instances_to_start = []
-    #     for info in info_arr:
-    #         instance_name = info[0]
-    #         if instance_name in proxy_names:
-    #             instances_to_start.append(instance_name)
-    #     gcp_tools.stop_instance_list(instances_to_start, region)
+        for region in tiga_common.ALL_REGIONS:
+            info_arr = gcp_tools.get_instance_info_by_tag(
+                tiga_common.TAG+"-proxy-", region)
+            instances_to_start = []
+            for info in info_arr:
+                instance_name = info[0]
+                if instance_name in proxy_names:
+                    instances_to_start.append(instance_name)
+            gcp_tools.stop_instance_list(instances_to_start, region)
