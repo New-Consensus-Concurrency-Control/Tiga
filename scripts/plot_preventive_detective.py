@@ -117,7 +117,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--tag',  
         type=str, 
-        default = "Micro",
+        default = "Micro-Colo-Sepa",
         help='Specify the tag')
     parser.add_argument(
         '--test_plan',  

@@ -16,13 +16,14 @@ We recommend the evaluators directly use our cluster, because we have configured
 ## Evaluation Workflow
 
 
-- Log into the controller VM. Initially, we have shut down all VMs in our cluster and only have one controller VM turned on. We have provided the private SSH key in the submitted material, and evaluators use the key to log into the controller and proceed the follow-up workflow. **If you have not received the SSH key file (`ae_rsa`), please contact gjk1994@stanford.edu.** 
+- Log into the controller VM. Initially, we have shut down all VMs in our cluster and only have one controller VM turned on. We have provided a dropbox link to share the private SSH key file in the submitted material (`Technical Requiremens`), and evaluators use the key to log into the controller and proceed the follow-up workflow. **If you have not received the SSH key file (`ae_rsa`), please contact gjk1994@stanford.edu.** 
 
 ```
-ssh -i ae_rsa steam@34.73.25.115
+ssh -i ae_rsa steam@ControllerIP
 ```
+The Controller IP has also be included in the shared dropbox link, see file `login-ssh-cmd`. 
 
-34.73.25.115 is the controller's IP address. We have launched the dashboard to monitor clock synchronization of the cluster, which can be viewed from any browser at http://34.73.25.115:6172/sensei/monitor/. Initially, you can only view one circle (controller) on the dashboard, because the cluster has been shut down. Later you will see the synchronized servers on the dashboard as [this](instructions/huygens-dashboard.jpg). 
+34.73.25.115 is the controller's IP address. We have launched the dashboard to monitor clock synchronization of the cluster, which can be viewed from any browser at http://xxxx/sensei/monitor/ (xxx is the ControllerIP). Initially, you can only view one circle (controller) on the dashboard, because the cluster has been shut down. Later you will see the synchronized servers on the dashboard as [this](instructions/huygens-dashboard.jpg). 
 
 
 If the dashboard needs password, please check the file on the controller.
@@ -57,7 +58,7 @@ After servers and proxies are all started, we then launch Huygens to synchronize
 python clock_sync.py --num_replicas=3 --num_shards=3 --num_proxies=8 --action="start" --clock_sync="cwcs"
 ```
 
-We can view the synchronization status on the [dashboard](http://34.73.25.115:6172/sensei/monitor/). 
+We can view the synchronization status on the dashboard. 
 
 
 ## Sample Run
@@ -92,7 +93,7 @@ Before we proceed with the artifact evaluation, we highlight a few points.
 Next we evaluate MicroBench and reproduce the figures in our paper. 
 
 
-#### Figure 6 and Figure 7
+### Figure 6 and Figure 7
 We have configured the test plan as `scripts/test_plan_micro_vary_rate.yaml`, which contains more than 50 test cases, so please run them in `tmux` session.
 
 
@@ -115,7 +116,7 @@ After completing these test cases, the data have all been collected in `tiga_com
 
 ```
 
-#### Figure 8
+### Figure 8
 We have configured the test plan as `scripts/test_plan_micro_vary_skew.yaml`
 ```
 python run_test.py --num_replica=3 --num_shards=3 --num_proxies=8  --test_plan=test_plan_micro_vary_skew.yaml
@@ -138,7 +139,7 @@ Then the figure(s) will be generated under `tiga_common.FIGS_PATH`, and Figure 8
 
 
 
-#### Figure 9
+### Figure 9
 We have configured the test plan as `scripts/test_plan_tpcc_vary_rate.yaml`
 ```
 python run_test.py --num_replica=3 --num_shards=6 --num_proxies=8  --test_plan=test_plan_tpcc_vary_rate.yaml
@@ -155,10 +156,10 @@ Next, we plot the figure(s) as
 ```
 python plot_vary_rate_tpcc.py  --test_plan=test_plan_tpcc_vary_rate.yaml --tag=TPCC-Vary-Rate 
 ```
-Then the figure(s) will be generated under `tiga_common.FIGS_PATH`, and Figure 8 corresponds to `TPCC-Vary-Rate-All-legend.pdf`
+Then the figure(s) will be generated under `tiga_common.FIGS_PATH`, and Figure 9 corresponds to `TPCC-Vary-Rate-All-legend.pdf`
 
 
-#### Figure 10
+### Figure 10
 
 We have configured the test plan as `scripts/test_plan_failure_recovery.yaml`
 ```
@@ -172,11 +173,28 @@ python plot_failure_recovery.py  --test_plan=test_plan_failure_recovery.yaml
 Then the figure(s) will be generated under `tiga_common.FIGS_PATH`, and Figure 10 corresponds to `failure-recovery-thpt.pdf` and `failure-recovery-latency-region.pdf`
 
 
-#### Figure 11
+### Figure 11
 We have configured the test plan as `scripts/test_plan_tpcc_vary_rate.yaml`
 ```
-python run_test.py --num_replica=3 --num_shards=6 --num_proxies=8  --test_plan=test_plan_tpcc_vary_rate.yaml
+python run_test.py --num_replica=3 --num_shards=3 --num_proxies=8  --test_plan=test_plan_preventive_detective.yaml
 ```
+
+
+After completing these test cases, the data have all been collected in `tiga_common.STATS_PATH`. Then we can process these data to generate some CSV files, which will be used to plot figures.
+```
+python analysis.py  --num_replicas=3 --num_shards=3 --num_proxies=8  --test_plan=test_plan_preventive_detective.yaml
+```
+After the data is processed, we have some csv files generated under `tiga_common.SUMMARY_STATS_PATH`. These CSV file names share the same prefix as the yaml file (i.e., test_plan_preventive_detective*.csv).
+
+Next, we plot the figure(s) as 
+
+```
+python plot_preventive_detective.py  --test_plan=test_plan_preventive_detective.yaml --tag=Micro-Colo-Sepa
+```
+Then the figure(s) will be generated under `tiga_common.FIGS_PATH`, and Figure 11 corresponds to `Micro-Colo-Sepa-Local-1-legend.pdf` and `Micro-Colo-Sepa-Remote-legend.pdf`
+
+
+### Figure 12
 
 
 ## License
