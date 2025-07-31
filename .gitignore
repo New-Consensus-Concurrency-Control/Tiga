@@ -2,6 +2,9 @@ configs/*.yaml
 scripts/bus-data/*
 scripts/log/*
 scripts/debugStats/*
+scripts/figs/*
+scripts/log/*
+scripts/summary/*
 scripts2/__pycache__/*
 janus/build/*
 ncc/janus/build/*
