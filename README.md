@@ -23,7 +23,7 @@ ssh -i ae_rsa steam@ControllerIP
 ```
 The Controller IP has also be included in the shared dropbox link, see file `login-ssh-cmd`. 
 
-34.73.25.115 is the controller's IP address. We have launched the dashboard to monitor clock synchronization of the cluster, which can be viewed from any browser at http://xxxx/sensei/monitor/ (xxx is the ControllerIP). Initially, you can only view one circle (controller) on the dashboard, because the cluster has been shut down. Later you will see the synchronized servers on the dashboard as below. 
+We have launched the dashboard to monitor clock synchronization of the cluster, which can be viewed from any browser at http://xxxx/sensei/monitor/ (xxx is the ControllerIP). Initially, you can only view one circle (controller) on the dashboard, because the cluster has been shut down. Later you will see the synchronized servers on the dashboard as below. 
 
 ![demo-dashboard](instructions/huygens-dashboard.jpg). 
 
