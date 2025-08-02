@@ -13,7 +13,7 @@ The free trial of Huygens only allow 10 VMs to be synchornized and tenants need 
 
 
 
-## Evaluation Workflow
+## Log Into Controller
 
 
 - Log into the controller VM. Initially, we have shut down all VMs in our cluster and only have one controller VM turned on. We have provided a dropbox link to share the private SSH key file in the submitted material (`Technical Requiremens`), and evaluators use the key to log into the controller and proceed the follow-up workflow. **If you have not received the SSH key file (`ae_rsa`), please contact gjk1994@stanford.edu.** 
@@ -28,7 +28,7 @@ The Controller IP has also be included in the shared dropbox link, see file `log
 ![demo-dashboard](instructions/huygens-dashboard.jpg). 
 
 
-If the dashboard nååeeds password, please check the file on the controller.
+If the dashboard needs password, please check the file on the controller.
 
 ```
 cat ~/dashboard-login
