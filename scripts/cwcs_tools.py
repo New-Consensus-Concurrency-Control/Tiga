@@ -15,9 +15,7 @@ def generate_ttcs_cfg_file(internal_ip, is_reference=False, use_ntp=False):
     cwcs["subscription_mode"] = True 
     cwcs["subscription_endpoints"] = [tiga_common.TTCS_COORDINATOR_IP+":6176"]
     cwcs["probe_address"] = internal_ip
-    cwcs["clock_quality"] = 1
-    print("use_ntp=", use_ntp)
-    
+    cwcs["clock_quality"] = 1    
     if is_reference:
         cwcs["clock_quality"] = 10
         cwcs["correct_clock"] = True 
@@ -26,7 +24,8 @@ def generate_ttcs_cfg_file(internal_ip, is_reference=False, use_ntp=False):
         cwcs["correct_clock"] = False 
     else:
         cwcs["correct_clock"] = True 
-    print("cwcs[correct_clock]=", cwcs["correct_clock"])
+    flag = cwcs["correct_clock"]
+    tiga_common.print_info(f"cwcs[correct_clock]={flag}")
     out_f = open("cwcs-agent.yaml", "w")
     yaml.dump(cwcs, out_f);
 
@@ -65,6 +64,38 @@ def start_ttcs_batches(internal_ip_list, is_reference, use_ntp=False):
 
     sys_start_ttcp_agent_cmd = "sudo systemctl start cwcs-agent"
     run_command(internal_ip_list, sys_start_ttcp_agent_cmd, in_background=False)
+
+def observe_ttcs(internal_ip_list):
+    remote_dir = "/etc/opt/cwcs"
+    remote_path = remote_dir + "/cwcs-agent.yaml"
+    chmod_cmd = f"sudo chmod -R 777 {remote_dir}"
+    run_command(internal_ip_list, chmod_cmd, in_background=False)
+    rm_cmd = f"sudo rm -f {remote_path}"
+    run_command(internal_ip_list, rm_cmd, in_background=False)
+    for internal_ip in internal_ip_list:
+        cfg_file = generate_ttcs_cfg_file(internal_ip, is_reference=False, use_ntp = True)
+        local_file_path = "./cwcs-agent.yaml"
+        scp_files([internal_ip], local_file_path, remote_path, to_remote=True)
+    sys_start_ttcp_agent_cmd = "sudo systemctl start cwcs-agent"
+    run_command(internal_ip_list, sys_start_ttcp_agent_cmd, in_background=False)
+
+
+
+def resync_ttcs(internal_ip_list):
+    remote_dir = "/etc/opt/cwcs"
+    remote_path = remote_dir + "/cwcs-agent.yaml"
+    chmod_cmd = f"sudo chmod -R 777 {remote_dir}"
+    run_command(internal_ip_list, chmod_cmd, in_background=False)
+    rm_cmd = f"sudo rm -f {remote_path}"
+    run_command(internal_ip_list, rm_cmd, in_background=False)
+    for internal_ip in internal_ip_list:
+        cfg_file = generate_ttcs_cfg_file(internal_ip, is_reference=False, use_ntp = False)
+        local_file_path = "./cwcs-agent.yaml"
+        scp_files([internal_ip], local_file_path, remote_path, to_remote=True)
+    sys_start_ttcp_agent_cmd = "sudo systemctl start cwcs-agent"
+    run_command(internal_ip_list, sys_start_ttcp_agent_cmd, in_background=False)
+
+
 
 def launch_ttcs(server_ip_list, use_ntp=False):
     stop_ntp_cmd = "sudo service chrony stop"

@@ -41,31 +41,48 @@ if __name__ == '__main__':
             cwcs_tools.launch_ttcs(all_ips) 
         elif args.action == 'stop':
             cwcs_tools.stop_ttcs(all_ips)  
+        elif args.action == 'observe':
+            cwcs_tools.observe_ttcs(all_ips)
+        elif args.action == 'resync':
+            cwcs_tools.resync_ttcs(all_ips)
         else:
             tiga_common.print_error(
                 f"Unrecognized action {args.action}")
     elif args.clock_sync == 'chrony':
         if args.action == 'install':
+            cmd = "sudo apt-get install --reinstall chrony -y"
+            tiga_common.run_command(all_ips, cmd,  in_background=False)
             tiga_common.print_info(
-                "Chrony should have been installed by default")
+                "Chrony installed")
         elif args.action == 'start':
+            tiga_common.scp_files(all_ips,
+                "/etc/chrony/chrony.conf", "chrony.conf",
+                to_remote=True)
             tiga_common.run_command(all_ips, 
-                "sudo service chrony start", 
+                "sudo mv chrony.conf /etc/chrony/chrony.conf", 
+                in_background=False)
+            tiga_common.run_command(all_ips, 
+                "sudo service chrony restart", 
                 in_background=False)
         elif args.action == 'stop':
             tiga_common.run_command(all_ips, 
                 "sudo service chrony stop", 
+                in_background=False)
+            tiga_common.run_command(all_ips, 
+                "sudo systemctl disable chrony", 
                 in_background=False)
         else:
             tiga_common.print_error(
                 f"Unrecognized action {args.action}") 
     elif args.clock_sync == 'ntp':
         if args.action == 'install':
+            cmd = "sudo apt install ntp -y"
+            tiga_common.run_command(all_ips, cmd,  in_background=False)
             tiga_common.print_info(
-                "Ntp should have been installed by default")
-        elif args.action == 'start':
+                "Ntp installed")
+        elif args.action == 'start':         
             tiga_common.run_command(all_ips, 
-                "sudo systemctl start ntp", 
+                "sudo systemctl restart ntp",   
                 in_background=False)
         elif args.action == 'stop':
             tiga_common.run_command(all_ips, 

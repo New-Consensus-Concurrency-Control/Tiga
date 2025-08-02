@@ -38,7 +38,7 @@ clock_quality: 1
 #
 # If true, correct the local clock in addition to observing it, else just
 # observe the clock. Defaults to false.
-correct_clock: true
+correct_clock: false
 #
 # Comma-delimited backup NTP server names. Defaults to "". Only the first one is
 # used.
