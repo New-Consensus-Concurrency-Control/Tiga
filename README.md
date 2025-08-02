@@ -12,6 +12,10 @@ The free trial of Huygens only allow 10 VMs to be synchornized and tenants need 
 **We recommend the evaluators directly use our cluster**, because we have configured the environment on the cluster and compiled the corresponding binaries. We will undertake the cost of the cloud computing resource (Special thanks to Google Research Credit Program). Of course, **building everything from scratch is also do-able**, and we provide the instruction document [here](deploy.md).
 
 
+## Reminder
+If you encounter any issues during the evaluation, please do not hesitate to contact me (gjk1994@stanford.edu) and we can schedule a meeting (e.g., Zoom) and figure out the problems togther. I am in EST time zone.  
+
+
 
 ## Log Into Controller
 
@@ -424,8 +428,6 @@ Then the figure(s) will be generated under `tiga_common.FIGS_PATH`, and Figure 1
 We should be able to see Chrony and Huygens can both achieve lower latency than the other clock sync approach. 
 
 
-## Reminder
-If you have encountered any issues during the evaluation, please do not hesitate to contact me (gjk1994@stanford.edu) and we can schedule a meeting (e.g., Zoom) and figure out the problems togther. I am in EST time zone.  
 
 
 ## License
