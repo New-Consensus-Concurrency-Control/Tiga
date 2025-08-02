@@ -424,6 +424,9 @@ Then the figure(s) will be generated under `tiga_common.FIGS_PATH`, and Figure 1
 We should be able to see Chrony and Huygens can both achieve lower latency than the other clock sync approach. 
 
 
+## Reminder
+If you have encountered any issues during the evaluation, please do not hesitate to contact me (gjk1994@stanford.edu) and we can schedule a meeting (e.g., Zoom) and figure out the problems togther. I am in EST time zone.  
+
 
 ## License
 This project will be open-sourced soon (after we release our camera-ready version), and the tentative licence will be MIT license.
