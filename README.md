@@ -400,7 +400,7 @@ After finishing NTP's test cases, the cluster is shutdown again. We continue to 
 python start_machines.py --num_replicas=3 --num_shards=3 --num_proxies=8
 ```
 
-This time, we simulate the bad clock. Here we simplify the test: During submission, we actually uses an external server to provide unsteady NTP service, here we skip it and do not use any clock synchronization algorithm. 
+This time, we simulate the bad clock. Here we simplify the test: During submission, we actually used an external server to provide **unsteady** NTP service, here we skip it and do not use any clock synchronization algorithm. 
 
 ```
 python run_test.py --num_replica=3 --num_shards=3 --num_proxies=8  --test_plan=test_plan_clock_sync-bad-clock.yaml
