@@ -1,0 +1,11 @@
+BenchType	TestType	TestNo	Rate	Skew	50p	90p	Throughput	CommitRate	RegionIdx	Prefix
+Micro	tiga	1	100	0.99	937	1138	0.19	100	2	bad-clock-
+Micro	tiga	1	200	0.99	958	1158	0.38	100	2	bad-clock-
+Micro	tiga	1	500	0.99	965	1221	0.92	100	2	bad-clock-
+Micro	tiga	1	1000	0.99	996	1281	1.87	100	2	bad-clock-
+Micro	tiga	1	5000	0.99	1022	1359	9.38	100	2	bad-clock-
+Micro	tiga	1	10000	0.99	1579	1774	18.35	100	2	bad-clock-
+Micro	tiga	1	15000	0.99	1687	1910	18.17	100	2	bad-clock-
+Micro	tiga	1	20000	0.99	1722	1885	18.23	100	2	bad-clock-
+Micro	tiga	1	22000	0.99	1778	1922	17.9	100	2	bad-clock-
+Micro	tiga	1	25000	0.99	1799	2018	17.67	100	2	bad-clock-

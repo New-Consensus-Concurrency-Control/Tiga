@@ -121,4 +121,4 @@ owd_estimate_percentile: 50
 owdDeltaUs: 10000
 test_failure_recovery: false
 synced_logid_before_failure: 600000
-clock_approach: ntp
+clock_approach: cwcs

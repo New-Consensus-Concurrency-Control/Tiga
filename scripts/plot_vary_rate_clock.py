@@ -12,7 +12,8 @@ from pandas.api.types import CategoricalDtype
 plt.rcParams.update({'font.size': 12, "font.weight":"normal"})
 
 cat_size_order = CategoricalDtype(
-            ["logical-", "skeen-", "cwcs-", "ntp-", "bad-clock-", "chrony-"],
+            ["logical-", "skeen-", "cwcs-", 
+            "ntp-", "bad-clock-", "chrony-"],
             ordered=True
         ) 
 
@@ -25,8 +26,14 @@ region_categories =[
 ]
 
 fig_size = (3.3,2)
-x_categories = ["logical-", "skeen-", "cwcs-" ]
-x_category_labels = ["Logical", "Skeen", "Huygens" ]
+x_categories = ["logical-", "skeen-", 
+                "ntp-", "bad-clock-", "chrony-",
+                "cwcs-"
+                ]
+x_category_labels = ["Logical", "Skeen", 
+                    "NTP", "BadClock", "Chrony",
+                    "Huygens"
+                ]
 x_category_colors = ['b','c','m','r', 'orange', 'dodgerblue', 'slategray', 'brown',  'limegreen']
 x_category_markers =['s','P', 'D', '^','*', 'x', 'X', 'v', 'o']
 x_category_markersizes =[5,5,5,5,7,7,7,5,5]
@@ -35,7 +42,7 @@ x_category_linestyles = ['solid', 'solid','solid', 'solid', 'solid', 'solid', 's
 y_category = "50p"
 y_category_label = '50p Latency ($10^3$ ms)'
 
-y_range = [0, 600]
+y_range = [0, 1000]
 x_label = r"Per-Coordinator Rate ($10^3$ txns/s)"
 x_ranges =[0,25]
 x_tick_interval = 5

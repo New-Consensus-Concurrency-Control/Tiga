@@ -90,7 +90,7 @@ The valid analytical results should be like this.
 
 Since the test case uses 8 open-loop proxies and each proxy submits txns at 10K/sec. The total throughput is 80K txns/sec. Meanwhile, Tiga achieves 1-WRTT for most txns, so we can see the latency from each region also meets our expectation. 
 
-## Artifact Evaluation Workflow
+## Evaluation Workflow
 
 Before we proceed with the artifact evaluation, we highlight a few points. 
 
@@ -325,6 +325,8 @@ Then the figure(s) will be generated under `tiga_common.FIGS_PATH`, and Figure 1
 
 ### Figure 12
 
+Since we need to switch clock synchronization algorithms during the evaluation, we cannot complete them in one go and needs to decompose into three phases. 
+
 First, turn on the cluster with 3x3+8=17 servers.
 ```
 tmux
@@ -338,27 +340,88 @@ python start_machines.py --num_replicas=3 --num_shards=3 --num_proxies=8
 
 Wait for about 10 seconds so that GCP VMs have all been launched.
 
+Then, launch clock synchronization to synchronze all servers. 
 
-We have configured the test plan as `scripts/test_plan_clock_sync.yaml`
+```
+python clock_sync.py --num_replicas=3 --num_shards=3 --num_proxies=8 --action="start" --clock_sync="cwcs"
+```
+
+
+We have configured the test plan as `scripts/test_plan_clock_sync.yaml` (which runs Tiga with logical clocks, Skeen approach and Huygens, respectively)
+
 ```
 python run_test.py --num_replica=3 --num_shards=3 --num_proxies=8  --test_plan=test_plan_clock_sync.yaml
 ```
 
 
-After completing these test cases, the data have all been collected in `tiga_common.STATS_PATH`. Then we can process these data to generate some CSV files, which will be used to plot figures.
+After completing these test cases, the data have all been collected in `tiga_common.STATS_PATH`. Then we can process these data to generate some CSV files.
+
+
+Then, we wait the cluster has been shutdown. Wait for about 30 seconds, until the clocks have all been unsynced.  Then we re-start the cluster.
+
 ```
-python analysis.py  --num_replicas=3 --num_shards=3 --num_proxies=8  --test_plan=test_plan_clock_sync.yaml
+python start_machines.py --num_replicas=3 --num_shards=3 --num_proxies=8
 ```
+
+Wait for 10 seconds after all GCP VMs are launched, this time, we will use chrony as the clock synchornization algorithm
+
+```
+python clock_sync.py --num_replicas=3 --num_shards=3 --num_proxies=8 --action="start" --clock_sync="chrony"
+```
+
+Wait for 10 seconds after chrony come into effect. Then we run related test cases, defined in `test_plan_clock_sync-chrony.yaml`
+
+```
+python run_test.py --num_replica=3 --num_shards=3 --num_proxies=8  --test_plan=test_plan_clock_sync-chrony.yaml
+```
+
+After finishing chrony-related test cases, we will continue to shutdown the cluster and wait for 30 seconds. Then we re-start the cluster
+
+```
+python start_machines.py --num_replicas=3 --num_shards=3 --num_proxies=8
+```
+
+This time, we will use NTP to synchronize clocks. But every time the cluster will un-install NTP automatically (possibly due to some Google internal mechanism), so we need to first re-install it. 
+
+```
+python clock_sync.py --num_replicas=3 --num_shards=3 --num_proxies=8 --action="install" --clock_sync="ntp"
+
+python clock_sync.py --num_replicas=3 --num_shards=3 --num_proxies=8 --action="start" --clock_sync="ntp"
+```
+
+Then, we continue to run NTP's test cases
+```
+python run_test.py --num_replica=3 --num_shards=3 --num_proxies=8  --test_plan=test_plan_clock_sync-ntp.yaml
+```
+
+After finishing NTP's test cases, the cluster is shutdown again. We continue to wait for 30 seconds, and relaunch the cluster
+
+```
+python start_machines.py --num_replicas=3 --num_shards=3 --num_proxies=8
+```
+
+This time, we simulate the bad clock. Here we simplify the test: During submission, we actually uses an external server to provide unsteady NTP service, here we skip it and do not use any clock synchronization algorithm. 
+
+```
+python run_test.py --num_replica=3 --num_shards=3 --num_proxies=8  --test_plan=test_plan_clock_sync-bad-clock.yaml
+```
+
+After finishing the test cases, we have collected all data, now we can process the data as 
+
+```
+python analysis.py  --num_replicas=3 --num_shards=3 --num_proxies=8  --test_plan=test_plan_clock_sync_all.yaml
+```
+
 After the data is processed, we have some csv files generated under `tiga_common.SUMMARY_STATS_PATH`. These CSV file names share the same prefix as the yaml file (i.e., test_plan_clock_sync*.csv).
 
 Next, we plot the figure(s) as 
 
 ```
-python plot_preventive_detective.py  --test_plan=test_plan_clock_sync.yaml --tag=Clock
+python plot_vary_rate_clock.py  --test_plan=test_plan_clock_sync_all.yaml --tag=Clock
 ```
 Then the figure(s) will be generated under `tiga_common.FIGS_PATH`, and Figure 12 corresponds to `Clock-Local-1-legend.pdf` and `Clock-Remote-legend.pdf`
 
-
+We should be able to see Chrony and Huygens can both achieve lower latency than the other clock sync approach. 
 
 
 

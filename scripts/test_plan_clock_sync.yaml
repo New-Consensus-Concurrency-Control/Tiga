@@ -301,7 +301,7 @@
   preventive: False
   skew_factor: 0.99
   leader_rotation: True
-  clock_approach: "logical"
+  clock_approach: "skeen"
   prefix: "skeen-"
 
 
@@ -312,7 +312,8 @@
   preventive: False
   skew_factor: 0.99
   leader_rotation: True
-  clock_approach: "logical"
+  clock_approach: "cwcs"
   prefix: "cwcs-"
+
 
 
