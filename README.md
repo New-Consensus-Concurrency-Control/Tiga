@@ -81,7 +81,7 @@ The `scripts/sample_test_plan.yaml` only contains one test case, and after it co
 
 ![Demo-Checkpoint-File](./instructions/sample-checkpoint.jpg)
 
-Let's analysis the performance number of the case.
+Let's analyze the performance number of the case.
 ```
 python analysis-case.py --stats_path=0-tiga-leader-colo-preventive-Micro-zipfian-50-1000000-S-3-R-3-P-8-Rate-10000-OWD-50p-10000usCap
 ```
