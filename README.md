@@ -13,7 +13,7 @@ The free trial of Huygens only allow 10 VMs to be synchornized and tenants need 
 
 
 ## Reminder
-If you encounter any issues during the evaluation, please do not hesitate to contact me (gjk1994@stanford.edu) and we can schedule a meeting (e.g., Zoom) and figure out the problems togther. I am in EST time zone.  
+If you encounter any issues during the evaluation, please do not hesitate to contact me (gjk1994@stanford.edu) and we can schedule a meeting (e.g., Zoom) and figure out the problems together. I am in EST time zone.  
 
 
 
