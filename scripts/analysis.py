@@ -161,8 +161,8 @@ if __name__ == '__main__':
             else: 
                 abort_rate = 0
             stats = f"{bench_type}\t{test_type}\t{test_no}\t{rate}\t{skew_factor}\t"
-            stats += str(np.round(region_df['ProxyLatency'].quantile(.5),2))+"\t"
-            stats += str(np.round(region_df['ProxyLatency'].quantile(.9),2))+"\t"
+            stats += str(int(region_df['ProxyLatency'].quantile(.5)))+"\t"
+            stats += str(int(region_df['ProxyLatency'].quantile(.9)))+"\t"
             throughput_stats, duration = ThroughputAnalysis(region_df.copy())
             stats += str(np.round(throughput_stats*0.001,decimals=2))+"\t"
             stats += str(int(100-abort_rate*100))+"\t"

@@ -1,0 +1,11 @@
+BenchType	TestType	TestNo	Rate	Skew	50p	90p	Throughput	CommitRate	RegionIdx	Prefix
+Micro	tiga	1	100	0.99	233	306	0.19	100	1	ntp-
+Micro	tiga	1	200	0.99	229	314	0.4	100	1	ntp-
+Micro	tiga	1	500	0.99	233	329	0.96	100	1	ntp-
+Micro	tiga	1	1000	0.99	235	337	1.93	100	1	ntp-
+Micro	tiga	1	5000	0.99	241	342	9.68	100	1	ntp-
+Micro	tiga	1	10000	0.99	268	519	19.35	100	1	ntp-
+Micro	tiga	1	15000	0.99	339	625	28.69	100	1	ntp-
+Micro	tiga	1	20000	0.99	346	796	35.57	100	1	ntp-
+Micro	tiga	1	22000	0.99	375	807	38.44	100	1	ntp-
+Micro	tiga	1	25000	0.99	445	896	41.93	100	1	ntp-

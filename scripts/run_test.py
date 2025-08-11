@@ -148,11 +148,15 @@ if __name__ == '__main__':
             case, "synced_logid_before_failure", 600000)
         clock_approach = get_key_value(
             case, "clock_approach", "cwcs")
+        yield_period_us = get_key_value(
+            case, "yield_period_us", 10000)
         run_time_sec = get_key_value(
             case, "run_time_sec", 30
         )
         grace_period_sec = get_key_value(
             case, "grace_period_sec", 20)
+        open_loop_cap = get_key_value(
+            case, "open_loop_cap", 15000)
 
         # Generate configs
         if bench_type == "TPCC":
@@ -381,10 +385,10 @@ if __name__ == '__main__':
                     f" --config=./config-tpl-n.yml "
                     f" --runTimeSec={run_time_sec} "
                     f" --serverName={process_name} "
-                    f" --mcap={tiga_common.TIGA_CAP} " # maybe obsolete
+                    f" --mcap={open_loop_cap} " # maybe obsolete
                     f" --cap={tiga_common.TIGA_BOUND_CAP} "
                     f" --initBound={init_bound} "
-                    f" --yieldPeriodUs={tiga_common.TIGA_YIELD_PERIOD_US} "
+                    f" --yieldPeriodUs={yield_period_us} "
                     f" --logPrintUnit={tiga_common.LOG_UNIT} "
                     f" > {log_file} 2>&1 &")
             elif test_type == 'detock':
@@ -392,7 +396,7 @@ if __name__ == '__main__':
                     f" --config=./config-tpl-n.yml "
                     f" --runTimeSec={run_time_sec} "
                     f" --serverName={process_name} "
-                    f" --mcap={tiga_common.DETOCK_CAP} "
+                    f" --mcap={open_loop_cap} "
                     f" --logPrintUnit={tiga_common.LOG_UNIT} "
                     f" > {log_file} 2>&1 &")
             elif test_type == 'calvin':
@@ -413,7 +417,7 @@ if __name__ == '__main__':
                     f" --serverName={process_name} "
                     f" --designateShardId={designate_shard_id} "
                     f" --designateReplicaId={designate_replica_id} "
-                    f" --mcap={tiga_common.CALVIN_CAP} "
+                    f" --mcap={open_loop_cap} "
                     f" --logPrintUnit={tiga_common.LOG_UNIT} "
                     f" > {log_file} 2>&1 &")
             elif test_type == 'ncc' or test_type == 'ncc-ft':

@@ -52,12 +52,12 @@ def OutputStats(target_proxies, showPure=False):
 
     stats = ""
     stats += "Num:"+str(len(all_df))+"\n"
-    stats += "P-25p:\t"+str(all_df['ProxyLatency'].quantile(.25))+"\n"
-    stats += "P-50p:\t"+str(all_df['ProxyLatency'].quantile(.5))+"\n"
-    stats += "P-75p:\t"+str(all_df['ProxyLatency'].quantile(.75))+"\n"
-    stats += "P-90p:\t"+str(all_df['ProxyLatency'].quantile(.9))+"\n"
-    stats += "P-95p:\t"+str(all_df['ProxyLatency'].quantile(.95))+"\n"
-    stats += "P-99p:\t"+str(all_df['ProxyLatency'].quantile(.99))+"\n"
+    stats += "P-25p:\t"+str(int(all_df['ProxyLatency'].quantile(.25)))+"\t\t"
+    stats += "P-50p:\t"+str(int(all_df['ProxyLatency'].quantile(.5)))+"\n"
+    stats += "P-75p:\t"+str(int(all_df['ProxyLatency'].quantile(.75)))+"\t\t"
+    stats += "P-90p:\t"+str(int(all_df['ProxyLatency'].quantile(.9)))+"\n"
+    stats += "P-95p:\t"+str(int(all_df['ProxyLatency'].quantile(.95)))+"\t\t"
+    stats += "P-99p:\t"+str(int(all_df['ProxyLatency'].quantile(.99)))+"\n"
 
     if(showPure) and 'preDisPatchCompleteTime' in all_df.columns :
         all_df["PureLatency"] = all_df["CommitTime"] - all_df['preDisPatchCompleteTime']

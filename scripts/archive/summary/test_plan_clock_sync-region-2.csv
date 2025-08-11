@@ -1,0 +1,3 @@
+BenchType	TestType	TestNo	Rate	Skew	50p	90p	Throughput	CommitRate	RegionIdx	Prefix
+Micro	tiga	1	22000	0.99	338	736	39.69	100	2	cwcs-
+Micro	tiga	1	25000	0.99	366	867	42.8	100	2	cwcs-
