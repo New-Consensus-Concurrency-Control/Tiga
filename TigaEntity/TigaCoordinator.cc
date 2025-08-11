@@ -90,6 +90,14 @@ void TigaCoordinator::Launch() {
    std::unique_lock lck(gInfo_->seqMtx_);
 
    reqInProcess_.sendTime_ = GetMicrosecondTimestamp();
+   if(reqInProcess_.bound_<0) {
+      LOG(INFO) << "Prior " << reqInProcess_.cmd_.clientId_ << ":" << reqInProcess_.cmd_.reqId_
+                << "\t bound=" << reqInProcess_.bound_<<"\t owdDeltaUs="<<gInfo_->owdDeltaUs_;
+   }
+   reqInProcess_.bound_ += gInfo_->owdDeltaUs_;
+   if(reqInProcess_.bound_<0){
+      reqInProcess_.bound_ = 0;
+   }
 
    if (config_["clock_approach"].IsDefined() &&
        config_["clock_approach"].as<std::string>() == "logical") {
@@ -321,7 +329,7 @@ GlobalInfo::GlobalInfo(const uint32_t coordinatorId, const uint32_t shardNum,
 
    YAML::Node config = comm->Config();
    if (config["owd_delta_us"].IsDefined()) {
-      owdDeltaUs_ = config["owd_delta_us"].as<uint32_t>();
+      owdDeltaUs_ = config["owd_delta_us"].as<int32_t>();
    } else {
       owdDeltaUs_ = 0;
    }

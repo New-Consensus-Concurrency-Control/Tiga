@@ -46,7 +46,7 @@ struct GlobalInfo {
    uint32_t cap_;
    uint32_t initBound_;
    uint32_t yieldPeriodUs_;
-   uint32_t owdDeltaUs_;
+   int32_t owdDeltaUs_;
    uint32_t owdEstimationPercentile_;
    ConcurrentQueue<std::pair<TigaReply, TigaCoordinator*>> replyQu_;
    std::unordered_set<uint32_t> committedCoordReqIds_;
@@ -83,8 +83,6 @@ struct GlobalInfo {
 class TigaCoordinator {
   protected:
    YAML::Node config_;
-   uint32_t owdDeltaUs_;
-   uint32_t owdEstimationPercentile_;
    uint32_t shardNum_;
    uint32_t replicaNum_;
    int clockOffsetMean_;
