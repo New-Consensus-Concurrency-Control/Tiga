@@ -69,7 +69,9 @@ def OutputStats(target_proxies, showPure=False):
         stats += "R-90p:\t"+str(all_df['PureLatency'].quantile(.9))+"\n"
         stats += "R-95p:\t"+str(all_df['PureLatency'].quantile(.95))+"\n"
         stats += "R-99p:\t"+str(all_df['PureLatency'].quantile(.99))+"\n"
-    
+
+    if 'Bound' in all_df.columns:
+        stats += "Avg Bound:\t"+str(int(all_df['Bound'].mean()/1000))+"\n"
     if 'nTry' in all_df.columns:
         retried_df = all_df[all_df['nTry']>1]
         aborted_txn_num = retried_df['nTry'].sum()

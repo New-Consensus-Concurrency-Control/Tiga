@@ -20,7 +20,7 @@ struct TigaDispatchReply {
 
 struct TigaReq {
    uint64_t sendTime_;
-   uint32_t bound_;
+   int32_t bound_;
    ClientCommand cmd_;
    uint32_t isDispatchRead_;
 };

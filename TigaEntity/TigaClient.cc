@@ -39,6 +39,7 @@ struct PerfSample {
    uint32_t txnType_;
    bool detectReplicationInconsistency_;
    bool detectNonSerial_;
+   int32_t bound_;
 };
 std::unordered_map<uint32_t, PerfSample>
     commitTimesByClient_[MAX_CLIENT_NUM_PER_VM];
@@ -120,7 +121,8 @@ void RequestDone(TigaCoordinator* coo, const ClientReply& rep) {
           commitTimesMtxesByClient[myLocalClientId]);
       commitTimesByClient_[myLocalClientId][rep.reqId_] = {
           coo->sendTime_, completeTime, coo->reqInProcess_.cmd_.txnType_,
-          coo->detectReplicationInconsistency_, coo->detectNonSerial_};
+          coo->detectReplicationInconsistency_, coo->detectNonSerial_,
+          coo->reqInProcess_.bound_};
       // LOG(INFO) << "clientId=" << rep.clientId_
       //           << "--size=" << commitTimesByClient_[rep.clientId_].size();
    }
@@ -314,14 +316,14 @@ int main(int argc, char* argv[]) {
 
    std::ofstream ofs(FLAGS_serverName + ".csv");
    std::vector<uint32_t> latencyStats;
-   ofs << "TxnId,SendTime,CommitTime,TxnType,RepSlow,NonSerial" << std::endl;
+   ofs << "TxnId,SendTime,CommitTime,TxnType,RepSlow,NonSerial,Bound" << std::endl;
    for (int cid = 1; cid <= clientNum; cid++) {
       for (auto& kv : commitTimesByClient_[cid]) {
          uint32_t l = kv.second.commitTime_ - kv.second.sendTime_;
          ofs << kv.first << "," << kv.second.sendTime_ << ","
              << kv.second.commitTime_ << "," << kv.second.txnType_ << ","
              << kv.second.detectReplicationInconsistency_ << ","
-             << kv.second.detectNonSerial_ << std::endl;
+             << kv.second.detectNonSerial_<<","<<kv.second.bound_ << std::endl;
          latencyStats.push_back(l);
       }
    }
