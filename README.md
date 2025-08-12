@@ -15,7 +15,7 @@ The free trial of Huygens only allows 10 VMs to be synchornized and tenants need
 ## Reminder
 If you encounter any issues during the evaluation, please do not hesitate to contact me (gjk1994@stanford.edu) and we can schedule a meeting (e.g., Zoom) and figure out the problems together. I am in EST time zone.  
 
-
+You can also open an issue [here](https://github.com/Steamgjk/Tiga/issues), and my account will receive the notification. 
 
 ## Log Into Controller
 
