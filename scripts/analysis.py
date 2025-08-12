@@ -59,7 +59,7 @@ if __name__ == '__main__':
     test_plan = yaml.load(test_plan_f)
 
 
-    header = "BenchType\tTestType\tTestNo\tRate\tSkew\t50p\t90p\tThroughput\tCommitRate\tRegionIdx\tPrefix"
+    header = "BenchType\tTestType\tTestNo\tRate\tSkew\t50p\t90p\tThroughput\tCommitRate\tBound\tRollback\tOWDDelta\tRegionIdx\tPrefix"
     print(header)
      
     stats_csv_files = [
@@ -166,6 +166,18 @@ if __name__ == '__main__':
             throughput_stats, duration = ThroughputAnalysis(region_df.copy())
             stats += str(np.round(throughput_stats*0.001,decimals=2))+"\t"
             stats += str(int(100-abort_rate*100))+"\t"
+            if "Bound" in all_df.columns:
+                stats += str(int(all_df['Bound'].mean()/1000)) +"\t"
+            else:
+                stats+= "-1"+"\t"
+            if 'NonSerial' in all_df.columns:
+                non_serial_df = all_df[all_df['NonSerial']>0]
+                stats += str(int(len(non_serial_df)*100/len(all_df))) +"\t"
+            else:
+                stats += "-1"+"\t"
+            
+            stats += str(int(owd_delta_us/1000))+"\t"
+
             stats += str(int(region_idx))+"\t"
             if prefix == "":
                 stats += "NULL"

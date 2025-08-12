@@ -72,6 +72,15 @@ def OutputStats(target_proxies, showPure=False):
 
     if 'Bound' in all_df.columns:
         stats += "Avg Bound:\t"+str(int(all_df['Bound'].mean()/1000))+"\n"
+
+    # if 'RepSlow' in all_df.columns:
+    #     slow_df =  all_df[all_df['RepSlow']>0]
+    #     stats += "Slow Rate:\t"+str(len(slow_df)*100/len(all_df) ) +"\n"
+
+    if 'NonSerial' in all_df.columns:
+        non_serial_df = all_df[all_df['NonSerial']>0]
+        stats += "Rollback Rate:\t"+str(len(non_serial_df)*100/len(all_df) ) +"\n"
+
     if 'nTry' in all_df.columns:
         retried_df = all_df[all_df['nTry']>1]
         aborted_txn_num = retried_df['nTry'].sum()
