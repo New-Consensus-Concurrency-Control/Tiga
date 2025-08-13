@@ -22,7 +22,10 @@ region_categories =[
 ]
 
 
-
+cat_size_order = CategoricalDtype(
+            ["headroom-", "origin-"],
+            ordered=True
+        ) 
 
 y_categories = [ "50p", "Rollback" ]
 y_category_labels = [
@@ -34,23 +37,24 @@ y_category_markers =['s', 'o']
 y_category_markersizes =[5,5]
 y_category_linestyles = ['solid', 'solid']
 
-
+x_range = (-75, 50)
+scatter_x_loc = -70
+x_tick_interval = 25
+x_ticks = [-50, -25, 0, 25, 50]
 y_ranges = [
     (0, 800), (0, 105)
 ]
 x_category = "OWDDelta"
 x_label = r"Headroom Delta (ms)"
-x_ticks =[
-    '-200', '-100', '100', '200' 
-]
 y_tick_intervals =[
     200,25
 ]
 
 
-def MyPlotHeadRoom(df, region_idx, show_legend=True, tag="Tag"):
-    df = df[df[x_category]!=0]
+def MyPlotHeadRoom(isolated_df, df, region_idx, show_legend=True, tag="Tag"):
     df.loc[:, x_category] = df.loc[:, x_category] - 10
+    df = df[df[x_category]<=x_range[1]]
+    df = df[df[x_category]>=x_range[0]]
     region_category = region_categories[region_idx]
     # Define your grid layout
     fig, ax0 = plt.subplots(figsize=fig_size)
@@ -67,7 +71,26 @@ def MyPlotHeadRoom(df, region_idx, show_legend=True, tag="Tag"):
         label=y_category_labels[0],
         linestyle = y_category_linestyles[1]
     )
+    add_point = list(isolated_df[y_categories[0]])[0]
+    # print(f"add point {add_point}")
+    ax0.scatter(scatter_x_loc, [add_point],
+        marker=y_category_markers[0], 
+        color=y_category_colors[0], 
+        facecolors='none',   
+        label=y_category_labels[0],
+        linestyle = y_category_linestyles[1]
+    ) 
+
+    # print(list(df[x_category]))
+    # print(list(df[y_categories[0]]))
+
+    ax0.set_xlim(x_range)
     ax0.set_ylim(y_ranges[0])
+    # x_ticks = np.arange(
+    #     0, x_range[1]+x_tick_interval*0.5, x_tick_interval)
+    ax0.set_xticks( [scatter_x_loc]+ x_ticks)
+    ax0.set_xticklabels(['0-Hrm']+x_ticks)
+
     ymax = y_ranges[0][1]
     y_ticks = np.arange(
         0, ymax+y_tick_intervals[0]*0.5, y_tick_intervals[0])
@@ -85,6 +108,17 @@ def MyPlotHeadRoom(df, region_idx, show_legend=True, tag="Tag"):
     )
     ax1.tick_params(axis='y', labelcolor=y_category_colors[1])
     ax1.set_ylim(y_ranges[1])
+
+    add_point = list(isolated_df[y_categories[1]])[0]
+    # print(f"add point {add_point}")
+    ax1.scatter(scatter_x_loc, [add_point],
+        facecolors='none',   
+        marker=y_category_markers[1], 
+        color=y_category_colors[1], 
+        label=y_category_labels[1],
+        linestyle = y_category_linestyles[1]
+    ) 
+
     ymax = y_ranges[1][1]
     y_ticks = np.arange(
         0, ymax+y_tick_intervals[1]*0.5, y_tick_intervals[1])
@@ -141,18 +175,30 @@ if __name__ == '__main__':
         for stats_csv_file in stats_csv_files
     ]
     summary_dfs = []
+    isolated_dfs = []
     for df in dfs:
         df = df.drop('BenchType', axis=1)
-        df = df.drop('Prefix', axis=1)
+        # df = df.drop('Prefix', axis=1)
         df = df.drop('TestType', axis=1)
+        isolated_df = df[df['Prefix']=='origin-']
+        df = df[df['Prefix']=='headroom-']
+        df = df.drop('Prefix', axis=1)
+        isolated_df = isolated_df.drop('Prefix', axis=1)
         summary_df = df.groupby(
             ['OWDDelta'],  
             as_index = False).median().round(2)
         summary_dfs.append(summary_df)
+        isolated_df = isolated_df.groupby(
+            ['OWDDelta'],  
+            as_index = False).median().round(2)
+        isolated_dfs.append(isolated_df)
+
     os.system(f"sudo mkdir -m777 -p {tiga_common.FIGS_PATH}")
     for region_idx in range(len(summary_dfs)):
         summary_dfs[region_idx].to_csv(f"HeadRoom-{region_idx}.csv")
+        isolated_dfs[region_idx].to_csv(f"Origin-{region_idx}.csv")
         MyPlotHeadRoom(
+            isolated_dfs[region_idx],
             summary_dfs[region_idx], 
             region_idx, 
             show_legend=True, 
