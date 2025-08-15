@@ -104,13 +104,14 @@ struct ClientCommand {
    uint32_t clientId_;
    uint32_t reqId_;
    uint32_t txnType_;
+   uint32_t isReadOnly_;
    std::map<int32_t, Value> ws_;
-   ClientCommand() : clientId_(0), reqId_(0), txnType_(~0) {}
+   ClientCommand() : clientId_(0), reqId_(0), txnType_(~0), isReadOnly_(0) {}
    ClientCommand(const ClientCommand& cmd)
        : clientId_(cmd.clientId_),
          reqId_(cmd.reqId_),
          txnType_(cmd.txnType_),
-         ws_(cmd.ws_) {}
+         ws_(cmd.ws_), isReadOnly_(cmd.isReadOnly_) {}
    uint64_t TxnKey() const { return CONCAT_UINT32(clientId_, reqId_); }
 };
 
@@ -285,12 +286,12 @@ inline Marshal& operator>>(Marshal& m, std::map<int32_t, Value>& res) {
 }
 
 inline Marshal& operator<<(Marshal& m, const ClientCommand& cmd) {
-   m << cmd.clientId_ << cmd.reqId_ << cmd.txnType_ << cmd.ws_;
+   m << cmd.clientId_ << cmd.reqId_ << cmd.txnType_ << cmd.ws_<<cmd.isReadOnly_;
    return m;
 }
 
 inline Marshal& operator>>(Marshal& m, ClientCommand& cmd) {
-   m >> cmd.clientId_ >> cmd.reqId_ >> cmd.txnType_ >> cmd.ws_;
+   m >> cmd.clientId_ >> cmd.reqId_ >> cmd.txnType_ >> cmd.ws_>>cmd.isReadOnly_;
    return m;
 }
 

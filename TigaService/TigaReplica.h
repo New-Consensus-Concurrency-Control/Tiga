@@ -8,9 +8,6 @@ using namespace TigaRPC;
 using namespace rrr;
 using namespace std;
 
-// #define CREATE_FAILURE
-// #define ENABLE_CHECKPOINT
-// #define ENABLE_FAILURE_RECOVERY
 
 typedef std::function<void(const TigaSlowReply&)> SlowReplyHandler;
 
@@ -186,7 +183,8 @@ class TigaReplica {
    ConcurrentQueue<TigaLogEntry*> followerCommitExecuteQu_;
 
    SequencerBuffer holdBuffer_;
-   std::vector<uint64_t> lastReleasedTxnDeadlines_;
+   std::vector<uint64_t> lastReleasedTxnDeadlinesW_; // write-txns
+   std::vector<uint64_t> lastReleasedTxnDeadlinesR_; // read-only txns
    std::vector<SequencerBuffer> execSequencers_;
    std::vector<TigaLogEntry*> entriesInSpec_;
 

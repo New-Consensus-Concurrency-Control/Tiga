@@ -86,7 +86,8 @@ TigaReplica::TigaReplica(const std::string& serverName,
    }
 
    LOG(INFO) << "workload=" << workloadStr;
-   lastReleasedTxnDeadlines_.resize(sm_->TotalNumberofKeys(), 0);
+   lastReleasedTxnDeadlinesW_.resize(sm_->TotalNumberofKeys(), 0);
+   lastReleasedTxnDeadlinesR_.resize(sm_->TotalNumberofKeys(), 0);
    execSequencers_.resize(sm_->TotalNumberofKeys());
    entriesInSpec_.resize(sm_->TotalNumberofKeys());
 
@@ -295,8 +296,15 @@ void TigaReplica::HoldReleaseTd() {
             // Check whether the txn is eligble to enter holdingBuffer
             uint64_t maxLastReleasedTime = 0;
             for (auto& k : entry->localKeys_) {
-               if (maxLastReleasedTime < lastReleasedTxnDeadlines_[k]) {
-                  maxLastReleasedTime = lastReleasedTxnDeadlines_[k];
+               if (maxLastReleasedTime < lastReleasedTxnDeadlinesW_[k]) {
+                  maxLastReleasedTime = lastReleasedTxnDeadlinesW_[k];
+               }
+               if (entry->cmd_->isReadOnly_ == 0) {
+                  // not read-only txn, should also check the conflict with
+                  // read-only txns
+                  if (maxLastReleasedTime < lastReleasedTxnDeadlinesR_[k]) {
+                     maxLastReleasedTime = lastReleasedTxnDeadlinesR_[k];
+                  }
                }
             }
 
@@ -359,8 +367,13 @@ void TigaReplica::HoldReleaseTd() {
             toExecQuF_.enqueue({entry, 0});
          }
          for (auto& k : entry->localKeys_) {
-            if (lastReleasedTxnDeadlines_[k] < entry->localDdlRank_)
-               lastReleasedTxnDeadlines_[k] = entry->localDdlRank_;
+            if (entry->cmd_->isReadOnly_ == 1) {
+               if (lastReleasedTxnDeadlinesR_[k] < entry->localDdlRank_)
+                  lastReleasedTxnDeadlinesR_[k] = entry->localDdlRank_;
+            } else {
+               if (lastReleasedTxnDeadlinesW_[k] < entry->localDdlRank_)
+                  lastReleasedTxnDeadlinesW_[k] = entry->localDdlRank_;
+            }
          }
          holdBuffer_.erase(holdBuffer_.begin());
       }

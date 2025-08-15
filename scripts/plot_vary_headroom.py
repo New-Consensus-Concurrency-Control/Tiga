@@ -129,7 +129,7 @@ def MyPlotHeadRoom(isolated_df, df, region_idx, show_legend=True, tag="Tag"):
     labels = [l.get_label() for l in lines]
 
     ax1.legend(lines, labels, loc='upper center', 
-                bbox_to_anchor=(0.5, 1.15), 
+                bbox_to_anchor=(0.5, 1.18), 
                 ncol= len(y_category_labels),
                 fancybox=False, shadow=False, 
                 prop={'size': 12, 'weight': 'normal'}, frameon=False,
@@ -195,8 +195,8 @@ if __name__ == '__main__':
 
     os.system(f"sudo mkdir -m777 -p {tiga_common.FIGS_PATH}")
     for region_idx in range(len(summary_dfs)):
-        summary_dfs[region_idx].to_csv(f"HeadRoom-{region_idx}.csv")
-        isolated_dfs[region_idx].to_csv(f"Origin-{region_idx}.csv")
+        # summary_dfs[region_idx].to_csv(f"HeadRoom-{region_idx}.csv")
+        # isolated_dfs[region_idx].to_csv(f"Origin-{region_idx}.csv")
         MyPlotHeadRoom(
             isolated_dfs[region_idx],
             summary_dfs[region_idx], 
