@@ -282,6 +282,51 @@ struct TigaFailAck {
    uint32_t replicaId_;
 };
 
+// Lease related
+struct TigaGuard {
+   uint32_t gViewId_;
+   uint32_t viewId_;
+   uint32_t shardId_;
+   uint32_t replicaId_;
+   uint32_t guardUs_;
+};
+// The holder starts a guard timer once it receives TigaGuard
+// The holder must reply to grantor
+// Grantor will only continue to send the promise after receiving TigaGuardAck
+struct TigaGuardAck {
+   uint32_t gViewId_;
+   uint32_t viewId_;
+   uint32_t shardId_;
+   uint32_t replicaId_;
+};
+
+// After receiving TigaGuardAck, grantor sends TigaPromise to holder
+// The holder will only beleive the Promise is valid if it can receive it
+// before guard timer expires, initially validDuration=guardUs_,
+// lastPromiseAckId_=0
+struct TigaPromise {
+   uint32_t gViewId_;
+   uint32_t viewId_;
+   uint32_t shardId_;
+   uint32_t replicaId_;
+   uint32_t promiseId_;  // starts from 1
+   uint32_t leaseUs_;
+   uint32_t lastPromiseAckId_;
+   uint32_t validDuration_;
+};
+// If the holder recieves the Promise before guard timer expires
+// Then the Promise is valid, the lease timer starts (lease is active)
+// Meanwhile, guard timer continues, hold sends Promise Ack to granter
+// Every time the holder sends a Promise Ack, it needs to record the sending
+// time, which is used to judge whether the future Promise is valid
+struct TigaPromiseAck {
+   uint32_t gViewId_;
+   uint32_t viewId_;
+   uint32_t shardId_;
+   uint32_t replicaId_;
+   uint32_t promiseId_;
+};
+
 Marshal& operator<<(Marshal& m, const TigaDispatchRequest& req);
 
 Marshal& operator>>(Marshal& m, TigaDispatchRequest& req);
@@ -403,6 +448,22 @@ Marshal& operator>>(Marshal& m, TigaFailSignal& msg);
 Marshal& operator<<(Marshal& m, const TigaFailAck& msg);
 
 Marshal& operator>>(Marshal& m, TigaFailAck& msg);
+
+Marshal& operator<<(Marshal& m, const TigaGuard& msg);
+
+Marshal& operator>>(Marshal& m, TigaGuard& msg);
+
+Marshal& operator<<(Marshal& m, const TigaGuardAck& msg);
+
+Marshal& operator>>(Marshal& m, TigaGuardAck& msg);
+
+Marshal& operator<<(Marshal& m, const TigaPromise& msg);
+
+Marshal& operator>>(Marshal& m, TigaPromise& msg);
+
+Marshal& operator<<(Marshal& m, const TigaPromiseAck& msg);
+
+Marshal& operator>>(Marshal& m, TigaPromiseAck& msg);
 
 enum DEADLINE_STATUS {
    DEADLINE_INIT = 1,

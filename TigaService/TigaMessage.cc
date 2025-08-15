@@ -606,3 +606,51 @@ Marshal& operator>>(Marshal& m, TigaFailAck& msg) {
    m >> msg.shardId_ >> msg.replicaId_;
    return m;
 }
+
+Marshal& operator<<(Marshal& m, const TigaGuard& msg) {
+   m << msg.gViewId_ << msg.viewId_ << msg.shardId_ << msg.replicaId_
+     << msg.guardUs_;
+   return m;
+}
+
+Marshal& operator>>(Marshal& m, TigaGuard& msg) {
+   m >> msg.gViewId_ >> msg.viewId_ >> msg.shardId_ >> msg.replicaId_ >>
+       msg.guardUs_;
+   return m;
+}
+
+Marshal& operator<<(Marshal& m, const TigaGuardAck& msg) {
+   m << msg.gViewId_ << msg.viewId_ << msg.shardId_ << msg.replicaId_;
+   return m;
+}
+
+Marshal& operator>>(Marshal& m, TigaGuardAck& msg) {
+   m >> msg.gViewId_ >> msg.viewId_ >> msg.shardId_ >> msg.replicaId_;
+   return m;
+}
+
+Marshal& operator<<(Marshal& m, const TigaPromise& msg) {
+   m << msg.gViewId_ << msg.viewId_ << msg.shardId_ << msg.replicaId_
+     << msg.promiseId_ << msg.leaseUs_ << msg.lastPromiseAckId_
+     << msg.validDuration_;
+   return m;
+}
+
+Marshal& operator>>(Marshal& m, TigaPromise& msg) {
+   m >> msg.gViewId_ >> msg.viewId_ >> msg.shardId_ >> msg.replicaId_ >>
+       msg.promiseId_ >> msg.leaseUs_ >> msg.lastPromiseAckId_ >>
+       msg.validDuration_;
+   return m;
+}
+
+Marshal& operator<<(Marshal& m, const TigaPromiseAck& msg) {
+   m << msg.gViewId_ << msg.viewId_ << msg.shardId_ << msg.replicaId_
+     << msg.promiseId_;
+   return m;
+}
+
+Marshal& operator>>(Marshal& m, TigaPromiseAck& msg) {
+   m >> msg.gViewId_ >> msg.viewId_ >> msg.shardId_ >> msg.replicaId_ >>
+       msg.promiseId_;
+   return m;
+}

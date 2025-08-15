@@ -18,6 +18,11 @@ class TigaGlobalServiceImpl : public TigaGlobalService {
    void InterReplicaSync(const TigaInterReplicaSync&,
                          rrr::DeferredReply* defer) override;
    void SyncStatus(const TigaSyncStatus&, rrr::DeferredReply* defer) override;
+
+   void GuardNotify(const TigaGuard&, TigaGuardAck*,
+                    rrr::DeferredReply* defer) override;
+   void PromiseNotify(const TigaPromise&, TigaPromiseAck*,
+                      rrr::DeferredReply* defer) override;
 };
 
 }  // namespace TigaRPC

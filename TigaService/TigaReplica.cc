@@ -1328,6 +1328,10 @@ void TigaReplica::onReconcliationRequest(const TigaReconcliationReq& req,
    toCommitRepyQu_.enqueue({txnKey, repyHandler});
 }
 
+void TigaReplica::onGuardNotify(const TigaGuard& msg, TigaGuardAck* ack) {}
+
+void TigaReplica::onPromiseNotify(const TigaPromise& msg, TigaPromiseAck* ack) {
+}
 /******** ***** ***** ***** Thread Helper ***** ***** ***** ***** *****
  * *****/
 

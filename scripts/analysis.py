@@ -136,6 +136,8 @@ if __name__ == '__main__':
             print_info(f"This case might not run successfully: {case_name}")
             continue
         all_df = pd.concat(df_list)
+        # all_df.to_csv("test.csv")
+        # exit(0)
         if(len(all_df)<100):
             print_info(f"This case might not run successfully: {case_name}")
             continue
@@ -166,13 +168,13 @@ if __name__ == '__main__':
             throughput_stats, duration = ThroughputAnalysis(region_df.copy())
             stats += str(np.round(throughput_stats*0.001,decimals=2))+"\t"
             stats += str(int(100-abort_rate*100))+"\t"
-            if "Bound" in all_df.columns:
-                stats += str(int(all_df['Bound'].mean()/1000)) +"\t"
+            if "Bound" in region_df.columns:
+                stats += str(int(region_df['Bound'].mean()/1000)) +"\t"
             else:
                 stats+= "-1"+"\t"
             if 'NonSerial' in all_df.columns:
-                non_serial_df = all_df[all_df['NonSerial']>0]
-                stats += str(int(len(non_serial_df)*100/len(all_df))) +"\t"
+                non_serial_df = region_df[region_df['NonSerial']>0]
+                stats += str(int(len(non_serial_df)*100/len(region_df))) +"\t"
             else:
                 stats += "-1"+"\t"
             

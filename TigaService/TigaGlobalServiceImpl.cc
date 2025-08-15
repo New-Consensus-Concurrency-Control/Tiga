@@ -20,4 +20,17 @@ void TigaGlobalServiceImpl::SyncStatus(const TigaSyncStatus& msg,
    defer->reply();
 }
 
+void TigaGlobalServiceImpl::GuardNotify(const TigaGuard& msg, TigaGuardAck* ack,
+                                        rrr::DeferredReply* defer) {
+   replica_->onGuardNotify(msg, ack);
+   defer->reply();
+}
+
+void TigaGlobalServiceImpl::PromiseNotify(const TigaPromise& msg,
+                                          TigaPromiseAck* ack,
+                                          rrr::DeferredReply* defer) {
+   replica_->onPromiseNotify(msg, ack);
+   defer->reply();
+}
+
 }  // namespace TigaRPC

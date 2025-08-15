@@ -8,7 +8,6 @@ using namespace TigaRPC;
 using namespace rrr;
 using namespace std;
 
-
 typedef std::function<void(const TigaSlowReply&)> SlowReplyHandler;
 
 #define HASH_PARTITION_ID(key) (key & 0x1f)
@@ -183,8 +182,8 @@ class TigaReplica {
    ConcurrentQueue<TigaLogEntry*> followerCommitExecuteQu_;
 
    SequencerBuffer holdBuffer_;
-   std::vector<uint64_t> lastReleasedTxnDeadlinesW_; // write-txns
-   std::vector<uint64_t> lastReleasedTxnDeadlinesR_; // read-only txns
+   std::vector<uint64_t> lastReleasedTxnDeadlinesW_;  // write-txns
+   std::vector<uint64_t> lastReleasedTxnDeadlinesR_;  // read-only txns
    std::vector<SequencerBuffer> execSequencers_;
    std::vector<TigaLogEntry*> entriesInSpec_;
 
@@ -284,6 +283,10 @@ class TigaReplica {
    void onSyncStatus(const TigaSyncStatus& msg);
    void onReconcliationRequest(const TigaReconcliationReq& req, TigaReply* rep,
                                const std::function<void()>& cb);
+
+   void onGuardNotify(const TigaGuard& msg, TigaGuardAck* ack);
+   void onPromiseNotify(const TigaPromise& msg, TigaPromiseAck* ack);
+
    // Thread Helpers
    bool CanSpecExec(TigaLogEntry* entry);
    bool NoBlockingAhead(TigaLogEntry* entry);
