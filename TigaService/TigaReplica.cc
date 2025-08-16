@@ -56,6 +56,26 @@ TigaReplica::TigaReplica(const std::string& serverName,
                     << config["clock_approach"].as<std::string>();
       }
    }
+
+   enableLease_ = false;
+   if (config["enable_lease"].IsDefined()) {
+      enableLease_ = config["enable_lease"].as<bool>();
+   }
+   if (enableLease_) {
+      tGuardUs_ = config["t_guard_us"].as<uint64_t>();
+      tLeaseUs_ = config["t_lease_us"].as<uint64_t>();
+      currentPromiseId_ = -1;
+   }
+
+   memset(currentSyncPoints_, '\0', sizeof(currentSyncPoints_));
+   memset(currentCommitPoints_, '\0', sizeof(currentCommitPoints_));
+   memset(promiseAckTimeUs_, '\0', sizeof(promiseAckTimeUs_));
+   memset(followerSafeCommitPoints_, '\0', sizeof(followerSafeCommitPoints_));
+   memset(nextPromiseIdToFollower_, '\0', sizeof(promiseAckTimeUs_));
+   for (uint32_t r = 0; r < replicaNum_; r++) {
+      ackedPromiseIdFromFollower_[r] = -1;
+   }
+
    // To highlight the problem of logical timestamps, make every servers'
    // logical clock unsynced (i.e., with an offset)
    serverLogicalClock_ =
@@ -866,6 +886,9 @@ void TigaReplica::LeaderCrossReplicaSyncTd() {
    uint32_t cnt = 0;
    while (status_ == SERVER_STATUS::STATUS_NORMAL) {
       uint64_t startTime = GetMicrosecondTimestamp();
+      if (enableLease_) {
+         RenewLease();
+      }
       // Broadcast Inter-Replica Sync Msg
       while ((cnt = syncedLogInfoQu_.try_dequeue_bulk(entries, UINT8_MAX)) >
              0) {
@@ -925,6 +948,55 @@ void TigaReplica::LeaderCrossReplicaSyncTd() {
    }
    LOG(INFO) << "LeaderCrossReplicaSyncTd Terminated";
    activeThreads_.fetch_sub(1);
+}
+
+void TigaReplica::RenewLease() {
+   for (uint32_t r = 0; r < replicaNum_; r++) {
+      if (r == replicaId_) continue;
+      if (nextPromiseIdToFollower_[r] == 0) {
+         promiseAckTimeUs_[r][0] = 0ul;
+         // Needs to send guard
+         TigaGuard guard;
+         guard.gViewId_ = gViewId_;
+         guard.viewId_ = viewId_;
+         guard.replicaId_ = replicaId_;
+         guard.shardId_ = shardId_;
+         rrr::FutureAttr fuattr;
+         std::function<void(Future*)> cb = [this](Future* fu) {
+            TigaGuardAck ack;
+            fu->get_reply() >> ack;
+            this->onGuardNotifyAck(ack);
+         };
+         fuattr.callback = cb;
+         Future::safe_release(
+             globalProxies_[r]->async_GuardNotify(guard, fuattr));
+
+         nextPromiseIdToFollower_[r]++;
+      } else {
+         int32_t lastPromiseId = nextPromiseIdToFollower_[r] - 1;
+         if (promiseAckTimeUs_[r][lastPromiseId % PROMISE_VEC_SIZE] == 0) {
+            // last promise has not been acked, do not send new
+            continue;
+         }
+         if (followerSafeCommitPoints_[r] <= currentCommitPoints_[r]) {
+            // Can Renew lease
+            TigaPromise promise;
+            promise.gViewId_ = gViewId_;
+            promise.viewId_ = viewId_;
+            promise.leaseUs_ = tLeaseUs_;
+            promise.promiseId_ = nextPromiseIdToFollower_[r];
+            promise.shardId_ = shardId_;
+            promise.replicaId_ = replicaId_;
+            int32_t lastAckedPromiseId = ackedPromiseIdFromFollower_[r];
+            uint64_t ackTime = promiseAckTimeUs_[r][lastAckedPromiseId];
+            uint64_t nowTime = GetMicrosecondTimestamp();
+            promise.validDuration_ = nowTime - ackTime + tGuardUs_;
+            nextPromiseIdToFollower_[r];
+         } else {
+            // Do Not renew lease until followers catch up
+         }
+      }
+   }
 }
 
 void TigaReplica::FollowerExecTd() {
@@ -1225,14 +1297,18 @@ void TigaReplica::onNormalRequest(const TigaReq& req, TigaReply* rep,
       entry->owd_ = 1000;  // 1ms as default
    }
 
-   // if (shardId_ == 0 && replicaId_ == 1 && entry->cmd_->clientId_ == 2) {
-   //    LOG(INFO) << "My OWD =" << entry->ID() << "--" << entry->owd_
-   //              << "--sendTime=" << entry->sendTime_ << "--nowTime=" <<
-   //              nowTime;
-   // }
-   // LOG(INFO) << "owd=" << entry->owd_ << "--nowTime=" << nowTime
-   //           << "\t sendTime=" << entry->sendTime_;
-   toHoldAndReleaseQu_.enqueue(entry);
+   if (enableLease_ && entry->cmd_->isReadOnly_) {
+
+   } else {
+      // if (shardId_ == 0 && replicaId_ == 1 && entry->cmd_->clientId_ == 2) {
+      //    LOG(INFO) << "My OWD =" << entry->ID() << "--" << entry->owd_
+      //              << "--sendTime=" << entry->sendTime_ << "--nowTime=" <<
+      //              nowTime;
+      // }
+      // LOG(INFO) << "owd=" << entry->owd_ << "--nowTime=" << nowTime
+      //           << "\t sendTime=" << entry->sendTime_;
+      toHoldAndReleaseQu_.enqueue(entry);
+   }
 }
 
 void TigaReplica::onDeadlineAgreementRequest(
@@ -1328,10 +1404,92 @@ void TigaReplica::onReconcliationRequest(const TigaReconcliationReq& req,
    toCommitRepyQu_.enqueue({txnKey, repyHandler});
 }
 
-void TigaReplica::onGuardNotify(const TigaGuard& msg, TigaGuardAck* ack) {}
+void TigaReplica::onGuardNotify(const TigaGuard& msg, TigaGuardAck* ack) {
+   std::unique_lock lck(leaseMtx_);
+   if (msg.gViewId_ != gViewId_ || msg.viewId_ != viewId_) {
+      return;
+   }
+   if (!enableLease_) {
+      LOG(ERROR) << "Lease Not Enabled";
+      return;
+   }
+   if (currentPromiseId_ != -1) {
+      LOG(ERROR) << "Mismatch PromiseId " << currentPromiseId_;
+      return;
+   }
+   ack->gViewId_ = msg.gViewId_;
+   ack->viewId_ = msg.viewId_;
+   ack->shardId_ = shardId_;
+   ack->replicaId_ = replicaId_;
+   promiseNotifyTimeUs_[0] = GetMicrosecondTimestamp();
+   leaseDurationUs_[0] = 0;  // guardUs will be piggybacked next time
+}
+
+void TigaReplica::onGuardNotifyAck(const TigaGuardAck& msg) {
+   std::unique_lock lck(leaseMtx_);
+   if (msg.gViewId_ != gViewId_ || msg.viewId_ != viewId_) {
+      return;
+   }
+   if (!enableLease_) {
+      LOG(ERROR) << "Lease Not Enabled";
+      return;
+   }
+   if (ackedPromiseIdFromFollower_[msg.replicaId_] >= 0) {
+      LOG(ERROR) << " Mismatch " << ackedPromiseIdFromFollower_[msg.replicaId_];
+   } else {
+      ackedPromiseIdFromFollower_[msg.replicaId_] = 0;
+      promiseAckTimeUs_[msg.replicaId_][0] = GetMicrosecondTimestamp();
+   }
+}
 
 void TigaReplica::onPromiseNotify(const TigaPromise& msg, TigaPromiseAck* ack) {
+   std::unique_lock lck(leaseMtx_);
+   if (msg.gViewId_ != gViewId_ || msg.viewId_ != viewId_) {
+      return;
+   }
+   if (!enableLease_) {
+      LOG(ERROR) << "Lease Not Enabled";
+      return;
+   }
+   if (currentPromiseId_ >= msg.promiseId_) {
+      LOG(ERROR) << "Mismatch PromiseId " << currentPromiseId_;
+      return;
+   }
+   currentPromiseId_ = msg.promiseId_;
+   uint64_t nowTime = GetMicrosecondTimestamp();
+   if (promiseNotifyTimeUs_[msg.lastPromiseAckId_] + msg.validDuration_ <
+       nowTime) {
+      // This lease is not considered valid
+      leaseDurationUs_[currentPromiseId_] = 0;
+   } else {
+      // From now on, this lease will be active for msg.leaseUs
+      leaseDurationUs_[currentPromiseId_] = msg.leaseUs_;
+   }
+   ack->gViewId_ = gViewId_;
+   ack->viewId_ = viewId_;
+   ack->replicaId_ = replicaId_;
+   ack->shardId_ = shardId_;
+   ack->promiseId_ = msg.promiseId_;
 }
+
+void TigaReplica::onPromiseNotifyAck(const TigaPromiseAck& msg) {
+   std::unique_lock lck(leaseMtx_);
+   if (msg.gViewId_ != gViewId_ || msg.viewId_ != viewId_) {
+      return;
+   }
+   if (!enableLease_) {
+      LOG(ERROR) << "Lease Not Enabled";
+      return;
+   }
+   if (ackedPromiseIdFromFollower_[msg.replicaId_] >= msg.promiseId_) {
+      LOG(ERROR) << " Mismatch " << ackedPromiseIdFromFollower_[msg.replicaId_];
+   } else {
+      ackedPromiseIdFromFollower_[msg.replicaId_] = msg.promiseId_;
+      promiseAckTimeUs_[msg.replicaId_][msg.promiseId_ % PROMISE_VEC_SIZE] =
+          GetMicrosecondTimestamp();
+   }
+}
+
 /******** ***** ***** ***** Thread Helper ***** ***** ***** ***** *****
  * *****/
 

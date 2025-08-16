@@ -20,6 +20,8 @@ abstract service TigaLocal {
 abstract service TigaGlobal {
     defer InterReplicaSync(TigaInterReplicaSync);
     defer SyncStatus(TigaSyncStatus);
+    defer GuardNotify(TigaGuard| TigaGuardAck);
+    defer PromiseNotify(TigaPromise|TigaPromiseAck);
 };
 
 abstract service TigaViewChange {

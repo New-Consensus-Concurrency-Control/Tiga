@@ -88,7 +88,7 @@ enum SpecExecCmd {
 };
 using SequencerBuffer = std::map<std::pair<uint64_t, uint64_t>, TigaLogEntry*>;
 using SequencerFlag = std::set<std::pair<uint64_t, uint64_t>>;
-
+#define PROMISE_VEC_SIZE (1000ul)
 class TigaReplica {
   protected:
    uint64_t lastPrintTime_;  // debug
@@ -97,15 +97,26 @@ class TigaReplica {
    uint32_t replicaNum_;
    uint32_t shardNum_;
    bool isPreventive_;
-   int clockOffsetMean_;  // obsolete
-   int clockOffsetStd_;   // obsolete
-   int clockError_;       // obsolete
    std::atomic<uint64_t> releaseWaterMark_;
 
+   // Lease related
+   bool enableLease_;
+   uint64_t tGuardUs_;
+   uint64_t tLeaseUs_;
+   mutable std::shared_mutex leaseMtx_;
+   int32_t currentPromiseId_;
+   uint64_t promiseNotifyTimeUs_[PROMISE_VEC_SIZE];
+   uint64_t leaseDurationUs_[PROMISE_VEC_SIZE];
+   // used by leader,i.e., the grantor
+   uint64_t promiseAckTimeUs_[MAX_REPLICA_NUM][PROMISE_VEC_SIZE];
+   uint32_t followerSafeCommitPoints_[MAX_REPLICA_NUM];
+   int32_t nextPromiseIdToFollower_[MAX_REPLICA_NUM];
+   int32_t ackedPromiseIdFromFollower_[MAX_REPLICA_NUM];
+
+   ///////////////////////////////////
    mutable std::shared_mutex failedServerRecordMtx_;
    std::unordered_map<uint32_t, std::set<std::pair<uint32_t, uint32_t>>>
        failedServersByGView_;
-
    bool testFailureRecovery_;
    uint32_t syncedLogIdBeforeFailure_;
    StateMachine* sm_;
@@ -226,6 +237,7 @@ class TigaReplica {
    mutable std::shared_mutex syncQuorumMtx_;
    // <syncPoint, replicaId>
    uint32_t currentSyncPoints_[MAX_REPLICA_NUM];
+   uint32_t currentCommitPoints_[MAX_REPLICA_NUM];
    mutable std::shared_mutex stQuorumMtx_;
    struct StateQuorum {
       uint32_t targetViewToRecover_;
@@ -285,7 +297,9 @@ class TigaReplica {
                                const std::function<void()>& cb);
 
    void onGuardNotify(const TigaGuard& msg, TigaGuardAck* ack);
+   void onGuardNotifyAck(const TigaGuardAck& msg);
    void onPromiseNotify(const TigaPromise& msg, TigaPromiseAck* ack);
+   void onPromiseNotifyAck(const TigaPromiseAck& ack);
 
    // Thread Helpers
    bool CanSpecExec(TigaLogEntry* entry);
@@ -342,6 +356,8 @@ class TigaReplica {
                      const std::function<void()>& cb);
    void onFailAck(const TigaFailAck& ack);
 
+   // Lease Related
+   void RenewLease();
    // helpers
    bool AmLeader();
    bool AmCMLeader();

@@ -288,7 +288,6 @@ struct TigaGuard {
    uint32_t viewId_;
    uint32_t shardId_;
    uint32_t replicaId_;
-   uint32_t guardUs_;
 };
 // The holder starts a guard timer once it receives TigaGuard
 // The holder must reply to grantor

@@ -608,14 +608,12 @@ Marshal& operator>>(Marshal& m, TigaFailAck& msg) {
 }
 
 Marshal& operator<<(Marshal& m, const TigaGuard& msg) {
-   m << msg.gViewId_ << msg.viewId_ << msg.shardId_ << msg.replicaId_
-     << msg.guardUs_;
+   m << msg.gViewId_ << msg.viewId_ << msg.shardId_ << msg.replicaId_;
    return m;
 }
 
 Marshal& operator>>(Marshal& m, TigaGuard& msg) {
-   m >> msg.gViewId_ >> msg.viewId_ >> msg.shardId_ >> msg.replicaId_ >>
-       msg.guardUs_;
+   m >> msg.gViewId_ >> msg.viewId_ >> msg.shardId_ >> msg.replicaId_;
    return m;
 }
 

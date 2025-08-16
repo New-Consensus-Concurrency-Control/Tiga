@@ -33,29 +33,29 @@ sharding:
 
 client:
   type: open
-  rate: 25000
+  rate: 8000
   max_undone: -1
   forwarding: false
 # client: { type: closed, rate: -1, forwarding: false }
 n_concurrent: 1
 host:
-  uiga-server-s-00-r-00: 10.142.0.12
-  uiga-server-s-00-r-01: 10.166.0.10
-  uiga-server-s-00-r-02: 10.158.0.11
-  uiga-server-s-01-r-00: 10.142.0.13
-  uiga-server-s-01-r-01: 10.166.0.11
-  uiga-server-s-01-r-02: 10.158.0.12
-  uiga-server-s-02-r-00: 10.142.0.14
-  uiga-server-s-02-r-01: 10.166.0.12
-  uiga-server-s-02-r-02: 10.158.0.13
-  uiga-proxy-0000: 10.142.0.18
-  uiga-proxy-0001: 10.166.0.16
-  uiga-proxy-0002: 10.158.0.17
-  uiga-proxy-0003: 10.142.0.19
-  uiga-proxy-0004: 10.166.0.17
-  uiga-proxy-0005: 10.158.0.18
-  uiga-proxy-0006: 10.170.0.2
-  uiga-proxy-0007: 10.170.0.3
+  uiga-server-s-00-r-00: 10.142.0.8
+  uiga-server-s-00-r-01: 10.166.0.2
+  uiga-server-s-00-r-02: 10.158.0.2
+  uiga-server-s-01-r-00: 10.142.0.9
+  uiga-server-s-01-r-01: 10.166.0.3
+  uiga-server-s-01-r-02: 10.158.0.3
+  uiga-server-s-02-r-00: 10.142.0.10
+  uiga-server-s-02-r-01: 10.166.0.4
+  uiga-server-s-02-r-02: 10.158.0.4
+  uiga-proxy-0000: 10.142.0.11
+  uiga-proxy-0001: 10.166.0.5
+  uiga-proxy-0002: 10.158.0.5
+  uiga-proxy-0003: 10.142.0.12
+  uiga-proxy-0004: 10.166.0.6
+  uiga-proxy-0005: 10.158.0.6
+  uiga-proxy-0006: 10.170.0.3
+  uiga-proxy-0007: 10.170.0.4
 mode: {ab: tiga, batch: false, cc: tiga, ongoing: 1, retry: 20}
 process:
   uiga-server-s-00-r-00: uiga-server-s-00-r-00
@@ -116,9 +116,13 @@ preventive: false
 
 nezha-recorder: 127.0.0.1:41237
 
-owd_delta_us: 10000
+owd_delta_us: 30000
 owd_estimate_percentile: 50
 owdDeltaUs: 10000
 test_failure_recovery: false
 synced_logid_before_failure: 600000
 clock_approach: cwcs
+
+enable_lease: true 
+t_guard_us: 500000
+t_lease_us: 1000000

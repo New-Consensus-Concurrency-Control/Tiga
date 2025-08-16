@@ -57,4 +57,7 @@ class StateMachine {
    virtual void PreRead(const uint32_t txnType,
                         const std::map<int32_t, Value>* input,
                         std::map<int32_t, Value>* output);
+   virtual void ExecuteReadOnlyTxn(const uint32_t txnType,
+                                   const std::map<int32_t, Value>* input,
+                                   std::map<int32_t, Value>* output);
 };
