@@ -23,6 +23,8 @@ class TigaGlobalServiceImpl : public TigaGlobalService {
                     rrr::DeferredReply* defer) override;
    void PromiseNotify(const TigaPromise&, TigaPromiseAck*,
                       rrr::DeferredReply* defer) override;
+   void PromiseRevoke(const TigaPromiseRevoke&, TigaPromiseRevokeAck*,
+                      rrr::DeferredReply* defer) override;
 };
 
 }  // namespace TigaRPC

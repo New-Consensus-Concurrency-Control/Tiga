@@ -326,6 +326,22 @@ struct TigaPromiseAck {
    uint32_t promiseId_;
 };
 
+struct TigaPromiseRevoke {
+   uint32_t gViewId_;
+   uint32_t viewId_;
+   uint32_t shardId_;
+   uint32_t replicaId_;
+   uint32_t promiseId_;
+};
+
+struct TigaPromiseRevokeAck {
+   uint32_t gViewId_;
+   uint32_t viewId_;
+   uint32_t shardId_;
+   uint32_t replicaId_;
+   uint32_t promiseId_;
+};
+
 Marshal& operator<<(Marshal& m, const TigaDispatchRequest& req);
 
 Marshal& operator>>(Marshal& m, TigaDispatchRequest& req);
@@ -463,6 +479,14 @@ Marshal& operator>>(Marshal& m, TigaPromise& msg);
 Marshal& operator<<(Marshal& m, const TigaPromiseAck& msg);
 
 Marshal& operator>>(Marshal& m, TigaPromiseAck& msg);
+
+Marshal& operator<<(Marshal& m, const TigaPromiseRevoke& msg);
+
+Marshal& operator>>(Marshal& m, TigaPromiseRevoke& msg);
+
+Marshal& operator<<(Marshal& m, const TigaPromiseRevokeAck& msg);
+
+Marshal& operator>>(Marshal& m, TigaPromiseRevokeAck& msg);
 
 enum DEADLINE_STATUS {
    DEADLINE_INIT = 1,

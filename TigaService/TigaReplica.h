@@ -282,6 +282,8 @@ class TigaReplica {
    void FollowerCrossReplicaSyncTd();
    void FollowerReplyTd();
    void FollowerExecuteCommitTd();
+   // When Lease is enabled
+   void ResponseControlTd();
 
    void onDispatchRequest(const TigaDispatchRequest& req,
                           TigaDispatchReply* rep,
@@ -300,6 +302,9 @@ class TigaReplica {
    void onGuardNotifyAck(const TigaGuardAck& msg);
    void onPromiseNotify(const TigaPromise& msg, TigaPromiseAck* ack);
    void onPromiseNotifyAck(const TigaPromiseAck& ack);
+   void onPromiseRevoke(const TigaPromiseRevoke& msg,
+                        TigaPromiseRevokeAck* ack);
+   void onPromiseRevokeAck(const TigaPromiseRevokeAck& ack);
 
    // Thread Helpers
    bool CanSpecExec(TigaLogEntry* entry);

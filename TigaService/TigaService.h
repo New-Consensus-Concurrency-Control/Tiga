@@ -12,10 +12,10 @@ namespace TigaRPC {
 class TigaService: public rrr::Service {
 public:
     enum {
-        NORMALREQUEST = 0x162b9e35,
-        INQUIRESERVERSYNCSTATUS = 0x557cbeb6,
-        RECONCLIATION = 0x5700cf67,
-        DISPATCHREQUEST = 0x2ac55888,
+        NORMALREQUEST = 0x460fb1dc,
+        INQUIRESERVERSYNCSTATUS = 0x528d7946,
+        RECONCLIATION = 0x3d59b1b2,
+        DISPATCHREQUEST = 0x5d8c251a,
     };
     int __reg_to__(rrr::Server* svr) {
         int ret = 0;
@@ -194,7 +194,7 @@ public:
 class TigaLocalService: public rrr::Service {
 public:
     enum {
-        DEADLINEAGREEREQUEST = 0x639e1568,
+        DEADLINEAGREEREQUEST = 0x64f53bcf,
     };
     int __reg_to__(rrr::Server* svr) {
         int ret = 0;
@@ -250,10 +250,11 @@ public:
 class TigaGlobalService: public rrr::Service {
 public:
     enum {
-        INTERREPLICASYNC = 0x338552db,
-        SYNCSTATUS = 0x4da07a27,
-        GUARDNOTIFY = 0x46f9e4b0,
-        PROMISENOTIFY = 0x41266039,
+        INTERREPLICASYNC = 0x57740c3f,
+        SYNCSTATUS = 0x59980735,
+        GUARDNOTIFY = 0x6401a1eb,
+        PROMISENOTIFY = 0x6e3b3da8,
+        PROMISEREVOKE = 0x39806d69,
     };
     int __reg_to__(rrr::Server* svr) {
         int ret = 0;
@@ -269,12 +270,16 @@ public:
         if ((ret = svr->reg(PROMISENOTIFY, this, &TigaGlobalService::__PromiseNotify__wrapper__)) != 0) {
             goto err;
         }
+        if ((ret = svr->reg(PROMISEREVOKE, this, &TigaGlobalService::__PromiseRevoke__wrapper__)) != 0) {
+            goto err;
+        }
         return 0;
     err:
         svr->unreg(INTERREPLICASYNC);
         svr->unreg(SYNCSTATUS);
         svr->unreg(GUARDNOTIFY);
         svr->unreg(PROMISENOTIFY);
+        svr->unreg(PROMISEREVOKE);
         return ret;
     }
     // these RPC handler functions need to be implemented by user
@@ -283,6 +288,7 @@ public:
     virtual void SyncStatus(const TigaSyncStatus&, rrr::DeferredReply* defer) = 0;
     virtual void GuardNotify(const TigaGuard&, TigaGuardAck*, rrr::DeferredReply* defer) = 0;
     virtual void PromiseNotify(const TigaPromise&, TigaPromiseAck*, rrr::DeferredReply* defer) = 0;
+    virtual void PromiseRevoke(const TigaPromiseRevoke&, TigaPromiseRevokeAck*, rrr::DeferredReply* defer) = 0;
 private:
     void __InterReplicaSync__wrapper__(rrr::Request* req, rrr::ServerConnection* sconn) {
         TigaInterReplicaSync* in_0 = new TigaInterReplicaSync;
@@ -333,6 +339,20 @@ private:
         };
         rrr::DeferredReply* __defer__ = new rrr::DeferredReply(req, sconn, __marshal_reply__, __cleanup__);
         this->PromiseNotify(*in_0, out_0, __defer__);
+    }
+    void __PromiseRevoke__wrapper__(rrr::Request* req, rrr::ServerConnection* sconn) {
+        TigaPromiseRevoke* in_0 = new TigaPromiseRevoke;
+        req->m >> *in_0;
+        TigaPromiseRevokeAck* out_0 = new TigaPromiseRevokeAck;
+        auto __marshal_reply__ = [=] {
+            *sconn << *out_0;
+        };
+        auto __cleanup__ = [=] {
+            delete in_0;
+            delete out_0;
+        };
+        rrr::DeferredReply* __defer__ = new rrr::DeferredReply(req, sconn, __marshal_reply__, __cleanup__);
+        this->PromiseRevoke(*in_0, out_0, __defer__);
     }
 };
 
@@ -415,22 +435,42 @@ public:
         __fu__->release();
         return __ret__;
     }
+    rrr::Future* async_PromiseRevoke(const TigaPromiseRevoke& in_0, const rrr::FutureAttr& __fu_attr__ = rrr::FutureAttr()) {
+        rrr::Future* __fu__ = __cl__->begin_request(TigaGlobalService::PROMISEREVOKE, __fu_attr__);
+        if (__fu__ != nullptr) {
+            *__cl__ << in_0;
+        }
+        __cl__->end_request();
+        return __fu__;
+    }
+    rrr::i32 PromiseRevoke(const TigaPromiseRevoke& in_0, TigaPromiseRevokeAck* out_0) {
+        rrr::Future* __fu__ = this->async_PromiseRevoke(in_0);
+        if (__fu__ == nullptr) {
+            return ENOTCONN;
+        }
+        rrr::i32 __ret__ = __fu__->get_error_code();
+        if (__ret__ == 0) {
+            __fu__->get_reply() >> *out_0;
+        }
+        __fu__->release();
+        return __ret__;
+    }
 };
 
 class TigaViewChangeService: public rrr::Service {
 public:
     enum {
-        VIEWCHANGEREQ = 0x2d341bc7,
-        VIEWCHANGE = 0x6c53f0d6,
-        HEARTBEAT = 0x2a6ae2db,
-        STATETRANSFER = 0x6bec0795,
-        CMPREPARE = 0x3e927d73,
-        CMPREPAREREPLY = 0x4058369d,
-        CMCOMMIT = 0x4265b0aa,
-        FAILSIGNAL = 0x41f8ce97,
-        CROSSSHARDVERIFYREQ = 0x5a7e440f,
-        CROSSSHARDVERIFYREP = 0x195948ac,
-        STARTVIEW = 0x4e97ba48,
+        VIEWCHANGEREQ = 0x37552d67,
+        VIEWCHANGE = 0x60d32e0e,
+        HEARTBEAT = 0x66b13316,
+        STATETRANSFER = 0x22e0f589,
+        CMPREPARE = 0x2416a60e,
+        CMPREPAREREPLY = 0x41f0a264,
+        CMCOMMIT = 0x2c800a42,
+        FAILSIGNAL = 0x3e7b0558,
+        CROSSSHARDVERIFYREQ = 0x1ab32b69,
+        CROSSSHARDVERIFYREP = 0x4f6f6901,
+        STARTVIEW = 0x4d48c288,
     };
     int __reg_to__(rrr::Server* svr) {
         int ret = 0;

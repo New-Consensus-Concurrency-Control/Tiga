@@ -1490,6 +1490,11 @@ void TigaReplica::onPromiseNotifyAck(const TigaPromiseAck& msg) {
    }
 }
 
+void TigaReplica::onPromiseRevoke(const TigaPromiseRevoke& msg,
+                                  TigaPromiseRevokeAck* ack) {}
+
+void TigaReplica::onPromiseRevokeAck(const TigaPromiseRevokeAck& ack) {}
+
 /******** ***** ***** ***** Thread Helper ***** ***** ***** ***** *****
  * *****/
 

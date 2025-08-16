@@ -652,3 +652,27 @@ Marshal& operator>>(Marshal& m, TigaPromiseAck& msg) {
        msg.promiseId_;
    return m;
 }
+
+Marshal& operator<<(Marshal& m, const TigaPromiseRevoke& msg) {
+   m << msg.gViewId_ << msg.viewId_ << msg.shardId_ << msg.replicaId_
+     << msg.promiseId_;
+   return m;
+}
+
+Marshal& operator>>(Marshal& m, TigaPromiseRevoke& msg) {
+   m >> msg.gViewId_ >> msg.viewId_ >> msg.shardId_ >> msg.replicaId_ >>
+       msg.promiseId_;
+   return m;
+}
+
+Marshal& operator<<(Marshal& m, const TigaPromiseRevokeAck& msg) {
+   m << msg.gViewId_ << msg.viewId_ << msg.shardId_ << msg.replicaId_
+     << msg.promiseId_;
+   return m;
+}
+
+Marshal& operator>>(Marshal& m, TigaPromiseRevokeAck& msg) {
+   m >> msg.gViewId_ >> msg.viewId_ >> msg.shardId_ >> msg.replicaId_ >>
+       msg.promiseId_;
+   return m;
+}

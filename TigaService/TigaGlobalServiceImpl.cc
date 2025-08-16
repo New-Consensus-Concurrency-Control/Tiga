@@ -33,4 +33,10 @@ void TigaGlobalServiceImpl::PromiseNotify(const TigaPromise& msg,
    defer->reply();
 }
 
+void TigaGlobalServiceImpl::PromiseRevoke(const TigaPromiseRevoke& msg,
+                                          TigaPromiseRevokeAck* ack,
+                                          rrr::DeferredReply* defer) {
+   replica_->onPromiseRevoke(msg, ack);
+   defer->reply();
+}
 }  // namespace TigaRPC
