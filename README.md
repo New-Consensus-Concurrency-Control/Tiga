@@ -431,7 +431,7 @@ We should be able to see Chrony and Huygens can both achieve lower latency than 
 
 
 ## License
-This project will be open-sourced soon (after we release our camera-ready version), and the tentative licence will be MIT license.
+This project follows MIT license.
 
 ## Acknowledgement
 We sincerely appreciate the support from [Google Research Credit Program](https://edu.google.com/intl/ALL_us/programs/credits/research).
