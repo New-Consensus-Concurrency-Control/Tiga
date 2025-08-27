@@ -97,7 +97,7 @@ class TigaReplica {
    uint32_t replicaNum_;
    uint32_t shardNum_;
    bool isPreventive_;
-   std::atomic<uint64_t> releaseWaterMark_;
+   bool followerCatchUpCommit_;
 
    // Lease related
    bool enableLease_;
@@ -110,8 +110,14 @@ class TigaReplica {
    // used by leader,i.e., the grantor
    uint64_t promiseAckTimeUs_[MAX_REPLICA_NUM][PROMISE_VEC_SIZE];
    uint32_t followerSafeCommitPoints_[MAX_REPLICA_NUM];
+   bool stopLeaseToFollower_[MAX_REPLICA_NUM];
    int32_t nextPromiseIdToFollower_[MAX_REPLICA_NUM];
    int32_t ackedPromiseIdFromFollower_[MAX_REPLICA_NUM];
+   std::atomic<uint32_t> toRevokePromiseIdFromFollower_[MAX_REPLICA_NUM];
+   std::atomic<uint32_t> revokedPromiseIdFromFollower_[MAX_REPLICA_NUM];
+   // <PromiseId, queuedTxns waiting for this promise to expire>
+   std::map<int32_t, std::queue<TigaLogEntry*>>
+       waitingForFollowerLeaseExpire_[MAX_REPLICA_NUM];
 
    ///////////////////////////////////
    mutable std::shared_mutex failedServerRecordMtx_;
@@ -217,6 +223,7 @@ class TigaReplica {
    ConcurrentQueue<std::pair<TigaLogEntry*, uint32_t>> toExecQuF_;
    ConcurrentQueue<TigaLogEntry*> toReplyQu_;
    ConcurrentQueue<CommitReplyInfo> toCommitRepyQu_;
+   ConcurrentQueue<TigaLogEntry*> toReplyControlQu_;
 
    std::atomic<uint32_t> activeThreads_;
    std::unordered_map<std::string, std::thread*> threadMap_;
@@ -282,8 +289,10 @@ class TigaReplica {
    void FollowerCrossReplicaSyncTd();
    void FollowerReplyTd();
    void FollowerExecuteCommitTd();
+
    // When Lease is enabled
-   void ResponseControlTd();
+   void LeaderReplyControlTd();
+   void FollowerReadExecuteTd();
 
    void onDispatchRequest(const TigaDispatchRequest& req,
                           TigaDispatchReply* rep,

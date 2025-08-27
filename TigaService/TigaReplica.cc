@@ -56,22 +56,25 @@ TigaReplica::TigaReplica(const std::string& serverName,
                     << config["clock_approach"].as<std::string>();
       }
    }
+   followerCatchUpCommit_ = false;
+   if (config["follower_commit"].IsDefined()) {
+      followerCatchUpCommit_ = config["follower_commit"].as<bool>();
+   }
 
    enableLease_ = false;
    if (config["enable_lease"].IsDefined()) {
       enableLease_ = config["enable_lease"].as<bool>();
-   }
-   if (enableLease_) {
       tGuardUs_ = config["t_guard_us"].as<uint64_t>();
       tLeaseUs_ = config["t_lease_us"].as<uint64_t>();
-      currentPromiseId_ = -1;
    }
 
+   currentPromiseId_ = -1;
    memset(currentSyncPoints_, '\0', sizeof(currentSyncPoints_));
    memset(currentCommitPoints_, '\0', sizeof(currentCommitPoints_));
    memset(promiseAckTimeUs_, '\0', sizeof(promiseAckTimeUs_));
    memset(followerSafeCommitPoints_, '\0', sizeof(followerSafeCommitPoints_));
    memset(nextPromiseIdToFollower_, '\0', sizeof(promiseAckTimeUs_));
+   memset(stopLeaseToFollower_, '\0', sizeof(stopLeaseToFollower_));
    for (uint32_t r = 0; r < replicaNum_; r++) {
       ackedPromiseIdFromFollower_[r] = -1;
    }
@@ -218,15 +221,27 @@ void TigaReplica::MainTd() {
                    new std::thread(&TigaReplica::LeaderExecTd, this);
                threadMap_["LeaderCrossReplicaSyncTd"] = new std::thread(
                    &TigaReplica::LeaderCrossReplicaSyncTd, this);
+               if (enableLease_) {
+                  threadMap_["LeaderReplyControlTd"] =
+                      new std::thread(&TigaReplica::LeaderReplyControlTd, this);
+               }
                threadMap_["LeaderReplyTd"] =
                    new std::thread(&TigaReplica::LeaderReplyTd, this);
             } else {
+               if (enableLease_) {
+                  threadMap_["FollowerReadExecuteTd"] = new std::thread(
+                      &TigaReplica::FollowerReadExecuteTd, this);
+               }
                threadMap_["FollowerCrossReplicaSyncTd"] = new std::thread(
                    &TigaReplica::FollowerCrossReplicaSyncTd, this);
                threadMap_["FollowerExecTd"] =
                    new std::thread(&TigaReplica::FollowerExecTd, this);
                threadMap_["FollowerReplyTd"] =
                    new std::thread(&TigaReplica::FollowerReplyTd, this);
+               if (followerCatchUpCommit_) {
+                  threadMap_["FollowerExecuteCommitTd"] = new std::thread(
+                      &TigaReplica::FollowerExecuteCommitTd, this);
+               }
             }
          }
          lastNormalView_ = viewId_;
@@ -662,7 +677,11 @@ void TigaReplica::PreventiveExec(TigaLogEntry* entry, uint32_t cmd) {
       }
       entry->reply_->hasHash_ = 1;
       entry->replyStatus_ = REPLY_AGREED;
-      toReplyQu_.enqueue(entry);
+      if (enableLease_) {
+         toReplyControlQu_.enqueue(entry);
+      } else {
+         toReplyQu_.enqueue(entry);
+      }
 
    } else {
       LOG(ERROR) << "Unexpected cmd =" << cmd;
@@ -705,7 +724,12 @@ void TigaReplica::DetectiveExec(TigaLogEntry* entry, uint32_t cmd) {
       entry->specReply_->hasHash_ = 1;
       entry->replyMtx_.unlock();
       entry->replyStatus_ = REPLY_SPEC;
-      toReplyQu_.enqueue(entry);
+      if (enableLease_) {
+         toReplyControlQu_.enqueue(entry);
+      } else {
+         toReplyQu_.enqueue(entry);
+      }
+
    } else if (cmd == EXEC_COMMITING || cmd == EXEC_DIRECT) {
       if (cmd == EXEC_DIRECT) {
          entry->reply_ = new TigaReply();
@@ -758,7 +782,11 @@ void TigaReplica::DetectiveExec(TigaLogEntry* entry, uint32_t cmd) {
          entry->reply_->hasHash_ = 1;
          entry->replyMtx_.unlock();
          entry->replyStatus_ = REPLY_AGREED;
-         toReplyQu_.enqueue(entry);
+         if (enableLease_) {
+            toReplyControlQu_.enqueue(entry);
+         } else {
+            toReplyQu_.enqueue(entry);
+         }
       }
 
    } else if (cmd == EXEC_ROLLBACK) {
@@ -949,6 +977,33 @@ void TigaReplica::LeaderCrossReplicaSyncTd() {
    LOG(INFO) << "LeaderCrossReplicaSyncTd Terminated";
    activeThreads_.fetch_sub(1);
 }
+
+void TigaReplica::LeaderReplyControlTd() {
+   activeThreads_.fetch_add(1);
+   TigaLogEntry* entries[UINT8_MAX];
+   uint32_t cnt = 0;
+   while (status_ == SERVER_STATUS::STATUS_NORMAL) {
+      while ((cnt = toReplyControlQu_.try_dequeue_bulk(entries, UINT8_MAX)) >
+             0) {
+         for (uint32_t i = 0; i < cnt; i++) {
+            TigaLogEntry* entry = entries[i];
+            entry->localKeys_;
+            std::set<uint32_t> followerReplicaIds;
+            for (auto& follower : followerReplicaIds) {
+               int currentPromiseIdToFollower =
+                   nextPromiseIdToFollower_[follower] - 1;
+               waitingForFollowerLeaseExpire_[follower]
+                                             [currentPromiseIdToFollower]
+                                                 .push(entry);
+               stopLeaseToFollower_[follower] = true;
+            }
+         }
+      }
+   }
+   activeThreads_.fetch_sub(1);
+}
+
+void TigaReplica::FollowerReadExecuteTd() {}
 
 void TigaReplica::RenewLease() {
    for (uint32_t r = 0; r < replicaNum_; r++) {
@@ -1319,9 +1374,6 @@ void TigaReplica::onDeadlineAgreementRequest(
    if (req.gViewId_ < gViewId_) {
       return;
    }
-   // if (req.shardId_ == 2 && shardId_ == 0) {
-   //    LOG(INFO) << "sz=" << req.deadlineRanks_.size();
-   // }
    toDdlSyncRequestQu_.enqueue(req);
 }
 
@@ -1430,6 +1482,10 @@ void TigaReplica::onGuardNotifyAck(const TigaGuardAck& msg) {
    if (msg.gViewId_ != gViewId_ || msg.viewId_ != viewId_) {
       return;
    }
+   if (!AmLeader()) {
+      LOG(ERROR) << "Not Leader";
+      return;
+   }
    if (!enableLease_) {
       LOG(ERROR) << "Lease Not Enabled";
       return;
@@ -1457,14 +1513,17 @@ void TigaReplica::onPromiseNotify(const TigaPromise& msg, TigaPromiseAck* ack) {
    }
    currentPromiseId_ = msg.promiseId_;
    uint64_t nowTime = GetMicrosecondTimestamp();
-   if (promiseNotifyTimeUs_[msg.lastPromiseAckId_] + msg.validDuration_ <
+   if (promiseNotifyTimeUs_[msg.lastPromiseAckId_ % PROMISE_VEC_SIZE] +
+           msg.validDuration_ <
        nowTime) {
       // This lease is not considered valid
-      leaseDurationUs_[currentPromiseId_] = 0;
+      leaseDurationUs_[currentPromiseId_ % PROMISE_VEC_SIZE] = 0;
    } else {
       // From now on, this lease will be active for msg.leaseUs
-      leaseDurationUs_[currentPromiseId_] = msg.leaseUs_;
+      leaseDurationUs_[currentPromiseId_ % PROMISE_VEC_SIZE] = msg.leaseUs_;
    }
+   promiseNotifyTimeUs_[msg.promiseId_ % PROMISE_VEC_SIZE] =
+       GetMicrosecondTimestamp();
    ack->gViewId_ = gViewId_;
    ack->viewId_ = viewId_;
    ack->replicaId_ = replicaId_;
@@ -1481,6 +1540,10 @@ void TigaReplica::onPromiseNotifyAck(const TigaPromiseAck& msg) {
       LOG(ERROR) << "Lease Not Enabled";
       return;
    }
+   if (!AmLeader()) {
+      LOG(ERROR) << "Not Leader";
+      return;
+   }
    if (ackedPromiseIdFromFollower_[msg.replicaId_] >= msg.promiseId_) {
       LOG(ERROR) << " Mismatch " << ackedPromiseIdFromFollower_[msg.replicaId_];
    } else {
@@ -1491,9 +1554,49 @@ void TigaReplica::onPromiseNotifyAck(const TigaPromiseAck& msg) {
 }
 
 void TigaReplica::onPromiseRevoke(const TigaPromiseRevoke& msg,
-                                  TigaPromiseRevokeAck* ack) {}
+                                  TigaPromiseRevokeAck* ack) {
+   std::unique_lock lck(leaseMtx_);
+   if (msg.gViewId_ != gViewId_ || msg.viewId_ != viewId_) {
+      return;
+   }
+   if (!enableLease_) {
+      LOG(ERROR) << "Lease Not Enabled";
+      return;
+   }
+   if (currentPromiseId_ >= msg.promiseId_) {
+      LOG(ERROR) << "Mismatch PromiseId " << currentPromiseId_;
+      return;
+   }
+   // Make lease duration become 0
+   leaseDurationUs_[currentPromiseId_ % PROMISE_VEC_SIZE] = 0;
 
-void TigaReplica::onPromiseRevokeAck(const TigaPromiseRevokeAck& ack) {}
+   ack->gViewId_ = gViewId_;
+   ack->viewId_ = viewId_;
+   ack->promiseId_ = msg.promiseId_;
+   ack->shardId_ = shardId_;
+   ack->replicaId_ = replicaId_;
+}
+
+void TigaReplica::onPromiseRevokeAck(const TigaPromiseRevokeAck& msg) {
+   if (msg.gViewId_ != gViewId_ || msg.viewId_ != viewId_) {
+      return;
+   }
+   if (!enableLease_) {
+      LOG(ERROR) << "Lease Not Enabled";
+      return;
+   }
+   if (!AmLeader()) {
+      LOG(ERROR) << "Not Leader";
+      return;
+   }
+   if (toRevokePromiseIdFromFollower_[msg.replicaId_] != msg.promiseId_) {
+      LOG(WARNING) << "MisMatch PromiseId "
+                   << toRevokePromiseIdFromFollower_[msg.replicaId_] << "\tvs\t"
+                   << msg.promiseId_;
+      return;
+   }
+   revokedPromiseIdFromFollower_[msg.replicaId_] = msg.promiseId_;
+}
 
 /******** ***** ***** ***** Thread Helper ***** ***** ***** ***** *****
  * *****/
@@ -1772,11 +1875,11 @@ void TigaReplica::ExecuteCommittedLogs(uint32_t upto) {
    while (executedLogId_ < upto) {
       uint32_t idx = executedLogId_;
       TigaLogEntry* entry = syncedLogList_[idx];
+      uint64_t txnKey = entry->cmd_->TxnKey();
+      entry->replyMtx_.lock();
       if (!entry->reply_) {
          entry->reply_ = new TigaReply();
       }
-      uint64_t txnKey = entry->cmd_->TxnKey();
-      entry->replyMtx_.lock();
       sm_->Execute(entry->cmd_->txnType_, &(entry->localKeys_),
                    &(entry->cmd_->ws_), &(entry->reply_->result_), txnKey);
       entry->replyMtx_.unlock();
