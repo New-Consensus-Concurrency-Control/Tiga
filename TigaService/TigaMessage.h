@@ -94,6 +94,7 @@ struct TigaInterReplicaSync {
    uint32_t replicaId_;
    uint32_t commitPoint_;
    uint32_t logIdStart_;
+   uint64_t syncedWaterMark_;
    std::vector<uint64_t> txnKeys_;
    std::vector<uint64_t> deadlineRanks_;
    std::vector<uint32_t> specLogIds_;
@@ -461,11 +462,7 @@ struct AgreeLog {
 struct TigaLogEntry {
    uint64_t localDdlRank_;
    uint64_t agreedDdlRank_;
-   uint64_t dqRank_;  // for debug
-   // uint64_t ddlSyncTime_;
-   // uint64_t ddlAgreeTime_;
-   // uint64_t ddlAgreeNotificationTime_;
-   uint32_t comeTimes_;
+   uint64_t currentWaterMark_;
    std::atomic<uint32_t> preAgreeStatus_;
    std::atomic<uint32_t> agreeStatus_;
    std::atomic<uint32_t> execStatus_;
@@ -495,7 +492,7 @@ struct TigaLogEntry {
    TigaLogEntry()
        : localDdlRank_(0),
          agreedDdlRank_(0),
-         comeTimes_(0),
+         currentWaterMark_(0),
          preAgreeStatus_(AGREE_INIT),
          agreeStatus_(AGREE_INIT),
          execStatus_(EXEC_INIT),
@@ -509,9 +506,7 @@ struct TigaLogEntry {
          specLogId_(0),
          replyStatus_(0),
          specReply_(NULL),
-         reply_(NULL) {
-      dqRank_ = 0;
-   }
+         reply_(NULL) {}
    bool operator<(const TigaLogEntry& rhs) const {
       if (cmd_->clientId_ < rhs.cmd_->clientId_ ||
           (cmd_->clientId_ == rhs.cmd_->clientId_ &&

@@ -11,6 +11,9 @@ TigaReplica::TigaReplica(const std::string& serverName,
    } else {
       owdDeltaUs_ = 0;
    }
+   waterMark_ = 0;
+   completedWaterMarkBin_ = 0;
+   commitWaterMark_ = 0;
 
    reconcliationRequstNum_ = 0;
    normalRequestNum_ = 0;
@@ -56,6 +59,12 @@ TigaReplica::TigaReplica(const std::string& serverName,
                     << config["clock_approach"].as<std::string>();
       }
    }
+
+   enableReadOnlyOptimization_ = false;
+   if (config["enable_read_only_optim"].IsDefined()) {
+      enableReadOnlyOptimization_ = true;
+   }
+
    // To highlight the problem of logical timestamps, make every servers'
    // logical clock unsynced (i.e., with an offset)
    serverLogicalClock_ =
@@ -206,6 +215,8 @@ void TigaReplica::MainTd() {
                    new std::thread(&TigaReplica::FollowerExecTd, this);
                threadMap_["FollowerReplyTd"] =
                    new std::thread(&TigaReplica::FollowerReplyTd, this);
+               threadMap_["FollowerExecuteCommitTd"] =
+                   new std::thread(&TigaReplica::FollowerExecuteCommitTd, this);
             }
          }
          lastNormalView_ = viewId_;
@@ -277,15 +288,26 @@ void TigaReplica::HoldReleaseTd() {
    TigaLogEntry* entries[UINT8_MAX];
    uint32_t cnt = 0;
    uint64_t lastReleaseTime = 0;
+   waterMark_ = 0;
    while (status_ == SERVER_STATUS::STATUS_NORMAL) {
       uint64_t nowTime = GetMicrosecondTimestamp();
+      uint64_t currentWaterMark =
+          (nowTime - 50000) / 100000 * 100000;  // chunk to 100ms
+      if (waterMark_ == 0) {
+         waterMark_ = currentWaterMark;
+      } else {
+         if (waterMark_ < currentWaterMark) {
+            // insert a delimiter
+            waterMarkMsgQu_.enqueue(NULL);
+         }
+      }
+
       while ((cnt = toHoldAndReleaseQu_.try_dequeue_bulk(entries, UINT8_MAX)) >
              0) {
          for (uint32_t i = 0; i < cnt; i++) {
             TigaLogEntry* entry = entries[i];
             uint64_t txnKey = entry->cmd_->TxnKey();
             uint32_t clientId = entry->cmd_->clientId_;
-
             if (entry->agreeStatus_ == AGREE_FLUSHING) {
                assert(AmLeader());
                assert(entry->agreedDdlRank_ > entry->localDdlRank_);
@@ -324,6 +346,8 @@ void TigaReplica::HoldReleaseTd() {
             // (Leader) updates timestamp
             entry->localDdlRank_ =
                 std::max(entry->localDdlRank_, maxLastReleasedTime + 1);
+            entry->localDdlRank_ =
+                std::max(entry->localDdlRank_, waterMark_ + 1);
             holdBuffer_[{entry->localDdlRank_, txnKey}] = entry;
          }
       }
@@ -337,6 +361,7 @@ void TigaReplica::HoldReleaseTd() {
          // nowTime has surpassed my deadline, release
          // Optimiaztion:  Add a delta here, nowTime - delta > xxx
          TigaLogEntry* entry = holdBuffer_.begin()->second;
+         entry->currentWaterMark_ = waterMark_;
          if (AmLeader()) {
             if (entry->agreeStatus_ == AGREE_FLUSHING) {
                // This txn has previously done timestamp agreement, but
@@ -350,7 +375,9 @@ void TigaReplica::HoldReleaseTd() {
                   entry->agreeStatus_ = AGREE_COMPLETE;
                } else  // Only multi-shard txns need timestamp agreement
                   toDdlSyncQu_.enqueue(entry);
-
+               // This waterMarkMsgQu passes msg to LeaderCrossReplicaSyncTd
+               // so that that td can identify the safe watermark
+               waterMarkMsgQu_.enqueue(entry);
                toExecCheckQu_.enqueue(entry);
             }
 
@@ -379,7 +406,6 @@ void TigaReplica::LeaderDdlSyncTd() {
       while ((cnt = toDdlSyncQu_.try_dequeue_bulk(entries, UINT8_MAX)) > 0) {
          for (uint32_t i = 0; i < cnt; i++) {
             TigaLogEntry* entry = entries[i];
-            entry->comeTimes_++;
             uint64_t txnKey = entry->cmd_->TxnKey();
             if (entry->agreeStatus_ == AGREE_INIT) {
                for (auto& kv : entry->shardKeyMap_) {
@@ -400,8 +426,7 @@ void TigaReplica::LeaderDdlSyncTd() {
             } else {
                LOG(ERROR) << "Unexpected agreeStatus =" << entry->agreeStatus_
                           << "\t"
-                          << "entryID=" << entry->ID() << "\t"
-                          << "comeTime=" << entry->comeTimes_
+                          << "entryID=" << entry->ID()
                           << "\t--shards=" << entry->shardKeyMap_.size();
 
                /****
@@ -617,8 +642,15 @@ void TigaReplica::PreventiveExec(TigaLogEntry* entry, uint32_t cmd) {
       entry->logId_ = nextSyncedLogId_.fetch_add(1);
       syncedLogInfoQu_.enqueue(entry);
 
+      entry->replyMtx_.lock();
       sm_->Execute(entry->cmd_->txnType_, &(entry->localKeys_),
                    &(entry->cmd_->ws_), &(entry->reply_->result_), txnKey);
+
+      if (enableReadOnlyOptimization_) {
+         sm_->RecordTimestampVersion(&(entry->localKeys_), &(entry->cmd_->ws_),
+                                     entry->agreedDdlRank_);
+      }
+      entry->replyMtx_.unlock();
 
       executedLogId_++;
       verify(executedLogId_ == entry->logId_);
@@ -703,9 +735,14 @@ void TigaReplica::DetectiveExec(TigaLogEntry* entry, uint32_t cmd) {
          sm_->CommitExecute(entry->cmd_->txnType_, &(entry->localKeys_),
                             &(entry->cmd_->ws_), &(entry->specReply_->result_),
                             txnKey);
+
       } else {
          sm_->Execute(entry->cmd_->txnType_, &(entry->localKeys_),
                       &(entry->cmd_->ws_), &(entry->reply_->result_), txnKey);
+      }
+      if (enableReadOnlyOptimization_) {
+         sm_->RecordTimestampVersion(&(entry->localKeys_), &(entry->cmd_->ws_),
+                                     entry->agreedDdlRank_);
       }
       entry->replyMtx_.unlock();
 
@@ -727,7 +764,6 @@ void TigaReplica::DetectiveExec(TigaLogEntry* entry, uint32_t cmd) {
          entry->replyStatus_ = REPLY_AGREED;
          toReplyQu_.enqueue(entry);
       }
-
    } else if (cmd == EXEC_ROLLBACK) {
       entry->replyMtx_.lock();
       // The ReplyTd might be serializing reply->result,  consider adding a
@@ -851,14 +887,31 @@ void TigaReplica::LeaderCrossReplicaSyncTd() {
    activeThreads_.fetch_add(1);
    TigaLogEntry* entries[UINT8_MAX];
    uint32_t cnt = 0;
+   uint64_t syncedWaterMark = 0;
    while (status_ == SERVER_STATUS::STATUS_NORMAL) {
       uint64_t startTime = GetMicrosecondTimestamp();
+      if (enableReadOnlyOptimization_) {
+         while ((cnt = waterMarkMsgQu_.try_dequeue_bulk(entries, UINT8_MAX)) >
+                0) {
+            for (uint32_t i = 0; i < cnt; i++) {
+               if (entries[i] == NULL) {
+                  // previous watermark bin has completed
+                  completedWaterMarkBin_ = waterMarkRecord_.rbegin()->first;
+               } else {
+                  uint64_t waterMark = entries[i]->currentWaterMark_;
+                  uint64_t txnKey = entries[i]->cmd_->TxnKey();
+                  waterMarkRecord_[waterMark].insert(txnKey);
+               }
+            }
+         }
+      }
+
       // Broadcast Inter-Replica Sync Msg
       while ((cnt = syncedLogInfoQu_.try_dequeue_bulk(entries, UINT8_MAX)) >
              0) {
-         assert(syncedLogList_.size() + 1 == entries[0]->logId_);
+         // assert(syncedLogList_.size() + 1 == entries[0]->logId_);
          syncedLogList_.insert(syncedLogList_.end(), entries, entries + cnt);
-         assert(syncedLogList_.size() == (*syncedLogList_.rbegin())->logId_);
+         // assert(syncedLogList_.size() == (*syncedLogList_.rbegin())->logId_);
       }
 
       uint32_t sz = syncedLogList_.size() - lastBroadcastSyncedLogId_;
@@ -877,19 +930,39 @@ void TigaReplica::LeaderCrossReplicaSyncTd() {
       sync.replicaId_ = replicaId_;
       sync.commitPoint_ = commitPoint_;
       sync.logIdStart_ = lastBroadcastSyncedLogId_ + 1;
+
       if (sz > 0) {
          sync.deadlineRanks_.resize(sz);
          sync.txnKeys_.resize(sz);
          sync.specLogIds_.resize(sz);
          for (uint32_t i = sync.logIdStart_ - 1; i < syncedLogList_.size();
               i++) {
+            uint64_t txnKey = syncedLogList_[i]->cmd_->TxnKey();
             sync.deadlineRanks_[i - lastBroadcastSyncedLogId_] =
                 syncedLogList_[i]->agreedDdlRank_;
-            sync.txnKeys_[i - lastBroadcastSyncedLogId_] =
-                syncedLogList_[i]->cmd_->TxnKey();
+            sync.txnKeys_[i - lastBroadcastSyncedLogId_] = txnKey;
             sync.specLogIds_[i - lastBroadcastSyncedLogId_] =
                 syncedLogList_[i]->specLogId_;
+            if (enableReadOnlyOptimization_) {
+               uint64_t txnWaterMark = syncedLogList_[i]->currentWaterMark_;
+               waterMarkRecord_[txnWaterMark].erase(txnKey);
+            }
          }
+
+         if (enableReadOnlyOptimization_) {
+            while (!waterMarkRecord_.empty()) {
+               uint64_t waterMark = waterMarkRecord_.begin()->first;
+               if (waterMark > completedWaterMarkBin_) {
+                  // This waterMark-related bin has not been completed
+                  break;
+               }
+               if (waterMarkRecord_.begin()->second.empty()) {
+                  syncedWaterMark = std::max(syncedWaterMark, waterMark);
+                  waterMarkRecord_.erase(waterMarkRecord_.begin());
+               }
+            }
+         }
+         sync.syncedWaterMark_ = syncedWaterMark;
       }
 
       // LOG(INFO) << "logIdStart_=" << sync.logIdStart_
@@ -1103,7 +1176,6 @@ void TigaReplica::FollowerExecuteCommitTd() {
       while ((cnt = followerCommitExecuteQu_.try_dequeue_bulk(entries,
                                                               UINT8_MAX)) > 0) {
          for (uint32_t i = 0; i < cnt; i++) {
-
             // LOG(INFO) << "logId=" << entries[i]->logId_ << "--vs-- "
             //           << syncedLogList_.size();
             if (entries[i]->logId_ - 1 == syncedLogList_.size()) {
@@ -1585,6 +1657,18 @@ bool TigaReplica::ProcessInterReplicaSync(const TigaInterReplicaSync& req) {
    if (commitPoint_ < req.commitPoint_) {
       commitPoint_ = req.commitPoint_;
    }
+   if (enableReadOnlyOptimization_) {
+      syncedLogIdToWaterMark_[nextSyncedLogId_ - 1] = req.syncedWaterMark_;
+      while (!syncedLogIdToWaterMark_.empty()) {
+         if (commitPoint_ >= syncedLogIdToWaterMark_.begin()->first) {
+            commitWaterMark_ = syncedLogIdToWaterMark_.begin()->second;
+            syncedLogIdToWaterMark_.erase(syncedLogIdToWaterMark_.begin());
+         } else {
+            break;
+         }
+      }
+   }
+
    return true;
 }
 
@@ -1599,6 +1683,10 @@ void TigaReplica::ExecuteCommittedLogs(uint32_t upto) {
       entry->replyMtx_.lock();
       sm_->Execute(entry->cmd_->txnType_, &(entry->localKeys_),
                    &(entry->cmd_->ws_), &(entry->reply_->result_), txnKey);
+      if (enableReadOnlyOptimization_) {
+         sm_->RecordTimestampVersion(&(entry->localKeys_), &(entry->cmd_->ws_),
+                                     entry->agreedDdlRank_);
+      }
       entry->replyMtx_.unlock();
       executedLogId_++;
    }

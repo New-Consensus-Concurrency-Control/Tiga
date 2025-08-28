@@ -3,6 +3,11 @@
 #include "StateMachine.h"
 #define MAX_KEY_NUM (1000005)
 
+struct VersionInfo {
+   uint64_t txnId_;
+   uint32_t value_;
+};
+
 class MicroStateMachine : public StateMachine {
   private:
    uint32_t kvStore_[MAX_KEY_NUM];
@@ -10,11 +15,22 @@ class MicroStateMachine : public StateMachine {
    // rollback
    VersionInfo speculativeVersion_[MAX_KEY_NUM];
 
+   std::map<uint64_t, uint32_t, std::greater<uint64_t>>
+       multiVersionKVStore_[MAX_KEY_NUM];
+
   public:
    MicroStateMachine(const uint32_t shardId, const uint32_t replicaId,
                      const uint32_t shardNum, const uint32_t replicaNum,
                      const YAML::Node& config);
    std::string RTTI() override;
+
+   void RecordTimestampVersion(const std::vector<int32_t>* localKeys,
+                               std::map<int32_t, Value>* input,
+                               uint64_t tmstmp);
+
+   void ReadCommittedVersionByTimestamp(const std::vector<int32_t>* localKeys,
+                                        std::map<int32_t, Value>* output,
+                                        uint64_t tmstmp);
 
    void Execute(const uint32_t txnType, const std::vector<int32_t>* localKeys,
                 std::map<int32_t, Value>* input,

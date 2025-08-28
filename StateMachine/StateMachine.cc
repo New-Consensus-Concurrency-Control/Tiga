@@ -22,4 +22,21 @@ uint32_t StateMachine::TotalNumberofKeys() { return 1000ul * 1000ul; }
 
 void StateMachine::PreRead(const uint32_t txnType,
                            const std::map<int32_t, Value>* input,
-                           std::map<int32_t, Value>* output) {}
+                           std::map<int32_t, Value>* output) {
+   LOG(WARNING) << "Default function, which indicates the derived class has "
+                   "not implemented this interface";
+}
+
+void StateMachine::RecordTimestampVersion(const std::vector<int32_t>* localKeys,
+                                          std::map<int32_t, Value>* input,
+                                          uint64_t tmstmp) {
+   LOG(WARNING) << "Default function, which indicates the derived class has "
+                   "not implemented this interface";
+}
+
+void StateMachine::ReadCommittedVersionByTimestamp(
+    const std::vector<int32_t>* localKeys, std::map<int32_t, Value>* output,
+    uint64_t tmstmp) {
+   LOG(WARNING) << "Default function, which indicates the derived class has "
+                   "not implemented this interface";
+}

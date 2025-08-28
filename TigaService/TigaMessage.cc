@@ -224,7 +224,7 @@ Marshal& operator>>(Marshal& m, TigaExecAgreeRequest& req) {
 
 Marshal& operator<<(Marshal& m, const TigaInterReplicaSync& req) {
    m << req.gViewId_ << req.viewId_ << req.shardId_ << req.replicaId_
-     << req.commitPoint_ << req.logIdStart_;
+     << req.commitPoint_ << req.logIdStart_ << req.syncedWaterMark_;
    uint32_t sz = req.txnKeys_.size();
    m << sz;
    for (uint32_t i = 0; i < sz; i++) {
@@ -241,7 +241,7 @@ Marshal& operator<<(Marshal& m, const TigaInterReplicaSync& req) {
 
 Marshal& operator>>(Marshal& m, TigaInterReplicaSync& req) {
    m >> req.gViewId_ >> req.viewId_ >> req.shardId_ >> req.replicaId_ >>
-       req.commitPoint_ >> req.logIdStart_;
+       req.commitPoint_ >> req.logIdStart_ >> req.syncedWaterMark_;
    uint32_t sz = 0;
    m >> sz;
    req.txnKeys_.resize(sz, 0);

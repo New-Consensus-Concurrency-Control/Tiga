@@ -22,6 +22,38 @@ void MicroStateMachine::InitializeRelatedShards(
    }
 }
 
+void MicroStateMachine::RecordTimestampVersion(
+    const std::vector<int32_t>* localKeys, std::map<int32_t, Value>* input,
+    uint64_t tmstmp) {
+   for (auto& key : (*localKeys)) {
+      // to keep consistent with Janus codebase
+      uint32_t mappedKeyId =
+          key / shardNum_ + MAX_KEY_NUM / shardNum_ * shardId_;
+      multiVersionKVStore_[mappedKeyId][tmstmp] = kvStore_[mappedKeyId];
+   }
+}
+
+void MicroStateMachine::ReadCommittedVersionByTimestamp(
+    const std::vector<int32_t>* localKeys, std::map<int32_t, Value>* output,
+    uint64_t tmstmp) {
+   for (auto& key : (*localKeys)) {
+      // to keep consistent with Janus codebase
+      uint32_t mappedKeyId =
+          key / shardNum_ + MAX_KEY_NUM / shardNum_ * shardId_;
+      multiVersionKVStore_[mappedKeyId][tmstmp] = kvStore_[mappedKeyId];
+      auto iter = multiVersionKVStore_[mappedKeyId].lower_bound(tmstmp);
+      // it will return the first kv that <= tmstmp
+      if (iter == multiVersionKVStore_[mappedKeyId].end()) {
+         // This KV has never been updated,
+         // Or its updates all happens after the timestamp
+         // so directly read it from kvStore
+         (*output)[key].set_i32(kvStore_[mappedKeyId]);
+      } else {
+         (*output)[key].set_i32(iter->second);
+      }
+   }
+}
+
 void MicroStateMachine::Execute(const uint32_t txnType,
                                 const std::vector<int32_t>* localKeys,
                                 std::map<int32_t, Value>* input,

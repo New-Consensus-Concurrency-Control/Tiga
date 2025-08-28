@@ -101,10 +101,16 @@ class TigaReplica {
    uint32_t replicaNum_;
    uint32_t shardNum_;
    bool isPreventive_;
-   int clockOffsetMean_;  // obsolete
-   int clockOffsetStd_;   // obsolete
-   int clockError_;       // obsolete
-   std::atomic<uint64_t> releaseWaterMark_;
+   bool enableReadOnlyOptimization_;
+
+   // If the txn's timestamp is lower than watermark, the leader will force time
+   // update for it --> Using watermark
+   uint64_t waterMark_;
+   std::map<uint32_t, uint64_t> syncedLogIdToWaterMark_;
+   ConcurrentQueue<TigaLogEntry*> waterMarkMsgQu_;
+   std::map<uint64_t, std::unordered_set<uint64_t>> waterMarkRecord_;
+   uint64_t completedWaterMarkBin_;
+   std::atomic<uint64_t> commitWaterMark_;
 
    mutable std::shared_mutex failedServerRecordMtx_;
    std::unordered_map<uint32_t, std::set<std::pair<uint32_t, uint32_t>>>

@@ -2,10 +2,6 @@
 #pragma once
 #include "Common.h"
 
-struct VersionInfo {
-   uint64_t txnId_;
-   uint32_t value_;
-};
 class StateMachine {
   protected:
    uint32_t shardId_;
@@ -27,6 +23,15 @@ class StateMachine {
 
    virtual std::string RTTI() = 0;
 
+   virtual void RecordTimestampVersion(const std::vector<int32_t>* localKeys,
+                                       std::map<int32_t, Value>* input,
+                                       uint64_t tmstmp);
+   // If the specified timestamp is larger
+   // than the committed timestamp of any key to read,
+   // then this read fails, otherwise, we get the latest committed key-value
+   virtual void ReadCommittedVersionByTimestamp(
+       const std::vector<int32_t>* localKeys, std::map<int32_t, Value>* output,
+       uint64_t tmstmp);
    virtual void Execute(const uint32_t txnType,
                         const std::vector<int32_t>* localKeys,
                         std::map<int32_t, Value>* input,
