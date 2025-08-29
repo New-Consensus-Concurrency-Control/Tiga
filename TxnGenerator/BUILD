@@ -40,3 +40,14 @@ cc_library(
     visibility = ["//visibility:public"],
 )
 
+cc_library(
+    name = "YCSBTxnGenerator",
+    srcs = ["YCSBTxnGenerator.cc"],
+    hdrs = ["YCSBTxnGenerator.h"],
+    deps= [
+        ":TxnGenerator",
+        ":ZipfDist"
+    ],
+    visibility = ["//visibility:public"],
+)
+

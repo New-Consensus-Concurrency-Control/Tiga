@@ -458,8 +458,10 @@ void TigaReplica::ClearContext() {
    }
 
    holdBuffer_.clear();
-   lastReleasedTxnDeadlines_.clear();
-   lastReleasedTxnDeadlines_.resize(sm_->TotalNumberofKeys(), 0);
+   lastReleasedWriteTxnDeadlines_.clear();
+   lastReleasedWriteTxnDeadlines_.resize(sm_->TotalNumberofKeys(), 0);
+   lastReleasedReadTxnDeadlines_.clear();
+   lastReleasedReadTxnDeadlines_.resize(sm_->TotalNumberofKeys(), 0);
    execSequencers_.clear();
    execSequencers_.resize(sm_->TotalNumberofKeys());
    entriesInSpec_.clear();

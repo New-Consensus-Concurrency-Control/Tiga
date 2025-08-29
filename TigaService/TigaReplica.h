@@ -2,6 +2,7 @@
 #include "Common.h"
 #include "StateMachine/MicroStateMachine.h"
 #include "StateMachine/TPCCStateMachine.h"
+#include "StateMachine/YCSBStateMachine.h"
 #include "TigaService/TigaMessage.h"
 #include "TigaService/TigaService.h"
 using namespace TigaRPC;
@@ -192,7 +193,8 @@ class TigaReplica {
    ConcurrentQueue<TigaLogEntry*> followerCommitExecuteQu_;
 
    SequencerBuffer holdBuffer_;
-   std::vector<uint64_t> lastReleasedTxnDeadlines_;
+   std::vector<uint64_t> lastReleasedWriteTxnDeadlines_;
+   std::vector<uint64_t> lastReleasedReadTxnDeadlines_;
    std::vector<SequencerBuffer> execSequencers_;
    std::vector<TigaLogEntry*> entriesInSpec_;
 
@@ -346,6 +348,10 @@ class TigaReplica {
    void onFailSignal(const TigaFailSignal& msg, TigaFailAck* ack,
                      const std::function<void()>& cb);
    void onFailAck(const TigaFailAck& ack);
+
+   // Read-Only Optimizaton
+   void ExecuteReadOnlyTxn(TigaLogEntry* entry);
+   void FastReadReply(TigaLogEntry* entry);
 
    // helpers
    bool AmLeader();

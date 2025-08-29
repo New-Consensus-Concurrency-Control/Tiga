@@ -89,13 +89,17 @@ TigaReplica::TigaReplica(const std::string& serverName,
    } else if (workloadStr == "tpcc") {
       sm_ = new TPCCStateMachine(shardId_, replicaId_, shardNum_, replicaNum_,
                                  config);
+   } else if (workloadStr == "ycsb") {
+      sm_ = new YCSBStateMachine(shardId_, replicaId_, shardNum_, replicaNum_,
+                                 config);
    } else {
       LOG(ERROR) << workloadStr << "--not implemented yet";
       assert(0);
    }
 
    LOG(INFO) << "workload=" << workloadStr;
-   lastReleasedTxnDeadlines_.resize(sm_->TotalNumberofKeys(), 0);
+   lastReleasedWriteTxnDeadlines_.resize(sm_->TotalNumberofKeys(), 0);
+   lastReleasedReadTxnDeadlines_.resize(sm_->TotalNumberofKeys(), 0);
    execSequencers_.resize(sm_->TotalNumberofKeys());
    entriesInSpec_.resize(sm_->TotalNumberofKeys());
 
@@ -317,8 +321,14 @@ void TigaReplica::HoldReleaseTd() {
             // Check whether the txn is eligble to enter holdingBuffer
             uint64_t maxLastReleasedTime = 0;
             for (auto& k : entry->localKeys_) {
-               if (maxLastReleasedTime < lastReleasedTxnDeadlines_[k]) {
-                  maxLastReleasedTime = lastReleasedTxnDeadlines_[k];
+               if (maxLastReleasedTime < lastReleasedWriteTxnDeadlines_[k]) {
+                  maxLastReleasedTime = lastReleasedWriteTxnDeadlines_[k];
+               }
+               if (entry->cmd_->isReadOnly_ == 0) {
+                  // write txn should also compare with the read history
+                  if (maxLastReleasedTime < lastReleasedReadTxnDeadlines_[k]) {
+                     maxLastReleasedTime = lastReleasedReadTxnDeadlines_[k];
+                  }
                }
             }
 
@@ -385,10 +395,18 @@ void TigaReplica::HoldReleaseTd() {
             /** Follower: the second ele is not needed*/
             toExecQuF_.enqueue({entry, 0});
          }
-         for (auto& k : entry->localKeys_) {
-            if (lastReleasedTxnDeadlines_[k] < entry->localDdlRank_)
-               lastReleasedTxnDeadlines_[k] = entry->localDdlRank_;
+         if (entry->cmd_->isReadOnly_ == 0) {
+            for (auto& k : entry->localKeys_) {
+               if (lastReleasedWriteTxnDeadlines_[k] < entry->localDdlRank_)
+                  lastReleasedWriteTxnDeadlines_[k] = entry->localDdlRank_;
+            }
+         } else {
+            for (auto& k : entry->localKeys_) {
+               if (lastReleasedReadTxnDeadlines_[k] < entry->localDdlRank_)
+                  lastReleasedReadTxnDeadlines_[k] = entry->localDdlRank_;
+            }
          }
+
          holdBuffer_.erase(holdBuffer_.begin());
       }
       lastReleaseTime = GetMicrosecondTimestamp();
@@ -603,6 +621,10 @@ void TigaReplica::LeaderExecTd() {
             TigaLogEntry* entry = eles[i].first;
             uint32_t cmd = eles[i].second;
             // LOG(INFO) << "EXEC " << entry->ID() << "\tcmd=" << cmd;
+            if (enableReadOnlyOptimization_ && entry->cmd_->isReadOnly_ > 0) {
+               ExecuteReadOnlyTxn(entry);
+               continue;
+            }
             if (isPreventive_) {
                PreventiveExec(entry, cmd);
             } else {
@@ -790,6 +812,10 @@ void TigaReplica::LeaderReplyTd() {
             TigaLogEntry* entry = entries[i];
             TigaReply* replyPtr = NULL;
             verify(entry != NULL);
+            if (enableReadOnlyOptimization_ && entry->cmd_->isReadOnly_ > 0) {
+               FastReadReply(entry);
+               continue;
+            }
             if (entry->replyStatus_ == REPLY_SPEC) {
                // LOG(INFO) << "Spec " << entry->ID();
                replyPtr = entry->specReply_;
@@ -1101,6 +1127,10 @@ void TigaReplica::FollowerReplyTd() {
       while ((cnt = toReplyQu_.try_dequeue_bulk(entries, UINT8_MAX)) > 0) {
          for (uint32_t i = 0; i < cnt; i++) {
             TigaLogEntry* entry = entries[i];
+            if (enableReadOnlyOptimization_ && entry->cmd_->isReadOnly_ > 0) {
+               FastReadReply(entry);
+               continue;
+            }
             if (entry->execStatus_ == EXEC_ABANDONED) {
                entry->reply_ = new TigaReply();
                TigaReply* replyPtr = entry->reply_;
@@ -1197,11 +1227,54 @@ void TigaReplica::FollowerExecuteCommitTd() {
       uint32_t upTo = syncedLogList_.size();
       upTo = std::min(upTo, commitPoint_.load());
       ExecuteCommittedLogs(upTo);
-
       ThreadSleepFor(checkpointYieldPeriodUs);
    }
 
    activeThreads_.fetch_sub(1);
+}
+
+void TigaReplica::ExecuteReadOnlyTxn(TigaLogEntry* entry) {
+   entry->reply_ = new TigaReply();
+   if (entry->shardKeyMap_.size() == 1) {
+      // single-shard txn is always safe (i.e., preserve serializability) to
+      // read
+      sm_->ReadCommittedVersionByTimestamp(&(entry->localKeys_),
+                                           &(entry->reply_->result_),
+                                           entry->localDdlRank_);
+   } else {
+      if (entry->localDdlRank_ > commitWaterMark_) {
+         // if we read the committed version, and the other piece is also
+         // reading the committed version on the other shard, then it incurs
+         // some risk of being non-serializable
+         entry->reply_->deadline_ = UINT64_MAX;  // to indicate the read fails
+      } else {
+         sm_->ReadCommittedVersionByTimestamp(&(entry->localKeys_),
+                                              &(entry->reply_->result_),
+                                              entry->localDdlRank_);
+      }
+   }
+   toReplyQu_.enqueue(entry);
+}
+
+void TigaReplica::FastReadReply(TigaLogEntry* entry) {
+   TigaReply* replyPtr = entry->reply_;
+   verify(replyPtr != NULL);
+   replyPtr->gViewId_ = gViewId_;
+   replyPtr->viewId_ = viewId_;
+   replyPtr->clientId_ = entry->cmd_->clientId_;
+   replyPtr->reqId_ = entry->cmd_->reqId_;
+   replyPtr->shardId_ = shardId_;
+   replyPtr->replicaId_ = replicaId_;
+   replyPtr->owd_ = entry->owd_;
+   replyPtr->logId_ = 0;
+   replyPtr->specLogId_ = 0;
+   replyPtr->latestSyncedLogId_ = 0;
+   replyPtr->latestSyncedSpecLogId_ = 0;
+   verify(entry->replyHandler_ != NULL);
+   entry->replyMtx_.lock();
+   entry->replyHandler_(*replyPtr);
+   entry->replyHandler_ = NULL;
+   entry->replyMtx_.unlock();
 }
 
 /******** ***** ***** ***** ***** Message Handler ***** ***** ***** *****
@@ -1291,7 +1364,12 @@ void TigaReplica::onNormalRequest(const TigaReq& req, TigaReply* rep,
    // }
    // LOG(INFO) << "owd=" << entry->owd_ << "--nowTime=" << nowTime
    //           << "\t sendTime=" << entry->sendTime_;
-   toHoldAndReleaseQu_.enqueue(entry);
+   if (enableReadOnlyOptimization_ && entry->cmd_->isReadOnly_ > 0) {
+      // readonly txns can be directly executed
+      toExecQuF_.enqueue({entry, 0});
+   } else {
+      toHoldAndReleaseQu_.enqueue(entry);
+   }
 }
 
 void TigaReplica::onDeadlineAgreementRequest(

@@ -21,6 +21,15 @@ cc_library(
     visibility = ["//visibility:public"],
 )
 
+cc_library(
+    name = "YCSBStateMachine",
+    srcs = ["YCSBStateMachine.cc"],
+    hdrs = ["YCSBStateMachine.h"],
+    deps= [
+        ":StateMachine",
+    ],
+    visibility = ["//visibility:public"],
+)
 
 
 cc_library(

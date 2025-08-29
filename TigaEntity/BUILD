@@ -25,6 +25,7 @@ cc_library(
     deps= [
         "//TigaService:TigaCommunicator",
         "//TxnGenerator:MicroTxnGenerator",
+        "//TxnGenerator:YCSBTxnGenerator",
         "//TxnGenerator:TPCCTxnGenerator",
     ],
     visibility = ["//visibility:public"],

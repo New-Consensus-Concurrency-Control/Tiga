@@ -40,7 +40,6 @@ void MicroStateMachine::ReadCommittedVersionByTimestamp(
       // to keep consistent with Janus codebase
       uint32_t mappedKeyId =
           key / shardNum_ + MAX_KEY_NUM / shardNum_ * shardId_;
-      multiVersionKVStore_[mappedKeyId][tmstmp] = kvStore_[mappedKeyId];
       auto iter = multiVersionKVStore_[mappedKeyId].lower_bound(tmstmp);
       // it will return the first kv that <= tmstmp
       if (iter == multiVersionKVStore_[mappedKeyId].end()) {

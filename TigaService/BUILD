@@ -70,6 +70,7 @@ cc_library(
         ":TigaMessage",
         ":TigaService",
         "//StateMachine:MicroStateMachine",
+        "//StateMachine:YCSBStateMachine",
         "//StateMachine:TPCCStateMachine"
     ],
     visibility = ["//visibility:public"],

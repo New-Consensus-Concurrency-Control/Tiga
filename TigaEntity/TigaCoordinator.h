@@ -3,6 +3,7 @@
 #include "TigaService/TigaServiceImpl.h"
 #include "TxnGenerator/MicroTxnGenerator.h"
 #include "TxnGenerator/TPCCTxnGenerator.h"
+#include "TxnGenerator/YCSBTxnGenerator.h"
 
 class TigaCoordinator;
 
@@ -18,7 +19,7 @@ struct TigaFastReplyQuorum {
 struct GlobalInfo {
    std::map<uint32_t, std::map<uint32_t, uint32_t>> testCnt_;
    std::shared_mutex seqMtx_;
-   std::atomic<uint64_t> serverClock_; // logical clock
+   std::atomic<uint64_t> serverClock_;  // logical clock
    uint32_t coordinatorId_;
    uint32_t shardNum_;
    uint32_t replicaNum_;

@@ -1,0 +1,71 @@
+bench:
+  workload: ycsb
+  record-count: 1000
+  read-proportion: 0.95
+  update-proportion: 0.05
+  scan-proportion: 0
+  insert-proportion: 0
+  field-num: 10
+  field-length: 100
+  dist: zipf
+  coefficient: 0.99 # 0 as unifrom, 1 as pure zipf
+
+client: { rate: 500, type: open, forwarding:false }
+# client: { type: closed, rate: -1, forwarding: false }
+n_concurrent: 1
+host:
+  janus-lan-server-0000: 127.0.0.1
+  janus-lan-server-0100: 127.0.0.1
+  janus-lan-server-0200: 127.0.0.1
+  janus-lan-proxy-0000: 127.0.0.1
+mode: { ab: brq, batch: false, cc: brq, ongoing: 1, retry: 20 }
+process:
+  janus-lan-server-0000: janus-lan-server-0000
+  janus-lan-server-0100: janus-lan-server-0100
+  janus-lan-server-0200: janus-lan-server-0200
+  # janus-lan-server-0300: janus-lan-server-0300
+  # janus-lan-server-0400: janus-lan-server-0400
+  # janus-lan-server-0500: janus-lan-server-0500
+  janus-lan-proxy-0000: janus-lan-proxy-0000
+site:
+  client:
+    - - janus-lan-proxy-0000
+  server: # each line is a partition (i.e., a shard), each line has 3 replicas
+    - - janus-lan-server-0000:10000
+      - janus-lan-server-0100:20000
+      - janus-lan-server-0200:30000
+    # - - janus-lan-server-0300:40000
+    #   - janus-lan-server-0400:50000
+    #   - janus-lan-server-0500:60000
+# ~/janus/build/deptran_server -b  -t 30 -f ./config-tpl-n.yml -d 70  -P
+
+## For Calvin
+# server_initial_bound:
+#   - 60000
+#   - 100000
+#   - 100000
+server_initial_bound:
+  - 100
+  - 100
+  - 100
+server_bound_cap:
+  - 400000
+  - 400000
+  - 400000
+designate_replica_id:
+  - 0
+  - 1
+  - 2
+
+clockOffset:
+  mean: 0
+  std: 0
+spec_exec: false
+
+preventive: false
+
+nezha-recorder: 127.0.0.1:41237
+
+owd_delta_us: 10000
+owd_estimate_percentile: 50
+owdDeltaUs: 10000
