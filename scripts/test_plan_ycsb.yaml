@@ -1,0 +1,6 @@
+- test_no: 1
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 10000
+  enable_read_only_optim: false
+

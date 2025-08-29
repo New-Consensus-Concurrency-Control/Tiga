@@ -23,6 +23,7 @@ struct GlobalInfo {
    uint32_t coordinatorId_;
    uint32_t shardNum_;
    uint32_t replicaNum_;
+   bool enableReadOnlyOptimization_;
    TigaCommunicator* comm_;
    std::atomic<uint32_t> nextRequestIdByProxy_;
    std::shared_mutex viewMtx_;
@@ -50,6 +51,7 @@ struct GlobalInfo {
    int32_t owdDeltaUs_;
    uint32_t owdEstimationPercentile_;
    ConcurrentQueue<std::pair<TigaReply, TigaCoordinator*>> replyQu_;
+   ConcurrentQueue<std::pair<TigaReply, TigaCoordinator*>> readReplyQu_;
    std::unordered_set<uint32_t> committedCoordReqIds_;
    std::map<uint32_t, TigaFastReplyQuorum>
        quorumSets_;  // indexed by Coord's ReqIds
@@ -70,6 +72,7 @@ struct GlobalInfo {
                          const uint32_t latestSyncedSpecLogId,
                          const uint32_t signal = 0);
    bool AddToQuorumSet(const TigaReply& rep, TigaCoordinator* coord);
+   bool AddToReadQuorumSet(const TigaReply& rep, TigaCoordinator* coord);
    void InquireServerSyncStatus();
    void OnServerSyncStatusReply(const TigaServerSyncStatusReply& rep);
    int isTxnCommitted(TigaFastReplyQuorum& q);
@@ -78,6 +81,8 @@ struct GlobalInfo {
    void IssueReconcliationRequest(TigaFastReplyQuorum& q,
                                   uint64_t agreedDeadline);
    void UpdateQuorumSet();
+   int isReadTxnCompleted(TigaFastReplyQuorum& q);
+   void UpdateReadQuorumSet();
    void CheckQuorum();
 };
 
@@ -116,6 +121,7 @@ class TigaCoordinator {
    void Dispatch();
    void Launch();
    void Abort();
+   void RetryRead();
    // void TryUnblock();
    ~TigaCoordinator();
 };

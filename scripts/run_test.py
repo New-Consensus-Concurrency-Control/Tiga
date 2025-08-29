@@ -26,44 +26,44 @@ def copy_binaries(vm_ips):
     scp_files(vm_ips, f"{binary_path}/TigaClient", 
         "TigaClient", to_remote = True)
 
-    # Copy Calvin's binaries
-    binary_path = f"{tiga_common.BAZEL_BIN_PATH}/CalvinEntity/"
-    os.system(f"sudo chmod  777  {binary_path}/CalvinServer")
-    os.system(f"sudo chmod  777  {binary_path}/CalvinClient")
-    scp_files(vm_ips, f"{binary_path}/CalvinServer", 
-            "CalvinServer", to_remote = True)
-    scp_files(vm_ips, f"{binary_path}/CalvinClient", 
-            "CalvinClient", to_remote = True)
+    # # Copy Calvin's binaries
+    # binary_path = f"{tiga_common.BAZEL_BIN_PATH}/CalvinEntity/"
+    # os.system(f"sudo chmod  777  {binary_path}/CalvinServer")
+    # os.system(f"sudo chmod  777  {binary_path}/CalvinClient")
+    # scp_files(vm_ips, f"{binary_path}/CalvinServer", 
+    #         "CalvinServer", to_remote = True)
+    # scp_files(vm_ips, f"{binary_path}/CalvinClient", 
+    #         "CalvinClient", to_remote = True)
     
-    # Copy Detock's binaries
-    binary_path = f"{tiga_common.BAZEL_BIN_PATH}/DetockEntity/"
-    os.system(f"sudo chmod  777  {binary_path}/DetockServer")
-    os.system(f"sudo chmod  777  {binary_path}/DetockClient")
-    scp_files(vm_ips, f"{binary_path}/DetockServer", 
-            "DetockServer", to_remote = True)
-    scp_files(vm_ips, f"{binary_path}/DetockClient", 
-            "DetockClient", to_remote = True)    
+    # # Copy Detock's binaries
+    # binary_path = f"{tiga_common.BAZEL_BIN_PATH}/DetockEntity/"
+    # os.system(f"sudo chmod  777  {binary_path}/DetockServer")
+    # os.system(f"sudo chmod  777  {binary_path}/DetockClient")
+    # scp_files(vm_ips, f"{binary_path}/DetockServer", 
+    #         "DetockServer", to_remote = True)
+    # scp_files(vm_ips, f"{binary_path}/DetockClient", 
+    #         "DetockClient", to_remote = True)    
     
-    # Copy Janus' binaries
-    binary_path =  f"{tiga_common.JANUS_BIN_PATH}/"
-    os.system(f"sudo chmod  777  {binary_path}/deptran_server")
-    scp_files(vm_ips, f"{binary_path}/deptran_server", 
-            "deptran_server", to_remote = True)
+    # # Copy Janus' binaries
+    # binary_path =  f"{tiga_common.JANUS_BIN_PATH}/"
+    # os.system(f"sudo chmod  777  {binary_path}/deptran_server")
+    # scp_files(vm_ips, f"{binary_path}/deptran_server", 
+    #         "deptran_server", to_remote = True)
 
-    # Copy NCC' binaries
-    binary_path =  f"{tiga_common.NCC_BIN_PATH}/"
-    os.system(f"sudo chmod  777  {binary_path}/deptran_server")
-    scp_files(vm_ips, f"{binary_path}/deptran_server", 
-            "deptran_server_ncc", to_remote = True)
+    # # Copy NCC' binaries
+    # binary_path =  f"{tiga_common.NCC_BIN_PATH}/"
+    # os.system(f"sudo chmod  777  {binary_path}/deptran_server")
+    # scp_files(vm_ips, f"{binary_path}/deptran_server", 
+    #         "deptran_server_ncc", to_remote = True)
 
-    # Copy Paxos binaries: for NCC-FT
-    binary_path = f"{tiga_common.BAZEL_BIN_PATH}/PaxosEntity/"
-    os.system(f"sudo chmod  777  {binary_path}/PaxosServer")
-    os.system(f"sudo chmod  777  {binary_path}/PaxosClient")
-    scp_files(vm_ips, f"{binary_path}/PaxosServer", 
-            "PaxosServer", to_remote = True)
-    scp_files(vm_ips, f"{binary_path}/PaxosClient", 
-            "PaxosClient", to_remote = True)    
+    # # Copy Paxos binaries: for NCC-FT
+    # binary_path = f"{tiga_common.BAZEL_BIN_PATH}/PaxosEntity/"
+    # os.system(f"sudo chmod  777  {binary_path}/PaxosServer")
+    # os.system(f"sudo chmod  777  {binary_path}/PaxosClient")
+    # scp_files(vm_ips, f"{binary_path}/PaxosServer", 
+    #         "PaxosServer", to_remote = True)
+    # scp_files(vm_ips, f"{binary_path}/PaxosClient", 
+    #         "PaxosClient", to_remote = True)    
     
 
 
@@ -122,9 +122,9 @@ if __name__ == '__main__':
     vm_ips = server_ips + proxy_ips 
     vm_names = server_names + proxy_names
 
-    # copy_binaries(vm_ips)
     run_command(vm_ips, "./clean.sh", in_background=False)
-
+    copy_binaries(vm_ips)
+    
     yaml = ruamel.yaml.YAML()
     test_plan_f = open(test_plan_file, 'r')
     test_plan = yaml.load(test_plan_f)
@@ -142,6 +142,9 @@ if __name__ == '__main__':
         owd_delta_us = get_key_value(case, "owd_delta_us", 10000)
         owd_estimate_percentile = get_key_value(
             case, "owd_estimate_percentile", 50)
+        enable_read_only_optim = get_key_value(
+            case, "enable_read_only_optim", False
+        )
         test_failure_recovery = get_key_value(
             case, "test_failure_recovery", False)
         synced_logid_before_failure = get_key_value(
@@ -166,6 +169,9 @@ if __name__ == '__main__':
             config_template = f"{tiga_common.CONFIG_PATH}/config-local-micro.yml"
             skew=int(skew_factor*100)
             state_machine_info = f"zipfian-{skew}-{key_num}"
+        elif bench_type == "YCSB":
+            config_template = f"{tiga_common.CONFIG_PATH}/config-local-ycsb.yml"
+            state_machine_info = ""
         else:
             print("not implemented benchtype ", bench_type)
             exit(0)
@@ -402,7 +408,7 @@ if __name__ == '__main__':
             elif test_type == 'calvin':
                 designate_shard_id = 0
                 designate_replica_id = 0
-                if bench_type == 'Micro':
+                if bench_type == 'Micro' or bench_type == 'YCSB':
                     designate_shard_id = tiga_common.CALVIN_SEQUENCER_MAP_MICRO[i][0]
                     designate_replica_id = tiga_common.CALVIN_SEQUENCER_MAP_MICRO[i][1]
                 elif bench_type == "TPCC":

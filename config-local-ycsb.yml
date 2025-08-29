@@ -66,6 +66,8 @@ preventive: false
 
 nezha-recorder: 127.0.0.1:41237
 
+enable_read_only_optim: false
+ 
 owd_delta_us: 10000
 owd_estimate_percentile: 50
 owdDeltaUs: 10000
