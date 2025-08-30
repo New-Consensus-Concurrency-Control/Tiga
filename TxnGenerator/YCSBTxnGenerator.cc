@@ -19,6 +19,8 @@ std::string YCSBTxnGenerator::RTTI() { return "YCSBTxnGenerator"; }
 
 void YCSBTxnGenerator::GetTxnReq(ClientRequest* req, uint32_t reqId,
                                  uint32_t cid) {
+   req->cmd_.reqId_ = reqId;
+   req->cmd_.clientId_ = cid;
    // decide this req is rotxn or read-write txn
    std::uniform_real_distribution<> dis(0.0, 1.0);
    // get a token: a random double between 0 and 1

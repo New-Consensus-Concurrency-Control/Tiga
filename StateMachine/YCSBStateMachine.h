@@ -16,6 +16,7 @@ class YCSBStateMachine : public StateMachine {
    std::unordered_map<int32_t, std::string> kvStore_;
    std::unordered_map<int32_t, TimeStampVersionKV> multiVersionKVStore_;
    uint32_t numOfKeys_;
+   uint32_t numOfFields_;
 
   public:
    YCSBStateMachine(const uint32_t shardId, const uint32_t replicaId,

@@ -8,6 +8,7 @@ YCSBStateMachine::YCSBStateMachine(const uint32_t shardId,
                                    const YAML::Node& config)
     : StateMachine(shardId, replicaId, shardNum, replicaNum, config) {
    numOfKeys_ = config["bench"]["record-count"].as<uint32_t>();
+   numOfFields_ = config["bench"]["field-num"].as<uint32_t>();
 }
 
 std::string YCSBStateMachine::RTTI() { return "YCSBStateMachine"; }
@@ -106,18 +107,25 @@ void YCSBStateMachine::CommitExecute(const uint32_t txnType,
                                      std::map<int32_t, Value>* output,
                                      const uint64_t txnId) {
 
-   for (auto& key : *localKeys) {
-      if (speculativeVersion_.find(key) == speculativeVersion_.end() ||
-          speculativeVersion_[key].txnId_ != txnId) {
-         LOG(ERROR) << "existing "
-                    << HIGH_32BIT(speculativeVersion_[key].txnId_) << ":"
-                    << LOW_32BIT(speculativeVersion_[key].txnId_) << "\t"
-                    << "my id=" << HIGH_32BIT(txnId) << ":" << LOW_32BIT(txnId);
+   if (txnType == TXN_TYPE::YCSB_UPDATE_TXN) {
+      for (auto& key : *localKeys) {
+         if (speculativeVersion_.find(key) == speculativeVersion_.end() ||
+             speculativeVersion_[key].txnId_ != txnId) {
+            LOG(ERROR) << "key=" << key << "\t existing "
+                       << HIGH_32BIT(speculativeVersion_[key].txnId_) << ":"
+                       << LOW_32BIT(speculativeVersion_[key].txnId_) << "\t"
+                       << "my id=" << HIGH_32BIT(txnId) << ":"
+                       << LOW_32BIT(txnId);
+         }
+         assert(speculativeVersion_[key].txnId_ == txnId);
+         kvStore_[key] = speculativeVersion_[key].value_;
+         // Delete speculative versions
+         speculativeVersion_.erase(key);
       }
-      assert(speculativeVersion_[key].txnId_ == txnId);
-      kvStore_[key] = speculativeVersion_[key].value_;
-      // Delete speculative versions
-      speculativeVersion_.erase(key);
+   } else if (txnType == TXN_TYPE::YCSB_READ_TXN) {
+      // Nothing to do
+   } else {
+      LOG(ERROR) << "Unsupported txn type " << txnType;
    }
 }
 
@@ -133,6 +141,8 @@ void YCSBStateMachine::RollbackExecute(const uint32_t txnType,
    }
 }
 
-uint32_t YCSBStateMachine::TotalNumberofKeys() { return numOfKeys_; }
+uint32_t YCSBStateMachine::TotalNumberofKeys() {
+   return numOfKeys_ * (numOfFields_ + 1);
+}
 
 YCSBStateMachine::~YCSBStateMachine() {}

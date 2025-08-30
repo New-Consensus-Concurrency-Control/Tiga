@@ -238,6 +238,7 @@ void TigaCoordinator::Abort() {
 void TigaCoordinator::OnFastReply(const uint32_t phase, const TigaReply& rep) {
    std::lock_guard<std::recursive_mutex> guard(mtx_);
    gInfo_->fastReplyNum1_++;
+
    if (false && rep.reqId_ <= 100000 && rep.reqId_ >= 50000) {
       // LOG(INFO) << "rep=(" << rep.clientId_ << ":" << rep.reqId_ << ")"
       //           << "ID=" << rep.shardId_ << ":" << rep.replicaId_
@@ -568,10 +569,9 @@ void GlobalInfo::UpdateQuorumSet() {
             coord->Finish(q);
             quorumSets_.erase(rep.reqId_);
          } else {
-            // LOG(INFO) << "uncommitted-1" << coordReqId << "\t" <<
-            // rep.clientId_
-            //           << ":" << rep.reqId_;
             if (nonSerializable) {
+               LOG(INFO) << "uncommitted-1" << coordReqId << "\t"
+                         << rep.clientId_ << ":" << rep.reqId_;
                q.coord_->detectNonSerial_ = true;
                IssueReconcliationRequest(q, agreedDeadline);
             }

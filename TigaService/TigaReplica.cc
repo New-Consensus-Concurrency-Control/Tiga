@@ -62,7 +62,7 @@ TigaReplica::TigaReplica(const std::string& serverName,
 
    enableReadOnlyOptimization_ = false;
    if (config["enable_read_only_optim"].IsDefined()) {
-      enableReadOnlyOptimization_ = true;
+      enableReadOnlyOptimization_ = config["enable_read_only_optim"].as<bool>();
    }
 
    // To highlight the problem of logical timestamps, make every servers'
@@ -295,14 +295,16 @@ void TigaReplica::HoldReleaseTd() {
    waterMark_ = 0;
    while (status_ == SERVER_STATUS::STATUS_NORMAL) {
       uint64_t nowTime = GetMicrosecondTimestamp();
-      uint64_t currentWaterMark =
-          (nowTime - 50000) / 100000 * 100000;  // chunk to 100ms
-      if (waterMark_ == 0) {
-         waterMark_ = currentWaterMark;
-      } else {
-         if (waterMark_ < currentWaterMark) {
-            // insert a delimiter
-            waterMarkMsgQu_.enqueue(NULL);
+      if (enableReadOnlyOptimization_) {
+         uint64_t currentWaterMark =
+             (nowTime - 50000) / 100000 * 100000;  // chunk to 100ms
+         if (waterMark_ == 0) {
+            waterMark_ = currentWaterMark;
+         } else {
+            if (waterMark_ < currentWaterMark) {
+               // insert a delimiter
+               waterMarkMsgQu_.enqueue(NULL);
+            }
          }
       }
 
@@ -385,9 +387,11 @@ void TigaReplica::HoldReleaseTd() {
                   entry->agreeStatus_ = AGREE_COMPLETE;
                } else  // Only multi-shard txns need timestamp agreement
                   toDdlSyncQu_.enqueue(entry);
-               // This waterMarkMsgQu passes msg to LeaderCrossReplicaSyncTd
-               // so that that td can identify the safe watermark
-               waterMarkMsgQu_.enqueue(entry);
+               if (enableReadOnlyOptimization_) {
+                  // This waterMarkMsgQu passes msg to LeaderCrossReplicaSyncTd
+                  // so that that td can identify the safe watermark
+                  waterMarkMsgQu_.enqueue(entry);
+               }
                toExecCheckQu_.enqueue(entry);
             }
 
@@ -914,6 +918,7 @@ void TigaReplica::LeaderCrossReplicaSyncTd() {
    TigaLogEntry* entries[UINT8_MAX];
    uint32_t cnt = 0;
    uint64_t syncedWaterMark = 0;
+   LOG(INFO) << "enableReadOnlyOptimization=" << enableReadOnlyOptimization_;
    while (status_ == SERVER_STATUS::STATUS_NORMAL) {
       uint64_t startTime = GetMicrosecondTimestamp();
       if (enableReadOnlyOptimization_) {
@@ -987,7 +992,18 @@ void TigaReplica::LeaderCrossReplicaSyncTd() {
                   waterMarkRecord_.erase(waterMarkRecord_.begin());
                }
             }
+            syncedLogIdToWaterMark_[syncedLogList_.size()] = syncedWaterMark;
+            while (!syncedLogIdToWaterMark_.empty()) {
+               if (commitPoint_ >= syncedLogIdToWaterMark_.begin()->first) {
+                  commitWaterMark_ = syncedLogIdToWaterMark_.begin()->second;
+                  syncedLogIdToWaterMark_.erase(
+                      syncedLogIdToWaterMark_.begin());
+               } else {
+                  break;
+               }
+            }
          }
+
          sync.syncedWaterMark_ = syncedWaterMark;
       }
 
@@ -1023,6 +1039,10 @@ void TigaReplica::FollowerExecTd() {
             TigaLogEntry* entry = eles[i].first;
             // LOG(INFO) << "Follower Append " << entry->ID();
             uint64_t txnKey = entry->cmd_->TxnKey();
+            if (enableReadOnlyOptimization_ && entry->cmd_->isReadOnly_ > 0) {
+               ExecuteReadOnlyTxn(entry);
+               continue;
+            }
             entry->myHash_.CalculateHash(entry->localDdlRank_, txnKey);
             entry->reply_ = new TigaReply();
 
