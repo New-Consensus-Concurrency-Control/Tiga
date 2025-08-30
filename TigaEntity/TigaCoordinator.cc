@@ -338,8 +338,15 @@ void TigaCoordinator::Finish2() {
    crep.reqId_ = requestIdByClient_;
    crep.result_.clear();
    phase_++;
-   // LOG(INFO) << "reqId=" << requestIdByClient_
-   //           << " duration=" << GetMicrosecondTimestamp() - sendTime_;
+   if (crep.reqId_ < 100) {
+      LOG(INFO) << "reqId=" << requestIdByClient_
+                << " duration=" << GetMicrosecondTimestamp() - sendTime_;
+      for (auto& kv : crep.result_) {
+         LOG(INFO) << "key=" << kv.first << "--value=" << kv.second;
+      }
+      LOG(INFO) << "----------";
+   }
+
    callback_(crep);
 }
 
@@ -361,6 +368,16 @@ void TigaCoordinator::Finish(TigaFastReplyQuorum& q) {
          assert(0);
       }
    }
+
+   if (crep.reqId_ < 100) {
+      LOG(INFO) << "reqId=" << requestIdByClient_
+                << " duration=" << GetMicrosecondTimestamp() - sendTime_;
+      for (auto& kv : crep.result_) {
+         LOG(INFO) << "key=" << kv.first << "--value=" << kv.second;
+      }
+      LOG(INFO) << "----------";
+   }
+
    phase_++;
    // LOG(INFO) << "reqId=" << requestIdByClient_
    //           << " duration=" << GetMicrosecondTimestamp() - sendTime_;
@@ -570,8 +587,8 @@ void GlobalInfo::UpdateQuorumSet() {
             quorumSets_.erase(rep.reqId_);
          } else {
             if (nonSerializable) {
-               LOG(INFO) << "uncommitted-1" << coordReqId << "\t"
-                         << rep.clientId_ << ":" << rep.reqId_;
+               // LOG(INFO) << "uncommitted-1" << coordReqId << "\t"
+               //           << rep.clientId_ << ":" << rep.reqId_;
                q.coord_->detectNonSerial_ = true;
                IssueReconcliationRequest(q, agreedDeadline);
             }

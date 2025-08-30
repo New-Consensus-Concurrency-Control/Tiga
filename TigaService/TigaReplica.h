@@ -108,7 +108,11 @@ class TigaReplica {
    // update for it --> Using watermark
    uint64_t waterMark_;
    std::map<uint32_t, uint64_t> syncedLogIdToWaterMark_;
-   ConcurrentQueue<TigaLogEntry*> waterMarkMsgQu_;
+   struct WaterMarkInfo {
+      uint64_t myWaterMark_;
+      TigaLogEntry* entry_;
+   };
+   ConcurrentQueue<WaterMarkInfo> waterMarkMsgQu_;
    std::map<uint64_t, std::unordered_set<uint64_t>> waterMarkRecord_;
    uint64_t completedWaterMarkBin_;
    std::atomic<uint64_t> commitWaterMark_;

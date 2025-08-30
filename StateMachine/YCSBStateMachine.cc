@@ -9,6 +9,20 @@ YCSBStateMachine::YCSBStateMachine(const uint32_t shardId,
     : StateMachine(shardId, replicaId, shardNum, replicaNum, config) {
    numOfKeys_ = config["bench"]["record-count"].as<uint32_t>();
    numOfFields_ = config["bench"]["field-num"].as<uint32_t>();
+   fieldLength_ = config["bench"]["field-length"].as<uint32_t>();
+
+   // Fill some fake value initially
+   for (uint32_t i = 0; i < numOfKeys_; i++) {
+      for (uint32_t j = 0; j < numOfFields_; j++) {
+         int k = i * numOfFields_ + j;
+         if (k % shardNum == shardId) {
+            char ch = random() % 26 + 'A';
+            std::string str(fieldLength_, ch);
+            kvStore_[k] = str;
+            multiVersionKVStore_[k][0] = str;
+         }
+      }
+   }
 }
 
 std::string YCSBStateMachine::RTTI() { return "YCSBStateMachine"; }

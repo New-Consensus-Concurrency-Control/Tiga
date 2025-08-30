@@ -207,6 +207,7 @@ if __name__ == '__main__':
             i % num_replicas for i in range(num_shards) ]
         yaml_data["test_failure_recovery"] = test_failure_recovery
         yaml_data["synced_logid_before_failure"] = synced_logid_before_failure
+        yaml_data["enable_read_only_optim"] = enable_read_only_optim
         yaml_data["clock_approach"] = clock_approach
 
         client_partitions = []
@@ -326,8 +327,8 @@ if __name__ == '__main__':
                         f" --serverName={server_name} "
                         f" --ioThreads=2 --workerNum=1 > {log_file} 2>&1 &")
                     print_info(f"{server_name_dict[server_name]}\t{server_cmd}")
-                    run_command([server_name_dict[server_name]], 
-                        server_cmd, in_background=False)
+                    # run_command([server_name_dict[server_name]], 
+                    #     server_cmd, in_background=False)
         elif test_type == "detock":
             for sid in range(num_shards):
                 for rid in range(num_replicas):
@@ -439,9 +440,9 @@ if __name__ == '__main__':
                     f" -P {process_name} > {log_file} 2>&1 &")
 
             print_info(proxy_ips[i]+"\t"+ proxy_cmd)
-            run_command([proxy_ips[i]], proxy_cmd, in_background = True)
+            # run_command([proxy_ips[i]], proxy_cmd, in_background = True)
     
-
+        exit(0)
         time.sleep(run_time_sec + grace_period_sec)
 
         os.system(f"sudo rm -rf {tiga_common.STATS_PATH}/{case_name}")
