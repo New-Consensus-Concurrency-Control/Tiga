@@ -23,6 +23,7 @@ struct GlobalInfo {
    uint32_t coordinatorId_;
    uint32_t shardNum_;
    uint32_t replicaNum_;
+   int32_t closestReplicaId_;
    bool enableReadOnlyOptimization_;
    TigaCommunicator* comm_;
    std::atomic<uint32_t> nextRequestIdByProxy_;
@@ -31,6 +32,7 @@ struct GlobalInfo {
    uint32_t currentViews_[MAX_SHARD_NUM][MAX_REPLICA_NUM];
    uint32_t currentSyncedLogIds_[MAX_SHARD_NUM][MAX_REPLICA_NUM];
    uint32_t currentSyncedSpecLogIds_[MAX_SHARD_NUM][MAX_REPLICA_NUM];
+   uint64_t committedWaterMarks_[MAX_SHARD_NUM][MAX_REPLICA_NUM];
    std::atomic<uint32_t> serverSignal_;
    uint32_t serverStatus_[MAX_SHARD_NUM][MAX_REPLICA_NUM];
    ConcurrentQueue<uint32_t> owdQus_[MAX_SHARD_NUM][MAX_REPLICA_NUM];
@@ -61,7 +63,8 @@ struct GlobalInfo {
    GlobalInfo(const uint32_t coordinatorId, const uint32_t shardNum,
               const uint32_t replicaNum, const uint32_t cap = 0,
               const uint32_t initBound = 0, const uint32_t yieldPeriodUs = 0,
-              TigaCommunicator* comm = NULL);
+              TigaCommunicator* comm = NULL,
+              const int32_t closestReplicaId = -1);
    ~GlobalInfo();
    void RunDaemon();
    void RunIniquiry();

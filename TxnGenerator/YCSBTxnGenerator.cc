@@ -35,6 +35,7 @@ void YCSBTxnGenerator::GetTxnReq(ClientRequest* req, uint32_t reqId,
          req->cmd_.ws_[k].set_i32(0);
          req->targetShards_.insert(k % shardNum_);
       }
+      req->cmd_.isReadOnly_ = 1;
    } else {  // this is an update txn
       req->cmd_.txnType_ = TXN_TYPE::YCSB_UPDATE_TXN;
       for (uint32_t fno = 0; fno < fieldNum_; fno++) {
@@ -46,5 +47,7 @@ void YCSBTxnGenerator::GetTxnReq(ClientRequest* req, uint32_t reqId,
          req->cmd_.ws_[k].set_str(fieldValue);
          req->targetShards_.insert(k % shardNum_);
       }
+      req->cmd_.isReadOnly_ = 0;
+      // LOG(INFO) << "UPdate txn " << req->cmd_.reqId_;
    }
 }

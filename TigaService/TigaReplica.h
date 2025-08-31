@@ -116,6 +116,7 @@ class TigaReplica {
    std::map<uint64_t, std::unordered_set<uint64_t>> waterMarkRecord_;
    uint64_t completedWaterMarkBin_;
    std::atomic<uint64_t> commitWaterMark_;
+   uint64_t syncedWaterMark_;
 
    mutable std::shared_mutex failedServerRecordMtx_;
    std::unordered_map<uint32_t, std::set<std::pair<uint32_t, uint32_t>>>
@@ -183,6 +184,8 @@ class TigaReplica {
    std::map<uint32_t, TigaLogEntry*> pendingEntries_;
    uint32_t lastBroadcastSyncedLogId_;
    uint32_t lastBroadcastCommittedLogId_;
+   uint64_t lastBroadcastTime_;
+   const uint64_t broadcastMaxInterval_ = 1000ul * 10ul;
 
    /*only follower needs it*/
    mutable std::shared_mutex hashMtx_;

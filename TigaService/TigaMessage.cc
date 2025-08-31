@@ -77,6 +77,7 @@ Marshal& operator<<(Marshal& m, const TigaReply& rep) {
    m << rep.latestSyncedLogId_;
    m << rep.latestSyncedSpecLogId_;
    m << rep.deadline_;
+   m << rep.committedWaterMark_;
    m << rep.hasHash_;
    // printf("rep.hasHash=%d\n", rep.hasHash_);
    if (rep.hasHash_ == 1) {
@@ -106,6 +107,7 @@ Marshal& operator>>(Marshal& m, TigaReply& rep) {
    m >> rep.latestSyncedLogId_;
    m >> rep.latestSyncedSpecLogId_;
    m >> rep.deadline_;
+   m >> rep.committedWaterMark_;
    m >> rep.hasHash_;
    // printf("hasHash_=%d >>\n", rep.hasHash_);
    //  printf("rep.hasHash=%d\n", rep.hasHash_);

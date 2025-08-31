@@ -382,10 +382,10 @@ if __name__ == '__main__':
         for i in range(num_proxies):
             process_name = proxy_names[i]
             log_file = "proxy-log-"+str(i)
+            region_idx = tiga_common.get_region_idx(i)
             if tiga_common.is_remote_proxy(i):
                 init_bound = tiga_common.TIGA_INIT_BOUND_ESTIMATION_REMOTE
             else:
-                region_idx = tiga_common.get_region_idx(i)
                 init_bound = tiga_common.TIGA_INIT_BOUND_ESTIMATION_LOCAL[region_idx]
             if test_type == 'tiga':
                 proxy_cmd = (f"GLOG_logtostderr=1 ./TigaClient " 
@@ -397,6 +397,7 @@ if __name__ == '__main__':
                     f" --initBound={init_bound} "
                     f" --yieldPeriodUs={yield_period_us} "
                     f" --logPrintUnit={tiga_common.LOG_UNIT} "
+                    f" --closestReplicaId={region_idx} "
                     f" > {log_file} 2>&1 &")
             elif test_type == 'detock':
                 proxy_cmd = (f"GLOG_logtostderr=1 ./DetockClient "

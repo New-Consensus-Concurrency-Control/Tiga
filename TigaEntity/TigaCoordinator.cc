@@ -130,14 +130,49 @@ void TigaCoordinator::Launch() {
    //           << "keyStr=" << keyStr << "\t"
    //           << "ddl=" << (reqInProcess_.bound_ + reqInProcess_.sendTime_);
 
+   uint64_t safeCommitWaterMark = UINT64_MAX;
+   // Only pick one replica in case of read-only optimization
+   uint32_t targetReplicaId = reqInProcess_.cmd_.reqId_ % replicaNum_;
+   if (gInfo_->closestReplicaId_ >= 0) {
+      targetReplicaId = gInfo_->closestReplicaId_;
+   }
+
+   for (auto& sid : targetShards_) {
+      if (false && reqInProcess_.cmd_.reqId_ >= 40000 &&
+          reqInProcess_.cmd_.reqId_ <= 50000) {
+         LOG(INFO) << "sid=" << sid << "--replicaId=" << targetReplicaId
+                   << "-- wmk="
+                   << gInfo_->committedWaterMarks_[sid][targetReplicaId];
+      }
+      safeCommitWaterMark =
+          std::min(safeCommitWaterMark,
+                   gInfo_->committedWaterMarks_[sid][targetReplicaId]);
+   }
+
    for (auto& sid : targetShards_) {
       if (gInfo_->enableReadOnlyOptimization_ &&
           reqInProcess_.cmd_.isReadOnly_) {
-         // Only pick one replica
-         uint32_t rid = reqInProcess_.cmd_.reqId_ % replicaNum_;
+
          // choose a smaller timestamp (-500ms)
-         reqInProcess_.bound_ = -500000;
-         if (gInfo_->serverStatus_[sid][rid] == STATUS_FAILING) {
+         if (safeCommitWaterMark == 0) {
+            reqInProcess_.bound_ = -500000;
+         } else {
+            if (reqInProcess_.sendTime_ > safeCommitWaterMark) {
+               int32_t diff = reqInProcess_.sendTime_ - safeCommitWaterMark;
+               reqInProcess_.bound_ = 0 - diff;
+            } else {
+               reqInProcess_.bound_ = 0;
+            }
+         }
+         if (reqInProcess_.cmd_.reqId_ >= 40000 &&
+             reqInProcess_.cmd_.reqId_ <= 50000) {
+            LOG(INFO) << "reqId=" << reqInProcess_.cmd_.reqId_ << "\t"
+                      << "safeCommitWaterMark=" << safeCommitWaterMark << "\t"
+                      << "sendTime=" << reqInProcess_.sendTime_ << "\t"
+                      << "bound=" << reqInProcess_.bound_;
+         }
+
+         if (gInfo_->serverStatus_[sid][targetReplicaId] == STATUS_FAILING) {
             continue;
          }
          rrr::FutureAttr fuattr;
@@ -148,9 +183,8 @@ void TigaCoordinator::Launch() {
                 this->OnFastReply(currentPhase, rep);
              };
          fuattr.callback = cb;
-         Future::safe_release(
-             gInfo_->comm_->ProxyAt(sid, rid)->async_NormalRequest(
-                 reqInProcess_, fuattr));
+         Future::safe_release(gInfo_->comm_->ProxyAt(sid, targetReplicaId)
+                                  ->async_NormalRequest(reqInProcess_, fuattr));
 
       } else {
          for (uint32_t rid = 0; rid < replicaNum_; rid++) {
@@ -278,6 +312,15 @@ void TigaCoordinator::OnFastReply(const uint32_t phase, const TigaReply& rep) {
       gInfo_->owdQus_[rep.shardId_][rep.replicaId_].enqueue(rep.owd_);
    }
 
+   if (gInfo_->enableReadOnlyOptimization_) {
+      if (gInfo_->committedWaterMarks_[rep.shardId_][rep.replicaId_] <
+          rep.committedWaterMark_) {
+         gInfo_->committedWaterMarks_[rep.shardId_][rep.replicaId_] =
+             rep.committedWaterMark_;
+      }
+      // LOG(INFO) << "wmk " << rep.shardId_ << ":" << rep.replicaId_ << "--"
+      //           << rep.committedWaterMark_;
+   }
    // if (rep.shardId_ == 0 && rep.replicaId_ == 1) {
    //    LOG(INFO) << "owd=" << rep.owd_;
    // }
@@ -293,14 +336,14 @@ void TigaCoordinator::OnFastReply(const uint32_t phase, const TigaReply& rep) {
    //           << rep.hash_.ToString() << "---shardId=" << rep.shardId_
    //           << "--replicaId=" << rep.replicaId_;
 
-   if (rep.deadline_ == UINT64_MAX) {
-      // dummy replies
-      return;
-   }
    if (gInfo_->enableReadOnlyOptimization_ &&
        reqInProcess_.cmd_.isReadOnly_ > 0) {
       gInfo_->readReplyQu_.enqueue({rep, this});
    } else {
+      if (rep.deadline_ == UINT64_MAX) {
+         // dummy replies
+         return;
+      }
       // Speculative Check
       gInfo_->replyQu_.enqueue({rep, this});
    }
@@ -369,7 +412,7 @@ void TigaCoordinator::Finish(TigaFastReplyQuorum& q) {
       }
    }
 
-   if (crep.reqId_ < 100) {
+   if (false && crep.reqId_ < 100) {
       LOG(INFO) << "reqId=" << requestIdByClient_
                 << " duration=" << GetMicrosecondTimestamp() - sendTime_;
       for (auto& kv : crep.result_) {
@@ -404,14 +447,15 @@ TigaCoordinator::~TigaCoordinator() {}
 GlobalInfo::GlobalInfo(const uint32_t coordinatorId, const uint32_t shardNum,
                        const uint32_t replicaNum, const uint32_t cap,
                        const uint32_t initBound, const uint32_t yieldPeriodUs,
-                       TigaCommunicator* comm)
+                       TigaCommunicator* comm, const int32_t closestReplicaId)
     : coordinatorId_(coordinatorId),
       shardNum_(shardNum),
       replicaNum_(replicaNum),
       cap_(cap),
       initBound_(initBound),
       yieldPeriodUs_(yieldPeriodUs),
-      comm_(comm) {
+      comm_(comm),
+      closestReplicaId_(closestReplicaId) {
    markTime_ = 0;
    fastReplyNum2_ = 0;
    debug_ = false;
@@ -444,6 +488,7 @@ GlobalInfo::GlobalInfo(const uint32_t coordinatorId, const uint32_t shardNum,
       enableReadOnlyOptimization_ = false;
    }
    LOG(INFO) << "EnableReadOnly Optimization=" << enableReadOnlyOptimization_;
+   LOG(INFO) << "closestReplicaId_=" << closestReplicaId_;
 
    for (uint32_t sid = 0; sid < MAX_SHARD_NUM; sid++) {
       for (uint32_t rid = 0; rid < MAX_REPLICA_NUM; rid++) {
@@ -456,6 +501,8 @@ GlobalInfo::GlobalInfo(const uint32_t coordinatorId, const uint32_t shardNum,
          currentSyncedLogIds_[sid][rid] = 0;
          serverStatus_[sid][rid] = STATUS_NORMAL;
          replyNumPerNode_[sid][rid] = 0;
+
+         committedWaterMarks_[sid][rid] = 0;
       }
    }
 
@@ -609,6 +656,23 @@ void GlobalInfo::UpdateReadQuorumSet() {
              committedCoordReqIds_.end()) {
             continue;
          }
+         /****
+         if (rep.deadline_ == UINT64_MAX) {
+            LOG(INFO) << " Failed Read " << rep.clientId_ << ":" << rep.reqId_
+                      << "--shardId=" << rep.shardId_
+                      << "--replicaId=" << rep.replicaId_;
+         } else {
+            LOG(INFO) << "ReadOK=" << rep.clientId_ << ":" << rep.reqId_ << "--"
+                      << rep.shardId_ << "|" << rep.replicaId_;
+            LOG(INFO) << "QuorumSize=" << quorumSets_.size();
+            if (quorumSets_.size() >= 15000) {
+               for (auto& kv : quorumSets_) {
+                  LOG(INFO) << "uncommitted " << kv.first;
+               }
+               exit(0);
+            }
+         }
+         ***/
          AddToQuorumSet(rep, coord);
          // Quorum Check
          TigaFastReplyQuorum& q = quorumSets_[rep.reqId_];
@@ -617,8 +681,11 @@ void GlobalInfo::UpdateReadQuorumSet() {
             committedCoordReqIds_.insert(coordReqId);
             coord->Finish(q);
             quorumSets_.erase(rep.reqId_);
+            // LOG(INFO) << "Read Committed " << coordReqId << "--Erase "
+            //           << rep.reqId_;
          } else if (ret == -3) {
             // read failure. retry
+            LOG(INFO) << "Retry Read " << rep.reqId_;
             quorumSets_.erase(rep.reqId_);
             coord->RetryRead();
          }
@@ -689,7 +756,7 @@ void GlobalInfo::IssueReconcliationRequest(TigaFastReplyQuorum& q,
 void GlobalInfo::CheckQuorum() {
    std::vector<uint32_t> coordReqIdCommitted;
    // LOG(INFO) << "quorumSet =" << quorumSets_.size();
-   if (GetMicrosecondTimestamp() - markTime_ >= 1000 * 1000) {
+   if (false && GetMicrosecondTimestamp() - markTime_ >= 1000 * 1000) {
       LOG(INFO) << "quorumSet =" << quorumSets_.size();
       if (quorumSets_.size() > 0) {
          LOG(INFO) << "--minReqId=" << quorumSets_.begin()->first;
@@ -796,6 +863,10 @@ int GlobalInfo::isReadTxnCompleted(TigaFastReplyQuorum& q) {
    TigaCoordinator* coord = q.coord_;
    for (auto& sId : coord->targetShards_) {
       uint32_t replicaId = coord->reqInProcess_.cmd_.reqId_ % replicaNum_;
+      if (closestReplicaId_ >= 0) {
+         replicaId = closestReplicaId_;
+      }
+
       const auto& iter = q.fastReplies_[sId].find(replicaId);
       if (iter == q.fastReplies_[sId].end()) {
          // reply not completed
@@ -911,8 +982,6 @@ int GlobalInfo::isTxnCommitted(TigaFastReplyQuorum& q) {
 
    return 0;
 }
-
-int GlobalInfo::isTxnCommittedDebug(TigaFastReplyQuorum& q) { return 0; }
 
 void GlobalInfo::InquireServerSyncStatus() {
    // LOG(INFO) << "InquireServerSyncStatus--token=" << slowTriggers_;

@@ -38,6 +38,7 @@ struct TigaReply {
    uint32_t latestSyncedLogId_;
    uint32_t latestSyncedSpecLogId_;
    uint64_t deadline_;
+   uint64_t committedWaterMark_;
    uint8_t hasHash_;
    TigaHash hash_;
    std::map<int32_t, Value> result_;
