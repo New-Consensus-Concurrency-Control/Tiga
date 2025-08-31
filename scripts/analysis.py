@@ -13,24 +13,54 @@ print_info = tiga_common.print_info
 print_good = tiga_common.print_good 
 get_key_value = tiga_common.get_key_value
 
+# def throughput_apply_func(group):
+#     if len(group):
+#         return pd.Series({
+#             'AvgThroughput':len(group),
+#         })
+# def ThroughputAnalysis(merge_df):
+#     merge_df.loc[:, "time"] = merge_df['CommitTime'].apply(
+#                 lambda us_ts: datetime.datetime.fromtimestamp(us_ts * 1e-6))
+#     bin_interval_s = 1
+#     grouped = merge_df.groupby(
+#         pd.Grouper(key='time', freq='{}s'.format(bin_interval_s)))
+#     grouped_apply_orders = grouped.apply(throughput_apply_func, include_groups=False)
+#     grouped_apply_orders = grouped_apply_orders.dropna()
+#     # grouped_apply_orders = grouped_apply_orders[5:-5]
+#     # print(list(grouped_apply_orders['AvgThroughput']))
+#     duration = len(grouped_apply_orders)
+#     throughput = (grouped_apply_orders['AvgThroughput']/bin_interval_s).mean()
+#     return throughput, duration
+
+
+
 def throughput_apply_func(group):
     if len(group):
         return pd.Series({
+            'SendTime':  list(group['SendTime'])[0],
             'AvgThroughput':len(group),
+            'MeanLatency': round(group["ProxyLatency"].mean(),2)
         })
+
+
+
 def ThroughputAnalysis(merge_df):
     merge_df.loc[:, "time"] = merge_df['CommitTime'].apply(
                 lambda us_ts: datetime.datetime.fromtimestamp(us_ts * 1e-6))
-    bin_interval_s = 1
+    bin_interval_ms = 1000
     grouped = merge_df.groupby(
-        pd.Grouper(key='time', freq='{}s'.format(bin_interval_s)))
+        pd.Grouper(key='time', freq='{}ms'.format(bin_interval_ms)))
     grouped_apply_orders = grouped.apply(throughput_apply_func, include_groups=False)
     grouped_apply_orders = grouped_apply_orders.dropna()
-    # grouped_apply_orders = grouped_apply_orders[5:-5]
-    # print(list(grouped_apply_orders['AvgThroughput']))
+    grouped_apply_orders = grouped_apply_orders.reset_index()
+    grouped_apply_orders = grouped_apply_orders[5:-5]
+    grouped_apply_orders['AvgThroughput'] =    grouped_apply_orders['AvgThroughput']*1000/bin_interval_ms
+    # print("AvgThroughput2: ", list(grouped_apply_orders['AvgThroughput']))
+
     duration = len(grouped_apply_orders)
-    throughput = (grouped_apply_orders['AvgThroughput']/bin_interval_s).mean()
+    throughput = (grouped_apply_orders['AvgThroughput']).mean()
     return throughput, duration
+
 
 if __name__ == '__main__':
     parser = tiga_common.argparse.ArgumentParser(description='Process some integers.')
@@ -107,6 +137,9 @@ if __name__ == '__main__':
             config_template = f"{tiga_common.CONFIG_PATH}/config-local-micro.yml"
             skew=int(skew_factor*100)
             state_machine_info = f"zipfian-{skew}-{key_num}"
+        elif bench_type == "YCSB":
+            config_template = f"{tiga_common.CONFIG_PATH}/config-local-ycsb.yml"
+            state_machine_info = f""
         else:
             print("not implemented benchtype ", bench_type)
             exit(0)

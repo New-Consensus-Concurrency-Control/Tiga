@@ -1,6 +1,787 @@
+
+####################################
+- test_no: 1
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 1000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 1
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 1000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+- test_no: 1
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 2000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 1
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 2000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+- test_no: 1
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 5000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 1
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 5000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+
 - test_no: 1
   bench_type: "YCSB"
   test_type: "tiga"
   rate: 10000
-  enable_read_only_optim: false
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
 
+- test_no: 1
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 10000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+- test_no: 1
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 20000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 1
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 20000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+
+- test_no: 1
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 30000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 1
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 30000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+
+- test_no: 1
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 40000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 1
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 40000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+- test_no: 1
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 50000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 1
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 50000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+############################
+####################################
+- test_no: 2
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 1000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 2
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 1000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+- test_no: 2
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 2000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 2
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 2000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+- test_no: 2
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 5000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 2
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 5000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+
+- test_no: 2
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 10000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 2
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 10000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+- test_no: 2
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 20000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 2
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 20000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+
+- test_no: 2
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 30000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 2
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 30000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+
+- test_no: 2
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 40000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 2
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 40000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+- test_no: 2
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 50000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 2
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 50000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+############################
+
+
+####################################
+- test_no: 3
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 1000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 3
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 1000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+- test_no: 3
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 2000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 3
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 2000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+- test_no: 3
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 5000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 3
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 5000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+
+- test_no: 3
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 10000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 3
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 10000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+- test_no: 3
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 20000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 3
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 20000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+
+- test_no: 3
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 30000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 3
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 30000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+
+- test_no: 3
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 40000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 3
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 40000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+- test_no: 3
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 50000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 3
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 50000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+############################
+
+
+####################################
+- test_no: 4
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 1000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 4
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 1000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+- test_no: 4
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 2000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 4
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 2000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+- test_no: 4
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 5000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 4
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 5000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+
+- test_no: 4
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 10000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 4
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 10000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+- test_no: 4
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 20000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 4
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 20000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+
+- test_no: 4
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 30000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 4
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 30000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+
+- test_no: 4
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 40000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 4
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 40000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+- test_no: 4
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 50000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 4
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 50000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+############################
+
+
+####################################
+- test_no: 5
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 1000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 5
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 1000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+- test_no: 5
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 2000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 5
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 2000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+- test_no: 5
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 5000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 5
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 5000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+
+- test_no: 5
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 10000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 5
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 10000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+- test_no: 5
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 20000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 5
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 20000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+
+- test_no: 5
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 30000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 5
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 30000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+
+- test_no: 5
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 40000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 5
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 40000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+
+- test_no: 5
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 50000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: True
+  prefix: "read-optim-"
+
+- test_no: 5
+  bench_type: "YCSB"
+  test_type: "tiga"
+  rate: 50000
+  preventive: False 
+  leader_rotation: True
+  enable_read_only_optim: False
+  prefix: "read-ordinary-"
+
+############################

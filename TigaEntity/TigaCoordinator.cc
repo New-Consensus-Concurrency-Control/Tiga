@@ -131,19 +131,21 @@ void TigaCoordinator::Launch() {
    //           << "ddl=" << (reqInProcess_.bound_ + reqInProcess_.sendTime_);
 
    uint64_t safeCommitWaterMark = UINT64_MAX;
-   // Only pick one replica in case of read-only optimization
-   uint32_t targetReplicaId = reqInProcess_.cmd_.reqId_ % replicaNum_;
-   if (gInfo_->closestReplicaId_ >= 0) {
-      targetReplicaId = gInfo_->closestReplicaId_;
-   }
 
    for (auto& sid : targetShards_) {
-      if (false && reqInProcess_.cmd_.reqId_ >= 40000 &&
-          reqInProcess_.cmd_.reqId_ <= 50000) {
+      // Only pick one replica in case of read-only optimization
+      uint32_t targetReplicaId = reqInProcess_.cmd_.reqId_ % replicaNum_;
+      if (gInfo_->cloestRegionId_ >= 0) {
+         targetReplicaId =
+             gInfo_->regionServerIndex_[sid][gInfo_->cloestRegionId_];
+      }
+
+      if (false && reqInProcess_.cmd_.reqId_ % 10000 == 1) {
          LOG(INFO) << "sid=" << sid << "--replicaId=" << targetReplicaId
                    << "-- wmk="
                    << gInfo_->committedWaterMarks_[sid][targetReplicaId];
       }
+
       safeCommitWaterMark =
           std::min(safeCommitWaterMark,
                    gInfo_->committedWaterMarks_[sid][targetReplicaId]);
@@ -152,6 +154,13 @@ void TigaCoordinator::Launch() {
    for (auto& sid : targetShards_) {
       if (gInfo_->enableReadOnlyOptimization_ &&
           reqInProcess_.cmd_.isReadOnly_) {
+
+         // Only pick one replica in case of read-only optimization
+         uint32_t targetReplicaId = reqInProcess_.cmd_.reqId_ % replicaNum_;
+         if (gInfo_->cloestRegionId_ >= 0) {
+            targetReplicaId =
+                gInfo_->regionServerIndex_[sid][gInfo_->cloestRegionId_];
+         }
 
          // choose a smaller timestamp (-500ms)
          if (safeCommitWaterMark == 0) {
@@ -164,8 +173,7 @@ void TigaCoordinator::Launch() {
                reqInProcess_.bound_ = 0;
             }
          }
-         if (reqInProcess_.cmd_.reqId_ >= 40000 &&
-             reqInProcess_.cmd_.reqId_ <= 50000) {
+         if (reqInProcess_.cmd_.reqId_ % 10000 == 1) {
             LOG(INFO) << "reqId=" << reqInProcess_.cmd_.reqId_ << "\t"
                       << "safeCommitWaterMark=" << safeCommitWaterMark << "\t"
                       << "sendTime=" << reqInProcess_.sendTime_ << "\t"
@@ -447,7 +455,7 @@ TigaCoordinator::~TigaCoordinator() {}
 GlobalInfo::GlobalInfo(const uint32_t coordinatorId, const uint32_t shardNum,
                        const uint32_t replicaNum, const uint32_t cap,
                        const uint32_t initBound, const uint32_t yieldPeriodUs,
-                       TigaCommunicator* comm, const int32_t closestReplicaId)
+                       TigaCommunicator* comm, const int32_t closestRegionId)
     : coordinatorId_(coordinatorId),
       shardNum_(shardNum),
       replicaNum_(replicaNum),
@@ -455,7 +463,8 @@ GlobalInfo::GlobalInfo(const uint32_t coordinatorId, const uint32_t shardNum,
       initBound_(initBound),
       yieldPeriodUs_(yieldPeriodUs),
       comm_(comm),
-      closestReplicaId_(closestReplicaId) {
+      cloestRegionId_(closestRegionId) {
+
    markTime_ = 0;
    fastReplyNum2_ = 0;
    debug_ = false;
@@ -488,7 +497,7 @@ GlobalInfo::GlobalInfo(const uint32_t coordinatorId, const uint32_t shardNum,
       enableReadOnlyOptimization_ = false;
    }
    LOG(INFO) << "EnableReadOnly Optimization=" << enableReadOnlyOptimization_;
-   LOG(INFO) << "closestReplicaId_=" << closestReplicaId_;
+   LOG(INFO) << "cloestRegionId_=" << cloestRegionId_;
 
    for (uint32_t sid = 0; sid < MAX_SHARD_NUM; sid++) {
       for (uint32_t rid = 0; rid < MAX_REPLICA_NUM; rid++) {
@@ -499,10 +508,19 @@ GlobalInfo::GlobalInfo(const uint32_t coordinatorId, const uint32_t shardNum,
          currentViews_[sid][rid] = 0;
          currentGlobalViews_[sid][rid] = 0;
          currentSyncedLogIds_[sid][rid] = 0;
+
          serverStatus_[sid][rid] = STATUS_NORMAL;
          replyNumPerNode_[sid][rid] = 0;
-
          committedWaterMarks_[sid][rid] = 0;
+      }
+   }
+
+   if (config["site"]["region_server_index"].IsDefined()) {
+      for (uint32_t sid = 0; sid < shardNum_; sid++) {
+         for (uint32_t rid = 0; rid < replicaNum_; rid++) {
+            regionServerIndex_[sid][rid] =
+                config["site"]["region_server_index"][sid][rid].as<uint32_t>();
+         }
       }
    }
 
@@ -863,8 +881,8 @@ int GlobalInfo::isReadTxnCompleted(TigaFastReplyQuorum& q) {
    TigaCoordinator* coord = q.coord_;
    for (auto& sId : coord->targetShards_) {
       uint32_t replicaId = coord->reqInProcess_.cmd_.reqId_ % replicaNum_;
-      if (closestReplicaId_ >= 0) {
-         replicaId = closestReplicaId_;
+      if (cloestRegionId_ >= 0) {
+         replicaId = regionServerIndex_[sId][cloestRegionId_];
       }
 
       const auto& iter = q.fastReplies_[sId].find(replicaId);

@@ -371,7 +371,7 @@ void TigaReplica::HoldReleaseTd() {
 
       // nowTime as the watermark
       while ((!holdBuffer_.empty()) &&
-             (nowTime > /**owdDeltaUs_ +**/ holdBuffer_.begin()->first.first ||
+             (nowTime > owdDeltaUs_ + holdBuffer_.begin()->first.first ||
               useLogicalClock_ ||
               useSkeen_ /** hold-and-release no longer valid: direct release**/
               )) {

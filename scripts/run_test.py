@@ -228,20 +228,33 @@ if __name__ == '__main__':
         yaml_data["process"] = process_dict
 
         servers_list = []
+        region_info_list = []
         port_offset = 0
+
         for sid in range(num_shards):
             one_shard_group = []
+            server_region_indices = []
+            # the index of per-shard servers that belong to one region
+            region_group = [None for rid in range(num_replicas) ] 
             for rid in range(num_replicas):
                 server_name = (tiga_common.TAG
                     +"-server-s-"+str(sid).zfill(2)
                     +"-r-"+str(rid).zfill(2))
                 one_shard_group.append(server_name+":"+str(10000+port_offset))
+                server_region_indices.append(rid)
                 port_offset+= 100
             if leader_rotation:
                 # separate leaders to different regions
                 one_shard_group = one_shard_group[sid:] + one_shard_group[0:sid]
+                server_region_indices = server_region_indices[sid:] + server_region_indices[0:sid]
+                # print(f"sid={sid}  {server_region_indices}")
+            for loc in range(len(server_region_indices)):
+                region_group[server_region_indices[loc]] = loc
+            # print(f"RegionInfo sid={sid}  {region_group}")
             servers_list.append(one_shard_group)
+            region_info_list.append(region_group)
         yaml_data["site"]["server"] = servers_list 
+        yaml_data["site"]["region_server_index"] = region_info_list
         single_replica_list = []
         if test_type == 'ncc' or test_type == 'ncc-ft':
             yaml_data["site"]["replica"] = servers_list
@@ -327,8 +340,9 @@ if __name__ == '__main__':
                         f" --serverName={server_name} "
                         f" --ioThreads=2 --workerNum=1 > {log_file} 2>&1 &")
                     print_info(f"{server_name_dict[server_name]}\t{server_cmd}")
-                    # run_command([server_name_dict[server_name]], 
-                    #     server_cmd, in_background=False)
+                    # TO TEST
+                    run_command([server_name_dict[server_name]], 
+                        server_cmd, in_background=False)
         elif test_type == "detock":
             for sid in range(num_shards):
                 for rid in range(num_replicas):
@@ -397,7 +411,7 @@ if __name__ == '__main__':
                     f" --initBound={init_bound} "
                     f" --yieldPeriodUs={yield_period_us} "
                     f" --logPrintUnit={tiga_common.LOG_UNIT} "
-                    f" --closestReplicaId={region_idx} "
+                    f" --closestRegion={region_idx} "
                     f" > {log_file} 2>&1 &")
             elif test_type == 'detock':
                 proxy_cmd = (f"GLOG_logtostderr=1 ./DetockClient "
@@ -441,9 +455,10 @@ if __name__ == '__main__':
                     f" -P {process_name} > {log_file} 2>&1 &")
 
             print_info(proxy_ips[i]+"\t"+ proxy_cmd)
-            # run_command([proxy_ips[i]], proxy_cmd, in_background = True)
+            # TO TEST
+            run_command([proxy_ips[i]], proxy_cmd, in_background = True)
     
-        exit(0)
+        # exit(0)
         time.sleep(run_time_sec + grace_period_sec)
 
         os.system(f"sudo rm -rf {tiga_common.STATS_PATH}/{case_name}")

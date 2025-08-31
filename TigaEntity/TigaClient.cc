@@ -11,7 +11,7 @@ DEFINE_int32(cap, 400000, "The cap for Tiga to chunk its bound estimation");
 DEFINE_int32(mcap, 15000, "The cap for outstanding txns");
 DEFINE_int32(logPrintUnit, 10000, "Print a log for every x completed txns");
 DEFINE_int32(maxReqNum, -1, "The number of max requests to send");
-DEFINE_int32(closestReplicaId, -1, "The closest replicaId");
+DEFINE_int32(closestRegion, -1, "The closest region");
 
 std::atomic<uint32_t> keyCnter_ = 1;
 TxnGenerator* txnGen;
@@ -299,7 +299,7 @@ int main(int argc, char* argv[]) {
    LOG(INFO) << "CoordinatorId=" << myIdx + 1;
    info_ = new GlobalInfo(myIdx + 1 /**coordinatorId*/, shardNum, replicaNum,
                           FLAGS_cap, FLAGS_initBound, FLAGS_yieldPeriodUs,
-                          comm_, FLAGS_closestReplicaId);
+                          comm_, FLAGS_closestRegion);
 
    std::vector<std::thread*> workerTd;
    workerTd.reserve(clientNum);

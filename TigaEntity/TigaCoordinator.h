@@ -21,13 +21,15 @@ struct GlobalInfo {
    std::shared_mutex seqMtx_;
    std::atomic<uint64_t> serverClock_;  // logical clock
    uint32_t coordinatorId_;
+   YAML::Node config_;
    uint32_t shardNum_;
    uint32_t replicaNum_;
-   int32_t closestReplicaId_;
+   int32_t cloestRegionId_;
    bool enableReadOnlyOptimization_;
    TigaCommunicator* comm_;
    std::atomic<uint32_t> nextRequestIdByProxy_;
    std::shared_mutex viewMtx_;
+   uint32_t regionServerIndex_[MAX_SHARD_NUM][MAX_REPLICA_NUM];
    uint32_t currentGlobalViews_[MAX_SHARD_NUM][MAX_REPLICA_NUM];
    uint32_t currentViews_[MAX_SHARD_NUM][MAX_REPLICA_NUM];
    uint32_t currentSyncedLogIds_[MAX_SHARD_NUM][MAX_REPLICA_NUM];
