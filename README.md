@@ -1,5 +1,6 @@
-# Tiga: Lightweight and Latency-Optimal Geo-Distributed Transactions with Loosely Synchronized Clocks [Artifact Evaluation]
+# Tiga: Accelerating Geo-Distributed Transactions with Synchronized Clocks [Artifact Evaluation]
 
+We are happy to have our paper accepted by [SOSP'25](https://sigops.org/s/conferences/sosp/2025/), and a preview of the paper is available [here](https://arxiv.org/abs/2509.05759)
 
 
 ## Getting started
