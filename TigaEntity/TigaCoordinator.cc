@@ -640,6 +640,7 @@ bool GlobalInfo::AddToQuorumSet(const TigaReply& rep, TigaCoordinator* coord) {
          for (uint32_t sid = 0; sid < shardNum_; sid++) {
             q.fastReplies_[sid].clear();
          }
+         q.globalViewId_ = rep.gViewId_; // Refresh the global view
          q.viewIds_[rep.shardId_] = rep.viewId_;
          q.fastReplies_[rep.shardId_][rep.replicaId_] = rep;
          q.coord_ = coord;
