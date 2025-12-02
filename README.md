@@ -1,5 +1,6 @@
-# Tiga: Lightweight and Latency-Optimal Geo-Distributed Transactions with Loosely Synchronized Clocks [Artifact Evaluation]
+# Tiga: Accelerating Geo-Distributed Transactions with Synchronized Clocks [Artifact Evaluation]
 
+We are happy to have our paper accepted by [SOSP'25](https://sigops.org/s/conferences/sosp/2025/), and a preview of the paper is available [here](https://arxiv.org/abs/2509.05759)
 
 
 ## Getting started
@@ -431,7 +432,7 @@ We should be able to see Chrony and Huygens can both achieve lower latency than 
 
 
 ## License
-This project will be open-sourced soon (after we release our camera-ready version), and the tentative licence will be MIT license.
+This project follows MIT license.
 
 ## Acknowledgement
 We sincerely appreciate the support from [Google Research Credit Program](https://edu.google.com/intl/ALL_us/programs/credits/research).
