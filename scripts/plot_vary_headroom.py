@@ -174,9 +174,11 @@ if __name__ == '__main__':
              delimiter = "\t")
         for stats_csv_file in stats_csv_files
     ]
+
     summary_dfs = []
     isolated_dfs = []
-    for df in dfs:
+    for index, df in enumerate(dfs):
+        file_name = stats_csv_files[index]
         df = df.drop('BenchType', axis=1)
         # df = df.drop('Prefix', axis=1)
         df = df.drop('TestType', axis=1)
@@ -192,6 +194,11 @@ if __name__ == '__main__':
             ['OWDDelta'],  
             as_index = False).median().round(2)
         isolated_dfs.append(isolated_df)
+        isolated_df.to_csv(
+            f"{tiga_common.SUMMARY_STATS_PATH}/aggregated-isolated-{file_name}")
+        # summary_df.to_csv(
+        #     f"{tiga_common.SUMMARY_STATS_PATH}/aggregated-{file_name}")
+        
 
     os.system(f"sudo mkdir -m777 -p {tiga_common.FIGS_PATH}")
     for region_idx in range(len(summary_dfs)):
